@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/justclimber/fda/common/api/generated/hello"
+	pb "github.com/justclimber/fda/common/api/generated/api"
 )
 
 type HelloService struct {

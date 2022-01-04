@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 
-	pb "github.com/justclimber/fda/common/api/generated/hello"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	pb "github.com/justclimber/fda/common/api/generated/api"
 )
 
 func main() {

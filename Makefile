@@ -6,4 +6,4 @@ proto:
 		--go_opt=module=github.com/justclimber/fda/common \
         --go-grpc_opt=module=github.com/justclimber/fda/common \
 	  	--go-grpc_opt=require_unimplemented_servers=false \
-        common/api/proto/server.proto
+        common/api/proto/api.proto

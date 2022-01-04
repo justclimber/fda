@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package Api;
+
+option go_package = "github.com/justclimber/fda/common/api";
+
+service Hello {
+  rpc SayHello(Name) returns (Result) {}
+}
+
+service Auth {
+  rpc Register(RegisterIn) returns (RegisterOut) {}
+  rpc Login(LoginIn) returns (LoginOut) {}
+}
+
+message RegisterIn {
+  string name = 1;
+}
+
+message RegisterOut {
+  uint64 ID = 1;
+  uint32 errCode = 2;
+}
+
+message LoginIn {
+  uint64 ID = 1;
+}
+
+message LoginOut {
+  User user = 1;
+  uint32 errCode = 2;
+}
+
+message User {
+  uint64 ID = 1;
+  string name = 2;
+}
+
+message Name {
+  string name = 1;
+}
+
+message Result {
+  bool success = 1;
+}

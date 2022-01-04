@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/justclimber/fda/lang/fdalang"
+	"github.com/justclimber/fda/common/lang/fdalang"
 )
 
 func main() {

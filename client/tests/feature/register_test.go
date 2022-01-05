@@ -71,6 +71,19 @@ func TestRegisterDuplicate_GetLogicError(t *testing.T) {
 	assert.Equal(t, api.RegisterUserAlreadyExists, res.ErrCode)
 }
 
+func TestRegisterWithEmptyName_GetLogicError(t *testing.T) {
+	s := server.NewServer()
+	go s.Start()
+	defer s.Stop()
+
+	cl, err := client.NewClient(net.GrpcDialer{})
+	assert.NoError(t, err)
+
+	res, err := cl.Register("")
+	assert.NoError(t, err)
+	assert.Equal(t, api.RegisterUserNameEmpty, res.ErrCode)
+}
+
 func TestLogin_ErrorNotFound(t *testing.T) {
 	s := server.NewServer()
 	go s.Start()

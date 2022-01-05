@@ -2,5 +2,6 @@ package api
 
 const (
 	RegisterUserAlreadyExists uint32 = 1
-	LoginUserNotFound         uint32 = 2
+	RegisterUserNameEmpty     uint32 = 2
+	LoginUserNotFound         uint32 = 3
 )

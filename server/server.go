@@ -33,6 +33,11 @@ type Server struct {
 }
 
 func (s *Server) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut, error) {
+	if in.Name == "" {
+		return &pb.RegisterOut{
+			ErrCode: api.RegisterUserNameEmpty,
+		}, nil
+	}
 	if _, found := s.userIdsByName[in.Name]; found {
 		return &pb.RegisterOut{
 			ErrCode: api.RegisterUserAlreadyExists,

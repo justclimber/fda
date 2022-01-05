@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/justclimber/fda/common/api"
 	pb "github.com/justclimber/fda/common/api/generated/api"
 )
 
@@ -17,22 +18,31 @@ type User struct {
 
 func NewServer() *Server {
 	return &Server{
-		users:      make(map[uint64]User),
-		lastUserId: 0,
+		users:         make(map[uint64]User),
+		userIdsByName: make(map[string]uint64),
+		lastUserId:    0,
 	}
 }
 
 type Server struct {
-	users      map[uint64]User
-	lastUserId uint64
+	users         map[uint64]User
+	userIdsByName map[string]uint64
+	lastUserId    uint64
 
 	grpcServer *grpc.Server
 }
 
 func (s *Server) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut, error) {
+	if _, found := s.userIdsByName[in.Name]; found {
+		return &pb.RegisterOut{
+			ErrCode: api.RegisterUserAlreadyExists,
+		}, nil
+	}
+
 	s.lastUserId++
 	id := s.lastUserId
 	s.users[id] = User{id: id, name: in.Name}
+	s.userIdsByName[in.Name] = id
 
 	return &pb.RegisterOut{
 		ID:      id,
@@ -43,9 +53,7 @@ func (s *Server) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut
 func (s *Server) Login(_ context.Context, in *pb.LoginIn) (*pb.LoginOut, error) {
 	user, found := s.users[in.ID]
 	if !found {
-		return &pb.LoginOut{
-			ErrCode: 1,
-		}, nil
+		return &pb.LoginOut{ErrCode: api.LoginUserNotFound}, nil
 	}
 
 	return &pb.LoginOut{
@@ -65,5 +73,13 @@ func (s *Server) Start() {
 	var opts []grpc.ServerOption
 	s.grpcServer = grpc.NewServer(opts...)
 	pb.RegisterAuthServer(s.grpcServer, s)
-	log.Fatal(s.grpcServer.Serve(lis))
+
+	err = s.grpcServer.Serve(lis)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (s *Server) Stop() {
+	s.grpcServer.GracefulStop()
 }

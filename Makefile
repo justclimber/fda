@@ -1,5 +1,4 @@
 proto:
-	mkdir common/api/generated
 	rm -rf common/api/generated/*.*
 	protoc \
 		--go_out=common/api/generated \

@@ -8,11 +8,14 @@ import (
 
 	"github.com/justclimber/fda/client"
 	"github.com/justclimber/fda/common/api/grpc"
+	"github.com/justclimber/fda/common/hasher/bcrypt"
 	"github.com/justclimber/fda/server"
 )
 
+var bcryptHasher = bcrypt.Bcrypt{}
+
 func TestAuth_Success(t *testing.T) {
-	s := server.NewServer()
+	s := server.NewServer(bcryptHasher)
 	go s.Start()
 	defer s.Stop()
 
@@ -21,11 +24,11 @@ func TestAuth_Success(t *testing.T) {
 
 	cl, err := client.NewAuthClient(conn)
 	require.NoError(t, err)
-	res, err := cl.Register("Alex")
+	res, err := cl.Register("Alex", "")
 	require.NoError(t, err)
 	require.Equal(t, uint32(0), res.ErrCode)
 
-	lres, err := cl.Login(res.ID)
+	lres, err := cl.Login(res.ID, "")
 	require.NoError(t, err)
 	require.Equal(t, uint32(0), lres.ErrCode)
 
@@ -36,7 +39,7 @@ func TestAuth_Success(t *testing.T) {
 }
 
 func TestAuth_ErrorUnauthorized(t *testing.T) {
-	s := server.NewServer()
+	s := server.NewServer(bcryptHasher)
 	go s.Start()
 	//defer s.Stop()
 

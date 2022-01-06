@@ -13,6 +13,7 @@ service Auth {
 
 message RegisterIn {
   string name = 1;
+  string password = 2;
 }
 
 message RegisterOut {
@@ -22,9 +23,11 @@ message RegisterOut {
 
 message LoginIn {
   uint64 ID = 1;
+  string password = 2;
 }
 
 message LoginOut {
   User user = 1;
-  uint32 errCode = 2;
+  string token = 2;
+  uint32 errCode = 3;
 }

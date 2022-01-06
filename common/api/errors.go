@@ -1,7 +1,11 @@
 package api
 
 const (
-	RegisterUserAlreadyExists uint32 = 1
-	RegisterUserNameEmpty     uint32 = 2
-	LoginUserNotFound         uint32 = 3
+	RegisterUserAlreadyExists uint32 = iota + 1
+	RegisterUserNameEmpty
+	RegisterPasswordEmpty
+	LoginUserNotFound
+	LoginWrongPassword
+
+	InternalError uint32 = 1000
 )

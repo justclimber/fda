@@ -18,26 +18,26 @@ import (
 
 	"github.com/justclimber/fda/common/api"
 	pb "github.com/justclimber/fda/common/api/generated/api"
+	"github.com/justclimber/fda/common/hasher"
+	"github.com/justclimber/fda/common/hasher/bcrypt"
+	"github.com/justclimber/fda/server/user"
 )
 
-type User struct {
-	id   uint64
-	name string
-}
-
-func NewServer() *Server {
+func NewServer(hasher hasher.Hasher) *Server {
 	return &Server{
-		users:         make(map[uint64]User),
+		users:         make(map[uint64]*user.User),
 		userIdsByName: make(map[string]uint64),
 		lastUserId:    0,
+		hasher:        hasher,
 	}
 }
 
 type Server struct {
-	users         map[uint64]User
+	users         map[uint64]*user.User
 	userIdsByName map[string]uint64
 	lastUserId    uint64
 
+	hasher     hasher.Hasher
 	grpcServer *grpc.Server
 }
 
@@ -50,19 +50,23 @@ var port = flag.Int("port", 50051, "the port to serve on")
 
 func (s *Server) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut, error) {
 	if in.Name == "" {
-		return &pb.RegisterOut{
-			ErrCode: api.RegisterUserNameEmpty,
-		}, nil
+		return &pb.RegisterOut{ErrCode: api.RegisterUserNameEmpty}, nil
 	}
 	if _, found := s.userIdsByName[in.Name]; found {
-		return &pb.RegisterOut{
-			ErrCode: api.RegisterUserAlreadyExists,
-		}, nil
+		return &pb.RegisterOut{ErrCode: api.RegisterUserAlreadyExists}, nil
 	}
 
 	s.lastUserId++
 	id := s.lastUserId
-	s.users[id] = User{id: id, name: in.Name}
+	newUser, err := user.NewUser(id, in.Name, in.Password, s.hasher)
+
+	if err == user.EmptyPasswordProvided {
+		return &pb.RegisterOut{ErrCode: api.RegisterPasswordEmpty}, nil
+	} else if err != nil {
+		return &pb.RegisterOut{ErrCode: api.InternalError}, err
+	}
+
+	s.users[id] = newUser
 	s.userIdsByName[in.Name] = id
 
 	return &pb.RegisterOut{
@@ -72,15 +76,24 @@ func (s *Server) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut
 }
 
 func (s *Server) Login(_ context.Context, in *pb.LoginIn) (*pb.LoginOut, error) {
-	user, found := s.users[in.ID]
+	u, found := s.users[in.ID]
 	if !found {
 		return &pb.LoginOut{ErrCode: api.LoginUserNotFound}, nil
 	}
 
+	check, err := u.CheckPassword(in.Password, bcrypt.Bcrypt{})
+	if err != nil {
+		return &pb.LoginOut{ErrCode: api.InternalError}, err
+	}
+
+	if !check {
+		return &pb.LoginOut{ErrCode: api.LoginWrongPassword}, nil
+	}
+
 	return &pb.LoginOut{
 		User: &pb.User{
-			ID:   user.id,
-			Name: user.name,
+			ID:   u.Id,
+			Name: u.Name,
 		},
 		ErrCode: 0,
 	}, nil

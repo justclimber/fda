@@ -2,11 +2,14 @@ package client
 
 import (
 	"context"
+	"flag"
 
 	"google.golang.org/grpc"
 
 	"github.com/justclimber/fda/common/api/generated/api"
 )
+
+var addr = flag.String("addr", "localhost:50051", "the address to connect to")
 
 type Dialer interface {
 	Dial(target string) (*grpc.ClientConn, error)
@@ -17,7 +20,8 @@ type Client struct {
 }
 
 func NewClient(dialer Dialer) (*Client, error) {
-	conn, err := dialer.Dial("localhost:50051")
+	flag.Parse()
+	conn, err := dialer.Dial(*addr)
 	if err != nil {
 		return nil, err
 	}

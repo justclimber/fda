@@ -1,13 +1,14 @@
-package feature
+package integration
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/client"
 	"github.com/justclimber/fda/common/api"
-	"github.com/justclimber/fda/common/api/net"
+	"github.com/justclimber/fda/common/api/grpc"
 	"github.com/justclimber/fda/server"
 )
 
@@ -29,9 +30,12 @@ func TestRegisterAndLogin_GetUserName(t *testing.T) {
 	go s.Start()
 	defer s.Stop()
 
+	conn, err := grpc.GetGrpcConnection()
+	require.NoError(t, err)
+
 	for _, tc := range cases {
 		t.Run(tc.caseName, func(t *testing.T) {
-			cl, err := client.NewClient(net.GrpcDialer{})
+			cl, err := client.NewAuthClient(conn)
 			assert.NoError(t, err)
 			id := register(t, cl, tc.userName)
 			login(t, cl, id, tc.userName)
@@ -39,7 +43,7 @@ func TestRegisterAndLogin_GetUserName(t *testing.T) {
 	}
 }
 
-func register(t *testing.T, cl *client.Client, name string) uint64 {
+func register(t *testing.T, cl *client.AuthClient, name string) uint64 {
 	t.Helper()
 	res, err := cl.Register(name)
 	assert.NoError(t, err)
@@ -47,7 +51,7 @@ func register(t *testing.T, cl *client.Client, name string) uint64 {
 	return res.ID
 }
 
-func login(t *testing.T, cl *client.Client, id uint64, expectedName string) {
+func login(t *testing.T, cl *client.AuthClient, id uint64, expectedName string) {
 	t.Helper()
 	res, err := cl.Login(id)
 	assert.NoError(t, err)
@@ -60,8 +64,11 @@ func TestRegisterDuplicate_GetLogicError(t *testing.T) {
 	go s.Start()
 	defer s.Stop()
 
-	cl, err := client.NewClient(net.GrpcDialer{})
-	assert.NoError(t, err)
+	conn, err := grpc.GetGrpcConnection()
+	require.NoError(t, err)
+
+	cl, err := client.NewAuthClient(conn)
+	require.NoError(t, err)
 
 	const name = "Alex"
 	register(t, cl, name)
@@ -76,7 +83,9 @@ func TestRegisterWithEmptyName_GetLogicError(t *testing.T) {
 	go s.Start()
 	defer s.Stop()
 
-	cl, err := client.NewClient(net.GrpcDialer{})
+	conn, err := grpc.GetGrpcConnection()
+	require.NoError(t, err)
+	cl, err := client.NewAuthClient(conn)
 	assert.NoError(t, err)
 
 	res, err := cl.Register("")
@@ -89,7 +98,9 @@ func TestLogin_ErrorNotFound(t *testing.T) {
 	go s.Start()
 	defer s.Stop()
 
-	cl, err := client.NewClient(net.GrpcDialer{})
+	conn, err := grpc.GetGrpcConnection()
+	require.NoError(t, err)
+	cl, err := client.NewAuthClient(conn)
 	assert.NoError(t, err)
 
 	const notExistedUserId = 987987987

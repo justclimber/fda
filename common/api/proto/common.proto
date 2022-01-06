@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package Api;
+
+option go_package = "github.com/justclimber/fda/common/api";
+
+service Hello {
+  rpc SayHello(Name) returns (Result) {}
+}
+
+message User {
+  uint64 ID = 1;
+  string name = 2;
+}
+
+message Name {
+  string name = 1;
+}
+
+message Result {
+  bool success = 1;
+}

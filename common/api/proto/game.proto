@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "common/api/proto/common.proto";
+
+package Api;
+
+option go_package = "github.com/justclimber/fda/common/api";
+
+service Game {
+  rpc SomeMethodUnderAuth(google.protobuf.Empty) returns (Result) {}
+}

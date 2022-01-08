@@ -24,11 +24,12 @@ func TestAuth_Success(t *testing.T) {
 
 	cl, err := client.NewAuthClient(conn)
 	require.NoError(t, err)
-	res, err := cl.Register("Alex", "")
+	password := "123"
+	res, err := cl.Register("Alex", password)
 	require.NoError(t, err)
 	require.Equal(t, uint32(0), res.ErrCode)
 
-	lres, err := cl.Login(res.ID, "")
+	lres, err := cl.Login(res.ID, password)
 	require.NoError(t, err)
 	require.Equal(t, uint32(0), lres.ErrCode)
 

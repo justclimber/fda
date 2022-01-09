@@ -1,7 +1,10 @@
 package client
 
 import (
+	"context"
+
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/justclimber/fda/common/api/generated/api"
 )
@@ -15,7 +18,5 @@ func NewGameClient(c grpc.ClientConnInterface) (*GameClient, error) {
 }
 
 func (c *GameClient) SomeMethodUnderAuth() (*api.Result, error) {
-	return &api.Result{
-		Success: true,
-	}, nil
+	return c.grpcClient.SomeMethodUnderAuth(context.Background(), &emptypb.Empty{})
 }

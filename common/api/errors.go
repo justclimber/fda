@@ -1,5 +1,9 @@
 package api
 
+import (
+	"errors"
+)
+
 const (
 	RegisterUserAlreadyExists uint32 = iota + 1
 	RegisterUserNameEmpty
@@ -9,3 +13,5 @@ const (
 
 	InternalError uint32 = 1000
 )
+
+var UnauthorizedError = errors.New("unauthorized access denied")

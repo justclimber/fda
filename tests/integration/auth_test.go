@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/client"
+	"github.com/justclimber/fda/common/api"
 	"github.com/justclimber/fda/common/api/grpc"
 	"github.com/justclimber/fda/common/hasher/bcrypt"
 	"github.com/justclimber/fda/server"
@@ -49,5 +50,6 @@ func TestAuth_ErrorUnauthorized(t *testing.T) {
 
 	cl, err := client.NewGameClient(conn)
 	_, err = cl.SomeMethodUnderAuth()
-	assert.Error(t, err)
+
+	assert.ErrorIs(t, err, api.UnauthorizedError)
 }

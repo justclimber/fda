@@ -16,6 +16,7 @@ func (a *AuthClientServerSuit) TestAuth_Success() {
 	require.NoError(a.T(), err)
 	require.Equal(a.T(), uint32(0), lres.ErrCode)
 
+	a.authInterceptor.SetToken(lres.Token)
 	gcl, err := client.NewGameClient(a.conn)
 	gres, err := gcl.SomeMethodUnderAuth()
 	require.NoError(a.T(), err)
@@ -26,5 +27,5 @@ func (a *AuthClientServerSuit) TestAuth_ErrorUnauthorized() {
 	cl, err := client.NewGameClient(a.conn)
 	_, err = cl.SomeMethodUnderAuth()
 
-	assert.ErrorIs(a.T(), err, api.UnauthorizedError)
+	assert.ErrorIs(a.T(), err, api.ErrUnauthorizedInvalidToken)
 }

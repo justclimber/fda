@@ -16,9 +16,10 @@ import (
 
 type AuthClientServerSuit struct {
 	suite.Suite
-	s    *server.Server
-	conn grpc.ClientConnInterface
-	cl   *client.AuthClient
+	s               *server.Server
+	conn            grpc.ClientConnInterface
+	cl              *client.AuthClient
+	authInterceptor *client.AuthInterceptor
 }
 
 func TestAddTestPhoneSuit(t *testing.T) {
@@ -31,7 +32,8 @@ func (a *AuthClientServerSuit) SetupTest() {
 	a.s = server.NewServer(bcrypt.Bcrypt{})
 	go a.s.Start()
 
-	a.conn, err = fdagrpc.GetGrpcConnection()
+	a.authInterceptor = client.NewAuthInterceptor()
+	a.conn, err = fdagrpc.GetGrpcConnection(a.authInterceptor.Unary)
 	require.NoError(a.T(), err)
 
 	a.cl = a.newAuthClient()

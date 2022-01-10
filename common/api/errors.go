@@ -1,7 +1,8 @@
 package api
 
 import (
-	"errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -14,4 +15,4 @@ const (
 	InternalError uint32 = 1000
 )
 
-var UnauthorizedError = errors.New("unauthorized access denied")
+var ErrUnauthorizedInvalidToken = status.Error(codes.Unauthenticated, "auth token is invalid")

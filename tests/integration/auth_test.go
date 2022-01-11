@@ -29,3 +29,19 @@ func (a *AuthClientServerSuit) TestAuth_ErrorUnauthorized() {
 
 	assert.ErrorIs(a.T(), err, api.ErrUnauthorizedInvalidToken)
 }
+
+func (a *AuthClientServerSuit) TestGetUserInfoThroughToken_Success() {
+	password := "123"
+	const name = "Alex"
+	idAlex := a.registerOk(name, password)
+
+	lres, err := a.cl.Login(idAlex, password)
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), uint32(0), lres.ErrCode)
+
+	a.authInterceptor.SetToken(lres.Token)
+	gcl, err := client.NewGameClient(a.conn)
+	gres, err := gcl.SomeMethodUnderAuth()
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), name, gres.Name)
+}

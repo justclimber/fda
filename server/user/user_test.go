@@ -4,9 +4,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/common/hasher"
 	"github.com/justclimber/fda/common/hasher/bcrypt"
+	"github.com/justclimber/fda/server/token"
 )
 
 type NoHasher struct{}
@@ -69,7 +71,41 @@ func TestUser_CheckPassword(t *testing.T) {
 				Name:         "foo",
 				passwordHash: tt.passwordHash,
 			}
-			assert.Equalf(t, tt.want, u.CheckPassword(tt.rawPass, tt.h), "CheckPassword(%v)", tt.rawPass)
+			check, err := u.CheckPassword(tt.rawPass, tt.h)
+			require.NoError(t, err)
+			assert.Equalf(t, tt.want, check, "CheckPassword(%v)", tt.rawPass)
+		})
+	}
+}
+
+type tokenGeneratorMock struct {
+	token string
+}
+
+func (t tokenGeneratorMock) Generate() string {
+	return t.token
+}
+
+func TestUser_GenerateToken(t *testing.T) {
+	g := &tokenGeneratorMock{token: "asd"}
+	u := &User{
+		Id:   1,
+		Name: "Foo",
+	}
+	tests := []struct {
+		name      string
+		generator token.Generator
+		want      string
+	}{
+		{
+			name:      "simple mock gen",
+			generator: g,
+			want:      "asd",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, u.GenerateToken(tt.generator), "GenerateToken(%v)", tt.generator)
 		})
 	}
 }

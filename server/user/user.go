@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"github.com/justclimber/fda/common/hasher"
+	"github.com/justclimber/fda/server/token"
 )
 
-var NilHasherProvided = errors.New("nil hasher provided")
-var EmptyPasswordProvided = errors.New("empty password provided")
+var ErrNilHasher = errors.New("nil hasher provided")
+var ErrEmptyName = errors.New("empty name provided")
+var ErrEmptyPassword = errors.New("empty password provided")
+var ErrAlreadyExists = errors.New("user already exists")
 
 type User struct {
 	Id           uint64
@@ -16,20 +19,52 @@ type User struct {
 	passwordHash string
 }
 
-type ForClient struct {
-	Id   uint64
-	Name string
+type ToRegister struct {
+	Name         string
+	PasswordHash string
 }
 
-func NewUser(id uint64, name, password string, h hasher.Hasher) (*User, error) {
+type Repository interface {
+	Register(u ToRegister) (uint64, error)
+	StoreToken(id uint64, token string) error
+	TokenFinder
+	Finder
+}
+
+type Finder interface {
+	FindById(id uint64) (*User, error)
+}
+
+type TokenFinder interface {
+	FindByToken(token string) (*User, error)
+}
+
+func NewUserToRegister(name, password string, h hasher.Hasher) (ToRegister, error) {
+	if name == "" {
+		return ToRegister{}, ErrEmptyName
+	}
 	if password == "" {
-		return nil, EmptyPasswordProvided
+		return ToRegister{}, ErrEmptyPassword
 	}
 
 	passwordHash, err := h.Hash(password)
-
 	if err != nil {
-		return nil, fmt.Errorf("hashing password: %w", err)
+		return ToRegister{}, fmt.Errorf("hash password: %w", err)
+	}
+
+	return ToRegister{
+		Name:         name,
+		PasswordHash: passwordHash,
+	}, nil
+}
+
+func NewUser(id uint64, name, passwordHash string) (*User, error) {
+	if name == "" {
+		return nil, ErrEmptyName
+	}
+
+	if passwordHash == "" {
+		return nil, ErrEmptyPassword
 	}
 
 	return &User{
@@ -41,7 +76,11 @@ func NewUser(id uint64, name, password string, h hasher.Hasher) (*User, error) {
 
 func (u *User) CheckPassword(p string, h hasher.Hasher) (bool, error) {
 	if h == nil {
-		return false, NilHasherProvided
+		return false, ErrNilHasher
 	}
 	return h.IsValid(u.passwordHash, p), nil
+}
+
+func (u *User) GenerateToken(generator token.Generator) string {
+	return generator.Generate()
 }

@@ -12,6 +12,8 @@ import (
 	"github.com/justclimber/fda/common/api/fdagrpc"
 	"github.com/justclimber/fda/common/hasher/bcrypt"
 	"github.com/justclimber/fda/server"
+	"github.com/justclimber/fda/server/repository"
+	"github.com/justclimber/fda/server/token"
 )
 
 type AuthClientServerSuit struct {
@@ -29,7 +31,11 @@ func TestAddTestPhoneSuit(t *testing.T) {
 func (a *AuthClientServerSuit) SetupTest() {
 	var err error
 
-	a.s = server.NewServer(bcrypt.Bcrypt{})
+	users := repository.NewUsersInMemory()
+	hasher := bcrypt.Bcrypt{}
+	tokenGenerator := new(token.SimpleTokenGenerator)
+
+	a.s = server.NewServer(users, hasher, tokenGenerator)
 	go a.s.Start()
 
 	a.authInterceptor = client.NewAuthInterceptor()

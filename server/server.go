@@ -20,12 +20,17 @@ import (
 	"github.com/justclimber/fda/common/api/fdagrpc"
 	pb "github.com/justclimber/fda/common/api/generated/api"
 	"github.com/justclimber/fda/common/hasher"
+	"github.com/justclimber/fda/server/token"
+	"github.com/justclimber/fda/server/user"
 )
 
+const ContextUserIdKey = "userId"
+
 type Server struct {
-	authServer *AuthServer
-	gameServer *GameServer
-	grpcServer *grpc.Server
+	authServer  *AuthServer
+	gameServer  *GameServer
+	grpcServer  *grpc.Server
+	tokenFinder user.TokenFinder
 }
 
 var (
@@ -33,10 +38,11 @@ var (
 	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
 )
 
-func NewServer(hasher hasher.Hasher) *Server {
+func NewServer(users user.Repository, hasher hasher.Hasher, tokenGenerator token.Generator) *Server {
 	return &Server{
-		authServer: NewAuthServer(hasher),
-		gameServer: NewGameServer(),
+		authServer:  NewAuthServer(users, hasher, tokenGenerator),
+		gameServer:  NewGameServer(users),
+		tokenFinder: users,
 	}
 }
 
@@ -49,7 +55,7 @@ func (s *Server) Start() {
 	}
 
 	opts := []grpc.ServerOption{
-		grpc.UnaryInterceptor(ensureValidToken),
+		grpc.UnaryInterceptor(s.ensureValidToken),
 		grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
 	}
 	s.grpcServer = grpc.NewServer(opts...)
@@ -70,16 +76,13 @@ func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
-// valid validates the authorization.
-func valid(authorization []string) bool {
+// getUserByToken validates the authorization.
+func (s *Server) getUserByToken(authorization []string) (*user.User, error) {
 	if len(authorization) < 1 {
-		return false
+		return nil, nil
 	}
-	token := strings.TrimPrefix(authorization[0], "Bearer ")
-	// Perform the token validation here. For the sake of this example, the code
-	// here forgoes any of the usual OAuth2 token validation and instead checks
-	// for a token matching an arbitrary string.
-	return token == SecretToken
+	tok := strings.TrimPrefix(authorization[0], "Bearer ")
+	return s.tokenFinder.FindByToken(tok)
 }
 
 const SecretToken = "some-secret-token"
@@ -88,7 +91,7 @@ const SecretToken = "some-secret-token"
 // the token is missing or invalid, the interceptor blocks execution of the
 // handler and returns an error. Otherwise, the interceptor invokes the unary
 // handler.
-func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func (s *Server) ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	authMethods := map[string]bool{
 		fdagrpc.UrlPrefix + "Register": true,
 		fdagrpc.UrlPrefix + "Login":    true,
@@ -101,8 +104,10 @@ func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServ
 	if !ok {
 		return nil, errMissingMetadata
 	}
-	if !valid(md["authorization"]) {
+
+	u, err := s.getUserByToken(md["authorization"])
+	if u == nil || err != nil {
 		return nil, api.ErrUnauthorizedInvalidToken
 	}
-	return handler(ctx, req)
+	return handler(context.WithValue(ctx, ContextUserIdKey, u.Id), req)
 }

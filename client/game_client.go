@@ -17,6 +17,6 @@ func NewGameClient(c grpc.ClientConnInterface) (*GameClient, error) {
 	return &GameClient{grpcClient: api.NewGameClient(c)}, nil
 }
 
-func (c *GameClient) SomeMethodUnderAuth() (*api.Result, error) {
+func (c *GameClient) SomeMethodUnderAuth() (*api.SomeRes, error) {
 	return c.grpcClient.SomeMethodUnderAuth(context.Background(), &emptypb.Empty{})
 }

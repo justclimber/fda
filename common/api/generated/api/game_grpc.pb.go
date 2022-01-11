@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GameClient interface {
-	SomeMethodUnderAuth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Result, error)
+	SomeMethodUnderAuth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SomeRes, error)
 }
 
 type gameClient struct {
@@ -30,8 +30,8 @@ func NewGameClient(cc grpc.ClientConnInterface) GameClient {
 	return &gameClient{cc}
 }
 
-func (c *gameClient) SomeMethodUnderAuth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Result, error) {
-	out := new(Result)
+func (c *gameClient) SomeMethodUnderAuth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SomeRes, error) {
+	out := new(SomeRes)
 	err := c.cc.Invoke(ctx, "/Api.Game/SomeMethodUnderAuth", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,14 +43,14 @@ func (c *gameClient) SomeMethodUnderAuth(ctx context.Context, in *emptypb.Empty,
 // All implementations should embed UnimplementedGameServer
 // for forward compatibility
 type GameServer interface {
-	SomeMethodUnderAuth(context.Context, *emptypb.Empty) (*Result, error)
+	SomeMethodUnderAuth(context.Context, *emptypb.Empty) (*SomeRes, error)
 }
 
 // UnimplementedGameServer should be embedded to have forward compatible implementations.
 type UnimplementedGameServer struct {
 }
 
-func (UnimplementedGameServer) SomeMethodUnderAuth(context.Context, *emptypb.Empty) (*Result, error) {
+func (UnimplementedGameServer) SomeMethodUnderAuth(context.Context, *emptypb.Empty) (*SomeRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SomeMethodUnderAuth not implemented")
 }
 

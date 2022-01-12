@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -16,8 +15,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/justclimber/fda/common/api"
-	"github.com/justclimber/fda/common/api/fdagrpc"
+	"github.com/justclimber/fda/common/api/commonapi"
 	pb "github.com/justclimber/fda/common/api/generated/api"
 	"github.com/justclimber/fda/common/hasher"
 	"github.com/justclimber/fda/server/token"
@@ -25,6 +23,7 @@ import (
 )
 
 const ContextUserIdKey = "userId"
+const authKeyInMetadata = "authorization"
 
 type Server struct {
 	authServer  *AuthServer
@@ -76,27 +75,8 @@ func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
-// getUserByToken validates the authorization.
-func (s *Server) getUserByToken(authorization []string) (*user.User, error) {
-	if len(authorization) < 1 {
-		return nil, nil
-	}
-	tok := strings.TrimPrefix(authorization[0], "Bearer ")
-	return s.tokenFinder.FindByToken(tok)
-}
-
-const SecretToken = "some-secret-token"
-
-// ensureValidToken ensures a valid token exists within a request's metadata. If
-// the token is missing or invalid, the interceptor blocks execution of the
-// handler and returns an error. Otherwise, the interceptor invokes the unary
-// handler.
 func (s *Server) ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	authMethods := map[string]bool{
-		fdagrpc.UrlPrefix + "Register": true,
-		fdagrpc.UrlPrefix + "Login":    true,
-	}
-	if authMethods[info.FullMethod] {
+	if commonapi.AuthMethods[info.FullMethod] {
 		return handler(ctx, req)
 	}
 
@@ -105,9 +85,14 @@ func (s *Server) ensureValidToken(ctx context.Context, req interface{}, info *gr
 		return nil, errMissingMetadata
 	}
 
-	u, err := s.getUserByToken(md["authorization"])
+	authorization := md[authKeyInMetadata]
+	if len(authorization) == 0 {
+		return nil, nil
+	}
+
+	u, err := s.tokenFinder.FindByToken(authorization[0])
 	if u == nil || err != nil {
-		return nil, api.ErrUnauthorizedInvalidToken
+		return nil, commonapi.ErrUnauthorizedInvalidToken
 	}
 	return handler(context.WithValue(ctx, ContextUserIdKey, u.Id), req)
 }

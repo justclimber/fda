@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/justclimber/fda/common/api"
+	"github.com/justclimber/fda/common/api/commonapi"
 	pb "github.com/justclimber/fda/common/api/generated/api"
 	"github.com/justclimber/fda/common/hasher"
 	"github.com/justclimber/fda/common/hasher/bcrypt"
@@ -36,16 +36,16 @@ var port = flag.Int("port", 50051, "the port to serve on")
 func (a *AuthServer) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut, error) {
 	userToRegister, err := user.NewUserToRegister(in.Name, in.Password, a.hasher)
 	if err == user.ErrEmptyName {
-		return &pb.RegisterOut{ErrCode: api.RegisterUserNameEmpty}, nil
+		return &pb.RegisterOut{ErrCode: commonapi.RegisterUserNameEmpty}, nil
 	} else if err == user.ErrEmptyPassword {
-		return &pb.RegisterOut{ErrCode: api.RegisterPasswordEmpty}, nil
+		return &pb.RegisterOut{ErrCode: commonapi.RegisterPasswordEmpty}, nil
 	} else if err != nil {
 		return nil, status.Error(codes.Internal, "can't composer user to register")
 	}
 
 	id, err := a.users.Register(userToRegister)
 	if err == user.ErrAlreadyExists {
-		return &pb.RegisterOut{ErrCode: api.RegisterUserAlreadyExists}, nil
+		return &pb.RegisterOut{ErrCode: commonapi.RegisterUserAlreadyExists}, nil
 	} else if err != nil {
 		return nil, status.Error(codes.Internal, "can't register user")
 	}
@@ -59,7 +59,7 @@ func (a *AuthServer) Register(_ context.Context, in *pb.RegisterIn) (*pb.Registe
 func (a *AuthServer) Login(_ context.Context, in *pb.LoginIn) (*pb.LoginOut, error) {
 	u, err := a.users.FindById(in.ID)
 	if u == nil {
-		return &pb.LoginOut{ErrCode: api.LoginUserNotFound}, nil
+		return &pb.LoginOut{ErrCode: commonapi.LoginUserNotFound}, nil
 	}
 
 	check, err := u.CheckPassword(in.Password, bcrypt.Bcrypt{})
@@ -68,7 +68,7 @@ func (a *AuthServer) Login(_ context.Context, in *pb.LoginIn) (*pb.LoginOut, err
 	}
 
 	if !check {
-		return &pb.LoginOut{ErrCode: api.LoginWrongPassword}, nil
+		return &pb.LoginOut{ErrCode: commonapi.LoginWrongPassword}, nil
 	}
 
 	tok := u.GenerateToken(a.tokenGenerator)

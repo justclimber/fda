@@ -1,4 +1,4 @@
-package api
+package commonapi
 
 import (
 	"google.golang.org/grpc/codes"
@@ -11,8 +11,6 @@ const (
 	RegisterPasswordEmpty
 	LoginUserNotFound
 	LoginWrongPassword
-
-	InternalError uint32 = 1000
 )
 
 var ErrUnauthorizedInvalidToken = status.Error(codes.Unauthenticated, "auth token is invalid")

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/justclimber/fda/client"
-	"github.com/justclimber/fda/common/api"
+	"github.com/justclimber/fda/common/api/commonapi"
 	"github.com/justclimber/fda/common/api/fdagrpc"
 	"github.com/justclimber/fda/common/hasher/bcrypt"
 	"github.com/justclimber/fda/server"
@@ -96,7 +96,7 @@ func (a *AuthClientServerSuit) TestRegisterDuplicate_GetLogicError() {
 
 	res, err := a.cl.Register(name, "124")
 	require.NoError(a.T(), err)
-	require.Equal(a.T(), api.RegisterUserAlreadyExists, res.ErrCode)
+	require.Equal(a.T(), commonapi.RegisterUserAlreadyExists, res.ErrCode)
 }
 
 func (a *AuthClientServerSuit) TestRegisterWithEmptyName_GetLogicError() {
@@ -104,7 +104,7 @@ func (a *AuthClientServerSuit) TestRegisterWithEmptyName_GetLogicError() {
 
 	res, err := cl.Register("", "123")
 	require.NoError(a.T(), err)
-	require.Equal(a.T(), api.RegisterUserNameEmpty, res.ErrCode)
+	require.Equal(a.T(), commonapi.RegisterUserNameEmpty, res.ErrCode)
 }
 
 func (a *AuthClientServerSuit) TestRegisterAndLoginWithWrongPassword_GetLogicError() {
@@ -112,12 +112,12 @@ func (a *AuthClientServerSuit) TestRegisterAndLoginWithWrongPassword_GetLogicErr
 
 	res, err := a.cl.Login(id, "wrong pass")
 	require.NoError(a.T(), err)
-	require.Equal(a.T(), api.LoginWrongPassword, res.ErrCode)
+	require.Equal(a.T(), commonapi.LoginWrongPassword, res.ErrCode)
 }
 
 func (a *AuthClientServerSuit) TestLogin_ErrorNotFound() {
 	const notExistedUserId = 987987987
 	res, err := a.cl.Login(notExistedUserId, "")
 	require.NoError(a.T(), err)
-	require.Equal(a.T(), api.LoginUserNotFound, res.ErrCode)
+	require.Equal(a.T(), commonapi.LoginUserNotFound, res.ErrCode)
 }

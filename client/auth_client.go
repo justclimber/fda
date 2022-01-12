@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/justclimber/fda/common/api/fdagrpc"
+	"github.com/justclimber/fda/common/api/commonapi"
 	"github.com/justclimber/fda/common/api/generated/api"
 )
 
@@ -34,17 +34,11 @@ func (c AuthClient) Register(name string, password string) (*api.RegisterOut, er
 }
 
 type AuthInterceptor struct {
-	authMethods map[string]bool
-	token       string
+	token string
 }
 
 func NewAuthInterceptor() *AuthInterceptor {
-	return &AuthInterceptor{
-		authMethods: map[string]bool{
-			fdagrpc.UrlPrefix + "Register": true,
-			fdagrpc.UrlPrefix + "Login":    true,
-		},
-	}
+	return &AuthInterceptor{}
 }
 
 func (a *AuthInterceptor) SetToken(t string) {
@@ -59,7 +53,7 @@ func (a *AuthInterceptor) Unary(
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,
 ) error {
-	if !a.authMethods[method] {
+	if !commonapi.AuthMethods[method] {
 		return invoker(a.attachToken(ctx), method, req, reply, cc, opts...)
 	}
 

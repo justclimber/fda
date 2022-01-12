@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/client"
-	"github.com/justclimber/fda/common/api"
+	"github.com/justclimber/fda/common/api/commonapi"
 )
 
 func (a *AuthClientServerSuit) TestAuth_Success() {
@@ -27,7 +27,7 @@ func (a *AuthClientServerSuit) TestAuth_ErrorUnauthorized() {
 	cl, err := client.NewGameClient(a.conn)
 	_, err = cl.SomeMethodUnderAuth()
 
-	assert.ErrorIs(a.T(), err, api.ErrUnauthorizedInvalidToken)
+	assert.ErrorIs(a.T(), err, commonapi.ErrUnauthorizedInvalidToken)
 }
 
 func (a *AuthClientServerSuit) TestGetUserInfoThroughToken_Success() {

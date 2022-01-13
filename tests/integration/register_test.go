@@ -24,7 +24,7 @@ type AuthClientServerSuit struct {
 	authInterceptor *client.AuthInterceptor
 }
 
-func TestAddTestPhoneSuit(t *testing.T) {
+func TestAuthClientServerSuit(t *testing.T) {
 	suite.Run(t, new(AuthClientServerSuit))
 }
 

@@ -2,11 +2,13 @@ package repository
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/justclimber/fda/server/user"
 )
 
 type UsersInMemory struct {
+	mu             sync.RWMutex
 	users          map[uint64]*user.User
 	userIdsByName  map[string]uint64
 	userIdsByToken map[string]uint64
@@ -23,6 +25,9 @@ func NewUsersInMemory() *UsersInMemory {
 }
 
 func (u *UsersInMemory) Register(t user.ToRegister) (uint64, error) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+
 	if _, found := u.userIdsByName[t.Name]; found {
 		return 0, user.ErrAlreadyExists
 	}
@@ -40,6 +45,9 @@ func (u *UsersInMemory) Register(t user.ToRegister) (uint64, error) {
 }
 
 func (u *UsersInMemory) FindById(id uint64) (*user.User, error) {
+	u.mu.RLock()
+	defer u.mu.RUnlock()
+
 	usr, ok := u.users[id]
 	if !ok {
 		return nil, nil
@@ -48,6 +56,9 @@ func (u *UsersInMemory) FindById(id uint64) (*user.User, error) {
 }
 
 func (u *UsersInMemory) FindByToken(token string) (*user.User, error) {
+	u.mu.RLock()
+	defer u.mu.RUnlock()
+
 	id, ok := u.userIdsByToken[token]
 	if !ok {
 		return nil, nil
@@ -56,6 +67,8 @@ func (u *UsersInMemory) FindByToken(token string) (*user.User, error) {
 }
 
 func (u *UsersInMemory) StoreToken(id uint64, token string) error {
+	u.mu.Lock()
+	defer u.mu.Unlock()
 	u.userIdsByToken[token] = id
 	return nil
 }

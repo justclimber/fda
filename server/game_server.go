@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -11,21 +10,17 @@ import (
 )
 
 type GameServer struct {
-	usersFinder user.Finder
+	authHelper *authHelper
 }
 
 func NewGameServer(usersFinder user.Finder) *GameServer {
-	return &GameServer{usersFinder: usersFinder}
+	return &GameServer{authHelper: NewAuthHelper(usersFinder)}
 }
 
 func (g *GameServer) SomeMethodUnderAuth(ctx context.Context, empty *emptypb.Empty) (*pb.SomeRes, error) {
-	id, ok := ctx.Value(ContextUserIdKey).(uint64)
-	if !ok {
-		return &pb.SomeRes{}, fmt.Errorf("empty auth token")
-	}
-	u, err := g.usersFinder.FindById(id)
+	u, err := g.authHelper.GetUserFromContext(ctx)
 	if err != nil {
-		return &pb.SomeRes{}, fmt.Errorf("can't get user with auth token")
+		return nil, err
 	}
 
 	return &pb.SomeRes{

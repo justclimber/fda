@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
@@ -10,8 +9,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/examples/data"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
@@ -48,15 +45,8 @@ func NewServer(users user.Repository, hasher hasher.Hasher, tokenGenerator token
 func (s *Server) Start() {
 	flag.Parse()
 
-	cert, err := tls.LoadX509KeyPair(data.Path("x509/server_cert.pem"), data.Path("x509/server_key.pem"))
-	if err != nil {
-		log.Fatalf("failed to load key pair: %v", err)
-	}
+	opts := []grpc.ServerOption{grpc.UnaryInterceptor(s.ensureValidToken)}
 
-	opts := []grpc.ServerOption{
-		grpc.UnaryInterceptor(s.ensureValidToken),
-		grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
-	}
 	s.grpcServer = grpc.NewServer(opts...)
 	pb.RegisterAuthServer(s.grpcServer, s.authServer)
 	pb.RegisterGameServer(s.grpcServer, s.gameServer)

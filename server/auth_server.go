@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"flag"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -30,8 +29,6 @@ type AuthServer struct {
 	tokenGenerator token.Generator
 	grpcServer     *grpc.Server
 }
-
-var port = flag.Int("port", 50051, "the port to serve on")
 
 func (a *AuthServer) Register(_ context.Context, in *pb.RegisterIn) (*pb.RegisterOut, error) {
 	userToRegister, err := user.NewUserToRegister(in.Name, in.Password, a.hasher)

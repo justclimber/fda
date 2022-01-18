@@ -10,6 +10,7 @@ import (
 	"github.com/justclimber/fda/client"
 	"github.com/justclimber/fda/common/api/commonapi"
 	"github.com/justclimber/fda/common/api/fdagrpc"
+	"github.com/justclimber/fda/common/configloader"
 	"github.com/justclimber/fda/common/hasher/bcrypt"
 	"github.com/justclimber/fda/server"
 	"github.com/justclimber/fda/server/repository"
@@ -29,17 +30,18 @@ func TestAuthClientServerSuit(t *testing.T) {
 }
 
 func (a *AuthClientServerSuit) SetupTest() {
-	var err error
+	appCfg, err := configloader.NewConfigLoader().Load()
+	require.NoError(a.T(), err)
 
 	users := repository.NewUsersInMemory()
 	hasher := bcrypt.Bcrypt{}
 	tokenGenerator := new(token.SimpleTokenGenerator)
 
-	a.s = server.NewServer(users, hasher, tokenGenerator)
+	a.s = server.NewServer(appCfg, users, hasher, tokenGenerator)
 	go a.s.Start()
 
 	a.authInterceptor = client.NewAuthInterceptor()
-	a.conn, err = fdagrpc.GetGrpcConnection(a.authInterceptor.Unary)
+	a.conn, err = fdagrpc.GetGrpcConnection(appCfg.ServerUrl, a.authInterceptor.Unary)
 	require.NoError(a.T(), err)
 
 	a.cl = a.newAuthClient()

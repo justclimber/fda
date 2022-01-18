@@ -10,13 +10,11 @@ import (
 const UrlPrefix = "/Api.Auth/"
 const AuthKeyInMetadata = "authorization"
 
-var addr = flag.String("addr", "localhost:50051", "the address to connect to")
-
-func GetGrpcConnection(authInterceptor grpc.UnaryClientInterceptor) (grpc.ClientConnInterface, error) {
+func GetGrpcConnection(addr string, authInterceptor grpc.UnaryClientInterceptor) (grpc.ClientConnInterface, error) {
 	flag.Parse()
 	opts := []grpc.DialOption{
 		grpc.WithUnaryInterceptor(authInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	return grpc.Dial(*addr, opts...)
+	return grpc.Dial(addr, opts...)
 }

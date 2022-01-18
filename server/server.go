@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"net"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/justclimber/fda/common/api/commonapi"
 	"github.com/justclimber/fda/common/api/fdagrpc"
 	pb "github.com/justclimber/fda/common/api/generated/api"
+	"github.com/justclimber/fda/common/config"
 	"github.com/justclimber/fda/common/hasher"
 	"github.com/justclimber/fda/server/token"
 	"github.com/justclimber/fda/server/user"
@@ -23,6 +23,7 @@ import (
 const ContextUserIdKey = "userId"
 
 type Server struct {
+	cfg         config.Config
 	authServer  *AuthServer
 	gameServer  *GameServer
 	grpcServer  *grpc.Server
@@ -34,8 +35,9 @@ var (
 	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
 )
 
-func NewServer(users user.Repository, hasher hasher.Hasher, tokenGenerator token.Generator) *Server {
+func NewServer(cfg config.Config, users user.Repository, hasher hasher.Hasher, tokenGenerator token.Generator) *Server {
 	return &Server{
+		cfg:         cfg,
 		authServer:  NewAuthServer(users, hasher, tokenGenerator),
 		gameServer:  NewGameServer(users),
 		tokenFinder: users,
@@ -51,7 +53,7 @@ func (s *Server) Start() {
 	pb.RegisterAuthServer(s.grpcServer, s.authServer)
 	pb.RegisterGameServer(s.grpcServer, s.gameServer)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	lis, err := net.Listen("tcp", s.cfg.ServerUrl)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

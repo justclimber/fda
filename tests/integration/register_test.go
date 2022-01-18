@@ -4,14 +4,57 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc"
 
 	"github.com/justclimber/fda/client"
 	"github.com/justclimber/fda/common/api"
-	"github.com/justclimber/fda/common/api/grpc"
+	"github.com/justclimber/fda/common/api/fdagrpc"
+	"github.com/justclimber/fda/common/hasher/bcrypt"
 	"github.com/justclimber/fda/server"
 )
 
-func TestRegisterAndLogin_GetUserName(t *testing.T) {
+type AuthClientServerSuit struct {
+	suite.Suite
+	s    *server.Server
+	conn grpc.ClientConnInterface
+	cl   *client.AuthClient
+}
+
+func TestAddTestPhoneSuit(t *testing.T) {
+	suite.Run(t, new(AuthClientServerSuit))
+}
+
+func (a *AuthClientServerSuit) SetupTest() {
+	var err error
+
+	a.s = server.NewServer(bcrypt.Bcrypt{})
+	go a.s.Start()
+
+	a.conn, err = fdagrpc.GetGrpcConnection()
+	require.NoError(a.T(), err)
+
+	a.cl = a.newAuthClient()
+}
+
+func (a *AuthClientServerSuit) TearDownTest() {
+	a.s.Stop()
+}
+
+func (a *AuthClientServerSuit) newAuthClient() *client.AuthClient {
+	cl, err := client.NewAuthClient(a.conn)
+	require.NoError(a.T(), err)
+	return cl
+}
+
+func (a *AuthClientServerSuit) registerOk(name string, password string) uint64 {
+	res, err := a.cl.Register(name, password)
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), uint32(0), res.ErrCode)
+	return res.ID
+}
+
+func (a *AuthClientServerSuit) TestRegisterAndLogin_GetUserName() {
 	cases := []struct {
 		caseName string
 		userName string
@@ -28,102 +71,45 @@ func TestRegisterAndLogin_GetUserName(t *testing.T) {
 			password: "pswd2",
 		},
 	}
-	s := server.NewServer(bcryptHasher)
-	go s.Start()
-	defer s.Stop()
-
-	conn, err := grpc.GetGrpcConnection()
-	require.NoError(t, err)
-
 	for _, tc := range cases {
-		t.Run(tc.caseName, func(t *testing.T) {
-			cl, err := client.NewAuthClient(conn)
+		a.T().Run(tc.caseName, func(t *testing.T) {
+			id := a.registerOk(tc.userName, tc.password)
+			res, err := a.cl.Login(id, tc.password)
 			require.NoError(t, err)
-			id := register(t, cl, tc.userName, tc.password)
-			login(t, cl, id, tc.userName, tc.password)
+			require.Equal(t, uint32(0), res.ErrCode)
+			require.Equal(t, tc.userName, res.User.Name)
 		})
 	}
 }
 
-func register(t *testing.T, cl *client.AuthClient, name string, password string) uint64 {
-	t.Helper()
-	res, err := cl.Register(name, password)
-	require.NoError(t, err)
-	require.Equal(t, uint32(0), res.ErrCode)
-	return res.ID
-}
-
-func login(t *testing.T, cl *client.AuthClient, id uint64, expectedName string, password string) {
-	t.Helper()
-	res, err := cl.Login(id, password)
-	require.NoError(t, err)
-	require.Equal(t, uint32(0), res.ErrCode)
-	require.Equal(t, expectedName, res.User.Name)
-}
-
-func TestRegisterDuplicate_GetLogicError(t *testing.T) {
-	s := server.NewServer(bcryptHasher)
-	go s.Start()
-	defer s.Stop()
-
-	conn, err := grpc.GetGrpcConnection()
-	require.NoError(t, err)
-
-	cl, err := client.NewAuthClient(conn)
-	require.NoError(t, err)
-
+func (a *AuthClientServerSuit) TestRegisterDuplicate_GetLogicError() {
 	const name = "Alex"
-	register(t, cl, name, "123")
+	a.registerOk(name, "123")
 
-	res, err := cl.Register(name, "124")
-	require.NoError(t, err)
-	require.Equal(t, api.RegisterUserAlreadyExists, res.ErrCode)
+	res, err := a.cl.Register(name, "124")
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), api.RegisterUserAlreadyExists, res.ErrCode)
 }
 
-func TestRegisterWithEmptyName_GetLogicError(t *testing.T) {
-	s := server.NewServer(bcryptHasher)
-	go s.Start()
-	defer s.Stop()
+func (a *AuthClientServerSuit) TestRegisterWithEmptyName_GetLogicError() {
+	cl := a.newAuthClient()
 
-	conn, err := grpc.GetGrpcConnection()
-	require.NoError(t, err)
-	cl, err := client.NewAuthClient(conn)
-	require.NoError(t, err)
-
-	res, err := cl.Register("", "")
-	require.NoError(t, err)
-	require.Equal(t, api.RegisterUserNameEmpty, res.ErrCode)
+	res, err := cl.Register("", "123")
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), api.RegisterUserNameEmpty, res.ErrCode)
 }
 
-func TestRegisterAndLoginWithWrongPassword_GetLogicError(t *testing.T) {
-	s := server.NewServer(bcryptHasher)
-	go s.Start()
-	defer s.Stop()
+func (a *AuthClientServerSuit) TestRegisterAndLoginWithWrongPassword_GetLogicError() {
+	id := a.registerOk("Alex", "right pass")
 
-	conn, err := grpc.GetGrpcConnection()
-	require.NoError(t, err)
-	cl, err := client.NewAuthClient(conn)
-	require.NoError(t, err)
-
-	id := register(t, cl, "Alex", "right pass")
-
-	res, err := cl.Login(id, "wrong pass")
-	require.NoError(t, err)
-	require.Equal(t, api.LoginWrongPassword, res.ErrCode)
+	res, err := a.cl.Login(id, "wrong pass")
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), api.LoginWrongPassword, res.ErrCode)
 }
 
-func TestLogin_ErrorNotFound(t *testing.T) {
-	s := server.NewServer(bcryptHasher)
-	go s.Start()
-	defer s.Stop()
-
-	conn, err := grpc.GetGrpcConnection()
-	require.NoError(t, err)
-	cl, err := client.NewAuthClient(conn)
-	require.NoError(t, err)
-
+func (a *AuthClientServerSuit) TestLogin_ErrorNotFound() {
 	const notExistedUserId = 987987987
-	res, err := cl.Login(notExistedUserId, "")
-	require.NoError(t, err)
-	require.Equal(t, api.LoginUserNotFound, res.ErrCode)
+	res, err := a.cl.Login(notExistedUserId, "")
+	require.NoError(a.T(), err)
+	require.Equal(a.T(), api.LoginUserNotFound, res.ErrCode)
 }

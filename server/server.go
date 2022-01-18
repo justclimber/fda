@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/justclimber/fda/common/api/commonapi"
+	"github.com/justclimber/fda/common/api/fdagrpc"
 	pb "github.com/justclimber/fda/common/api/generated/api"
 	"github.com/justclimber/fda/common/hasher"
 	"github.com/justclimber/fda/server/token"
@@ -20,7 +21,6 @@ import (
 )
 
 const ContextUserIdKey = "userId"
-const authKeyInMetadata = "authorization"
 
 type Server struct {
 	authServer  *AuthServer
@@ -75,7 +75,7 @@ func (s *Server) ensureValidToken(ctx context.Context, req interface{}, info *gr
 		return nil, errMissingMetadata
 	}
 
-	authorization := md[authKeyInMetadata]
+	authorization := md[fdagrpc.AuthKeyInMetadata]
 	if len(authorization) == 0 {
 		return nil, nil
 	}

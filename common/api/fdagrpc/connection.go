@@ -8,6 +8,7 @@ import (
 )
 
 const UrlPrefix = "/Api.Auth/"
+const AuthKeyInMetadata = "authorization"
 
 var addr = flag.String("addr", "localhost:50051", "the address to connect to")
 

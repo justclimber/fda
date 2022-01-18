@@ -7,9 +7,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 
 	"github.com/justclimber/fda/common/api/commonapi"
 	"github.com/justclimber/fda/common/api/fdagrpc"
@@ -29,11 +27,6 @@ type Server struct {
 	grpcServer  *grpc.Server
 	tokenFinder user.TokenFinder
 }
-
-var (
-	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
-	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
-)
 
 func NewServer(cfg config.Config, users user.Repository, hasher hasher.Hasher, tokenGenerator token.Generator) *Server {
 	return &Server{
@@ -74,7 +67,7 @@ func (s *Server) ensureValidToken(ctx context.Context, req interface{}, info *gr
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errMissingMetadata
+		return nil, commonapi.ErrMissingMetadata
 	}
 
 	authorization := md[fdagrpc.AuthKeyInMetadata]

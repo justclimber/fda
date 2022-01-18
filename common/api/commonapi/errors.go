@@ -13,4 +13,7 @@ const (
 	LoginWrongPassword
 )
 
-var ErrUnauthorizedInvalidToken = status.Error(codes.Unauthenticated, "auth token is invalid")
+var (
+	ErrUnauthorizedInvalidToken = status.Error(codes.Unauthenticated, "auth token is invalid")
+	ErrMissingMetadata          = status.Error(codes.Unauthenticated, "missing metadata")
+)

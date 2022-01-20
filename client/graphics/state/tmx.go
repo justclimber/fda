@@ -5,6 +5,7 @@ import (
 	"github.com/lafriks/go-tiled"
 
 	"github.com/justclimber/fda/client/graphics"
+	ebitenhelper "github.com/justclimber/fda/client/graphics/ebiten"
 )
 
 type TmxExample struct {
@@ -28,11 +29,8 @@ func (t *TmxExample) Draw(screen *ebiten.Image) {
 			tileRect := tile.Tileset.GetTileRect(tile.ID)
 			tileImage := t.tilesImage.SubImage(tileRect).(*ebiten.Image)
 
-			op := &ebiten.DrawImageOptions{}
 			x, y := layer.GetTilePosition(i)
-			op.GeoM.Translate(float64(x), float64(y))
-
-			screen.DrawImage(tileImage, op)
+			screen.DrawImage(tileImage, ebitenhelper.WithIntOffset(x, y))
 		}
 	}
 }

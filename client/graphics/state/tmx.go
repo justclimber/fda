@@ -7,26 +7,19 @@ import (
 	"github.com/justclimber/fda/client/graphics"
 )
 
-const tileSize = 32
-
 type TmxExample struct {
-	screenWidth  int
-	screenHeight int
-	tilesImage   *ebiten.Image
-	tiledMap     *tiled.Map
+	tilesImage *ebiten.Image
+	tiledMap   *tiled.Map
 }
 
-func NewTmxExample(screenWidth, screenHeight int, tilesImage *ebiten.Image, tiledMap *tiled.Map) *TmxExample {
+func NewTmxExample(tilesImage *ebiten.Image, tiledMap *tiled.Map) *TmxExample {
 	return &TmxExample{
-		screenWidth:  screenWidth,
-		screenHeight: screenHeight,
-		tilesImage:   tilesImage,
-		tiledMap:     tiledMap,
+		tilesImage: tilesImage,
+		tiledMap:   tiledMap,
 	}
 }
 
 func (t *TmxExample) Draw(screen *ebiten.Image) {
-	xNum := 20
 	for _, layer := range t.tiledMap.Layers {
 		for i, tile := range layer.Tiles {
 			if tile.Nil {
@@ -36,9 +29,8 @@ func (t *TmxExample) Draw(screen *ebiten.Image) {
 			tileImage := t.tilesImage.SubImage(tileRect).(*ebiten.Image)
 
 			op := &ebiten.DrawImageOptions{}
-			tx := float64((i % xNum) * tileSize)
-			ty := float64((i / xNum) * tileSize)
-			op.GeoM.Translate(tx, ty)
+			x, y := layer.GetTilePosition(i)
+			op.GeoM.Translate(float64(x), float64(y))
 
 			screen.DrawImage(tileImage, op)
 		}

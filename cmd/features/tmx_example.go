@@ -35,7 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can't load tmx file: %v", err)
 	}
-	tmxExampleState := state.NewTmxExample(screenWidth, screenHeight, tilesEbitenImage, tiledMap)
+	tmxExampleState := state.NewTmxExample(tilesEbitenImage, tiledMap)
 
 	w := graphics.NewMainGameWindow("Tmx Example", screenWidth, screenHeight, tmxExampleState)
 	graphics.Run(w)

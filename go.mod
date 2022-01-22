@@ -16,6 +16,7 @@ require (
 	github.com/BurntSushi/toml v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
+	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/hajimehoshi/ebiten/v2 v2.2.4 // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect

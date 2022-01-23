@@ -6,16 +6,14 @@ import (
 	"github.com/golang/geo/r2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/lafriks/go-tiled"
 
 	"github.com/justclimber/fda/client/graphics"
 	ebitenhelper "github.com/justclimber/fda/client/graphics/ebiten"
-	"github.com/justclimber/fda/common/fgeom"
+	"github.com/justclimber/fda/common/ftmx"
 )
 
 type camera interface {
-	Offset(p r2.Point) (r2.Point, bool)
-	Size() r2.Point
+	ViewRect() r2.Rect
 	Move(p r2.Point)
 }
 
@@ -24,60 +22,29 @@ type input interface {
 }
 
 type TmxExample struct {
-	tilesImage    *ebiten.Image
-	tiledMap      *tiled.Map
-	camera        camera
-	input         input
-	rectForCamera r2.Rect
-	cameraPos     r2.Point
+	mapImage  *ftmx.MapImage
+	camera    camera
+	input     input
+	cameraPos r2.Point
 }
 
-func NewTmxExample(tilesImage *ebiten.Image, tiledMap *tiled.Map, input input, camera camera, cameraPos r2.Point) *TmxExample {
+func NewTmxExample(mapImage *ftmx.MapImage, input input, camera camera, cameraPos r2.Point) *TmxExample {
 	return &TmxExample{
-		tilesImage:    tilesImage,
-		tiledMap:      tiledMap,
-		input:         input,
-		camera:        camera,
-		rectForCamera: fgeom.RectFromPointAndSize(cameraPos, camera.Size()),
-		cameraPos:     cameraPos,
+		mapImage:  mapImage,
+		input:     input,
+		camera:    camera,
+		cameraPos: cameraPos,
 	}
 }
 
 func (t *TmxExample) Draw(screen *ebiten.Image) {
-	tilesRendered := 0
-	ebitenhelper.DrawRect(t.rectForCamera, screen)
-	for _, layer := range t.tiledMap.Layers {
-		for i, tile := range layer.Tiles {
-			if tile.Nil {
-				continue
-			}
-			x, y := layer.GetTilePosition(i)
-			p, isOutOfBounds := t.camera.Offset(r2.Point{
-				X: float64(x),
-				Y: float64(y),
-			})
-			if isOutOfBounds {
-				continue
-			}
-			tileRect := tile.Tileset.GetTileRect(tile.ID)
-			tileImage := t.tilesImage.SubImage(tileRect).(*ebiten.Image)
-			p = p.Add(t.cameraPos).Sub(r2.Point{
-				X: float64(t.tiledMap.TileWidth),
-				Y: float64(t.tiledMap.TileWidth),
-			})
-			op := &ebiten.DrawImageOptions{}
-			op.CompositeMode = ebiten.CompositeModeSourceIn
-			//op.CompositeMode = ebiten.CompositeModeLighter
-			screen.DrawImage(tileImage, ebitenhelper.WithOffset(p, op))
-			tilesRendered++
-		}
-	}
+	imageUnderCamera := t.mapImage.ImageUnderCamera(t.camera)
+	screen.DrawImage(imageUnderCamera, ebitenhelper.WithOffset(t.cameraPos, nil))
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf(
-		"TPS: %0.2f\nFPS: %0.2f\nTiles rendered: %d",
+		"TPS: %0.2f\nFPS: %0.2f",
 		ebiten.CurrentTPS(),
 		ebiten.CurrentFPS(),
-		tilesRendered,
 	))
 }
 

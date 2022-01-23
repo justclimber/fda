@@ -15,10 +15,13 @@ import (
 type camera interface {
 	ViewRect() r2.Rect
 	Move(p r2.Point)
+	Scale(scaleFactorChange float64)
+	ScaleFactor() float64
 }
 
 type input interface {
 	ScrollChange() r2.Point
+	ScaleChange() float64
 }
 
 type TmxExample struct {
@@ -38,17 +41,23 @@ func NewTmxExample(mapImage *ftmx.MapImage, input input, camera camera, cameraPo
 }
 
 func (t *TmxExample) Draw(screen *ebiten.Image) {
-	imageUnderCamera := t.mapImage.ImageUnderCamera(t.camera)
-	screen.DrawImage(imageUnderCamera, ebitenhelper.WithOffset(t.cameraPos, nil))
+	imageUnderCamera, offset := t.mapImage.ImageUnderCamera(t.camera)
+	op := &ebiten.DrawImageOptions{}
+	op = ebitenhelper.WithScale(1/t.camera.ScaleFactor(), op)
+	op = ebitenhelper.WithOffset(t.cameraPos, op)
+	op = ebitenhelper.WithOffset(offset, op)
+	screen.DrawImage(imageUnderCamera, op)
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf(
-		"TPS: %0.2f\nFPS: %0.2f",
+		"TPS: %0.2f\nFPS: %0.2f\nScale factor: %0.2f",
 		ebiten.CurrentTPS(),
 		ebiten.CurrentFPS(),
+		t.camera.ScaleFactor(),
 	))
 }
 
 func (t *TmxExample) Update() (graphics.ScreenState, error) {
 	t.camera.Move(t.input.ScrollChange())
+	t.camera.Scale(t.input.ScaleChange())
 	return nil, nil
 }

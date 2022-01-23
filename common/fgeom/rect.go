@@ -33,6 +33,10 @@ func RectFromPointAndSize(p r2.Point, size r2.Point) r2.Rect {
 	}
 }
 
+func RectScaleFromCenter(r r2.Rect, factor float64) r2.Rect {
+	return r.Expanded(r.Size().Mul((factor - 1) / 2))
+}
+
 func R2RectToImageRect(r2rect r2.Rect) image.Rectangle {
 	return image.Rectangle{
 		Min: image.Point{

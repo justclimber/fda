@@ -16,6 +16,7 @@ import (
 
 type camera interface {
 	ViewRect() r2.Rect
+	ScaleFactor() float64
 }
 
 type MapImage struct {
@@ -30,9 +31,25 @@ func NewMapImage(tmxFileName, tileImageFileName string, fileSystem fs.ReadFileFS
 	return m, nil
 }
 
-func (m MapImage) ImageUnderCamera(camera camera) *ebiten.Image {
+func (m MapImage) ImageUnderCamera(camera camera) (*ebiten.Image, r2.Point) {
 	viewRect := camera.ViewRect()
-	return m.img.SubImage(fgeom.R2RectToImageRect(viewRect)).(*ebiten.Image)
+	img := m.img.SubImage(fgeom.R2RectToImageRect(viewRect)).(*ebiten.Image)
+
+	return img, m.leftTopOffsetIfOutOfBound(viewRect.Lo(), camera.ScaleFactor())
+}
+
+func (m MapImage) leftTopOffsetIfOutOfBound(leftTop r2.Point, scaleFactor float64) r2.Point {
+	var x, y float64
+	if leftTop.X < 0 {
+		x = -leftTop.X / scaleFactor
+	}
+	if leftTop.Y < 0 {
+		y = -leftTop.Y / scaleFactor
+	}
+	return r2.Point{
+		X: x,
+		Y: y,
+	}
 }
 
 func (m *MapImage) load(tmxFileName, tileImageFileName string, fileSystem fs.ReadFileFS) error {
@@ -56,7 +73,7 @@ func (m *MapImage) load(tmxFileName, tileImageFileName string, fileSystem fs.Rea
 			tileImage := tilesImage.SubImage(tileRect).(*ebiten.Image)
 
 			x, y := layer.GetTilePosition(i)
-			img.DrawImage(tileImage, ebitenhelper.WithIntOffset(x, y))
+			img.DrawImage(tileImage, ebitenhelper.WithIntOffset(x, y, nil))
 		}
 	}
 	m.img = img

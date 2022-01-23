@@ -16,7 +16,7 @@ import (
 	"github.com/justclimber/fda/common/ftmx"
 )
 
-const screenWidth = 1600
+const screenWidth = 1500
 const screenHeight = 1500
 const cameraMargin = 100
 

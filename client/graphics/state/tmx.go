@@ -3,24 +3,24 @@ package state
 import (
 	"fmt"
 
-	"github.com/golang/geo/r2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"github.com/justclimber/fda/client/graphics"
 	ebitenhelper "github.com/justclimber/fda/client/graphics/ebiten"
+	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/ftmx"
 )
 
 type camera interface {
-	ViewRect() r2.Rect
-	Move(p r2.Point)
+	ViewRect() fgeom.Rect
+	Move(p fgeom.Point)
 	Scale(scaleFactorChange float64)
 	ScaleFactor() float64
 }
 
 type input interface {
-	ScrollChange() r2.Point
+	ScrollChange() fgeom.Point
 	ScaleChange() float64
 }
 
@@ -28,10 +28,10 @@ type TmxExample struct {
 	mapImage  *ftmx.MapImage
 	camera    camera
 	input     input
-	cameraPos r2.Point
+	cameraPos fgeom.Point
 }
 
-func NewTmxExample(mapImage *ftmx.MapImage, input input, camera camera, cameraPos r2.Point) *TmxExample {
+func NewTmxExample(mapImage *ftmx.MapImage, input input, camera camera, cameraPos fgeom.Point) *TmxExample {
 	return &TmxExample{
 		mapImage:  mapImage,
 		input:     input,

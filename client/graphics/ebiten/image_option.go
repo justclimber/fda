@@ -1,8 +1,9 @@
 package ebiten
 
 import (
-	"github.com/golang/geo/r2"
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/justclimber/fda/common/fgeom"
 )
 
 func WithIntOffset(x, y int, op *ebiten.DrawImageOptions) *ebiten.DrawImageOptions {
@@ -13,7 +14,7 @@ func WithIntOffset(x, y int, op *ebiten.DrawImageOptions) *ebiten.DrawImageOptio
 	return op
 }
 
-func WithOffset(p r2.Point, op *ebiten.DrawImageOptions) *ebiten.DrawImageOptions {
+func WithOffset(p fgeom.Point, op *ebiten.DrawImageOptions) *ebiten.DrawImageOptions {
 	if op == nil {
 		op = &ebiten.DrawImageOptions{}
 	}

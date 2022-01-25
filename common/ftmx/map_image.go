@@ -6,7 +6,6 @@ import (
 	"image"
 	"io/fs"
 
-	"github.com/golang/geo/r2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/lafriks/go-tiled"
 
@@ -15,7 +14,7 @@ import (
 )
 
 type camera interface {
-	ViewRect() r2.Rect
+	ViewRect() fgeom.Rect
 	ScaleFactor() float64
 }
 
@@ -31,14 +30,14 @@ func NewMapImage(tmxFileName, tileImageFileName string, fileSystem fs.ReadFileFS
 	return m, nil
 }
 
-func (m MapImage) ImageUnderCamera(camera camera) (*ebiten.Image, r2.Point) {
+func (m MapImage) ImageUnderCamera(camera camera) (*ebiten.Image, fgeom.Point) {
 	viewRect := camera.ViewRect()
-	img := m.img.SubImage(fgeom.R2RectToImageRect(viewRect)).(*ebiten.Image)
+	img := m.img.SubImage(viewRect.ToImageRect()).(*ebiten.Image)
 
 	return img, m.leftTopOffsetIfOutOfBound(viewRect.Lo(), camera.ScaleFactor())
 }
 
-func (m MapImage) leftTopOffsetIfOutOfBound(leftTop r2.Point, scaleFactor float64) r2.Point {
+func (m MapImage) leftTopOffsetIfOutOfBound(leftTop fgeom.Point, scaleFactor float64) fgeom.Point {
 	var x, y float64
 	if leftTop.X < 0 {
 		x = -leftTop.X / scaleFactor
@@ -46,7 +45,7 @@ func (m MapImage) leftTopOffsetIfOutOfBound(leftTop r2.Point, scaleFactor float6
 	if leftTop.Y < 0 {
 		y = -leftTop.Y / scaleFactor
 	}
-	return r2.Point{
+	return fgeom.Point{
 		X: x,
 		Y: y,
 	}

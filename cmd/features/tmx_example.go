@@ -5,14 +5,12 @@ import (
 	_ "image/png"
 	"log"
 
-	"github.com/golang/geo/r1"
-	"github.com/golang/geo/r2"
-
 	"github.com/justclimber/fda/client/assets"
 	"github.com/justclimber/fda/client/graphics"
 	"github.com/justclimber/fda/client/graphics/camera"
 	"github.com/justclimber/fda/client/graphics/input"
 	"github.com/justclimber/fda/client/graphics/state"
+	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/ftmx"
 )
 
@@ -29,12 +27,12 @@ func main() {
 		log.Fatalf("can't load map image: %v", err)
 	}
 
-	cam := camera.NewCamera(r2.Rect{
-		X: r1.Interval{Lo: cameraMargin, Hi: screenWidth - cameraMargin},
-		Y: r1.Interval{Lo: cameraMargin, Hi: screenHeight - cameraMargin},
+	cam := camera.NewCamera(fgeom.Rect{
+		X: fgeom.Interval{Lo: cameraMargin, Hi: screenWidth - cameraMargin},
+		Y: fgeom.Interval{Lo: cameraMargin, Hi: screenHeight - cameraMargin},
 	})
 	in := input.NewEbitenInput()
-	tmxExampleState := state.NewTmxExample(mapImage, in, cam, r2.Point{
+	tmxExampleState := state.NewTmxExample(mapImage, in, cam, fgeom.Point{
 		X: cameraMargin,
 		Y: cameraMargin,
 	})

@@ -4,9 +4,10 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/golang/geo/r2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+
+	"github.com/justclimber/fda/common/fgeom"
 )
 
 var (
@@ -18,7 +19,7 @@ func init() {
 	emptyImage.Fill(color.White)
 }
 
-func DrawRect(r r2.Rect, image *ebiten.Image) {
+func DrawRect(r fgeom.Rect, image *ebiten.Image) {
 	var path vector.Path
 	ps := r.Vertices()
 	first := true

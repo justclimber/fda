@@ -1,9 +1,10 @@
 package input
 
 import (
-	"github.com/golang/geo/r2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+
+	"github.com/justclimber/fda/common/fgeom"
 )
 
 const moveK = 5
@@ -15,12 +16,12 @@ func NewEbitenInput() *EbitenInput {
 	return &EbitenInput{}
 }
 
-func (e *EbitenInput) ScrollChange() r2.Point {
+func (e *EbitenInput) ScrollChange() fgeom.Point {
 	if inpututil.KeyPressDuration(ebiten.KeyMetaLeft) > 1 {
-		return r2.Point{}
+		return fgeom.EmptyPoint
 	}
 	dx, dy := ebiten.Wheel()
-	return r2.Point{X: dx * -moveK, Y: dy * -moveK}
+	return fgeom.Point{X: dx * -moveK, Y: dy * -moveK}
 }
 
 func (e *EbitenInput) ScaleChange() float64 {

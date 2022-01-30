@@ -46,7 +46,7 @@ func TestLpuRun_WithObjective(t *testing.T) {
 	pl := player.NewPlayer()
 	e := level.NewPlayerEntity(entityId, pl)
 	e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: &fgeom.Point{X: 6, Y: 2}})
-	e.AddComponent(servcomponent.CMovable, &servcomponent.Movable{})
+	e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(1))
 
 	err = lp.AddEntity(e)
 	require.NoError(t, err)

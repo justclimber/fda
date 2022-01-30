@@ -7,7 +7,7 @@ import (
 )
 
 type components struct {
-	Movable  *servcomponent.Movable
+	Movable  servcomponent.Movable
 	Position *servcomponent.Position
 }
 
@@ -23,7 +23,7 @@ func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
 	}
-	movable, ok1 := in[0].(*servcomponent.Movable)
+	movable, ok1 := in[0].(servcomponent.Movable)
 	pos, ok2 := in[1].(*servcomponent.Position)
 	if !ok1 || !ok2 {
 		return ErrInvalidComponent
@@ -42,7 +42,7 @@ func (m *Moving) RemoveEntity(e *ecs.Entity) {
 
 func (m *Moving) DoTick(_ tick.Tick) (error, bool) {
 	for _, c := range m.components {
-		c.Position.Pos.X = c.Position.Pos.X + 1
+		c.Movable.Move(c.Position.Pos)
 	}
 	return nil, false
 }

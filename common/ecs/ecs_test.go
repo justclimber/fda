@@ -56,9 +56,80 @@ func TestEcs_DoTickWithMock(t *testing.T) {
 	err = ec.AddEntity(e)
 	require.NoError(t, err, "fail to add entity to ecs")
 
-	err = ec.DoTick(tick.Tick(10))
+	err, _ = ec.DoTick(tick.Tick(10))
 	require.NoError(t, err, "ecs do tick error")
 
-	assert.Equal(t, 20, c1c.num1, "expect component data to be changed during ecs->system tick")
+	assert.Equal(t, 74, c1c.num1, "expect component data to be changed during ecs->system tick")
 	assert.Equal(t, "changed", c2c.str, "expect component data to be changed during ecs->system tick")
+}
+
+func TestEcs_DoTickWithMockObjective(t *testing.T) {
+	cases := []struct {
+		name      string
+		objective *objectiveMock
+		e         *Entity
+		wantStop  bool
+		wantErr   bool
+		errMsg    string
+	}{
+		{
+			name:      "objective reached",
+			objective: NewObjectiveMock(53),
+			e: &Entity{
+				Id: 10,
+				Components: map[ComponentKey]interface{}{
+					c1key: &c1{num1: 33},
+					c2key: &c2{str: "foo"},
+					c3key: &c3{num2: 5.4},
+				},
+			},
+			wantStop: true,
+		},
+		{
+			name:      "objective not reached",
+			objective: NewObjectiveMock(50),
+			e: &Entity{
+				Id: 10,
+				Components: map[ComponentKey]interface{}{
+					c1key: &c1{num1: 33},
+					c2key: &c2{str: "foo"},
+					c3key: &c3{num2: 5.4},
+				},
+			},
+			wantStop: false,
+		},
+		{
+			name:      "error returned",
+			objective: NewObjectiveMock(50),
+			e: &Entity{
+				Id: 5,
+				Components: map[ComponentKey]interface{}{
+					c1key: &c1{num1: 33},
+					c2key: &c2{str: "foo"},
+					c3key: &c3{num2: 5.4},
+				},
+			},
+			wantErr: true,
+			errMsg:  "oops",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			sysMock := &sysMock{components: make(map[EntityId]components)}
+			ec, err := NewEcs([]System{sysMock, tc.objective})
+			require.NoError(t, err)
+
+			err = ec.AddEntity(tc.e)
+			require.NoError(t, err, "fail to add entity to ecs")
+
+			err, stop := ec.DoTick(tick.Tick(10))
+			if tc.wantErr {
+				require.EqualError(t, err, tc.errMsg, "should be error")
+			} else {
+				require.NoError(t, err, "ecs do tick error")
+			}
+			require.Equal(t, tc.wantStop, stop, "should be stopped by objective or not")
+		})
+	}
 }

@@ -46,11 +46,17 @@ func (ec *Ecs) addEntityComponents(e *Entity, s System) error {
 	return s.AddEntity(e, components)
 }
 
-func (ec *Ecs) DoTick(currentTick tick.Tick) error {
+func (ec *Ecs) DoTick(currentTick tick.Tick) (error, bool) {
+	var err error
+	var stop bool
 	for _, s := range ec.systems {
-		if err := s.DoTick(currentTick); err != nil {
-			return err
+		err, stop = s.DoTick(currentTick)
+		if err != nil {
+			return err, false
+		}
+		if stop {
+			break
 		}
 	}
-	return nil
+	return nil, stop
 }

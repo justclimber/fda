@@ -7,3 +7,7 @@ type Entity struct {
 	Id         EntityId
 	Components map[ComponentKey]interface{}
 }
+
+func (e *Entity) AddComponent(key ComponentKey, component interface{}) {
+	e.Components[key] = component
+}

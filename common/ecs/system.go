@@ -5,8 +5,8 @@ import (
 )
 
 type System interface {
-	AddEntity(e *Entity, components []interface{}) error
+	AddEntity(e *Entity, in []interface{}) error
 	RemoveEntity(e *Entity)
-	DoTick(tick tick.Tick) error
+	DoTick(tick tick.Tick) (error, bool)
 	RequiredComponentKeys() []ComponentKey
 }

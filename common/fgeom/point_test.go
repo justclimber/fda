@@ -143,3 +143,144 @@ func TestNormalize(t *testing.T) {
 	}
 
 }
+
+func TestPoint_Near(t *testing.T) {
+	tests := []struct {
+		name string
+		p    Point
+		p2   Point
+		d    float64
+		want bool
+	}{
+		{
+			name: "From 0, 0 to 0, 0, 0.1 - true",
+			p:    Point{X: 0, Y: 0},
+			p2:   Point{X: 0, Y: 0},
+			d:    0.1,
+			want: true,
+		},
+		{
+			name: "From 0, 0 to 1, 0, 0.1 - false",
+			p:    Point{X: 0, Y: 0},
+			p2:   Point{X: 1, Y: 0},
+			d:    0.1,
+			want: false,
+		},
+		{
+			name: "From 0, 0 to 1, 1, 1.415 - true",
+			p:    Point{X: 0, Y: 0},
+			p2:   Point{X: 1, Y: 1},
+			d:    1.415,
+			want: true,
+		},
+		{
+			name: "From 0, 0 to 1, 1, 1.413 - false",
+			p:    Point{X: 0, Y: 0},
+			p2:   Point{X: 1, Y: 1},
+			d:    1.413,
+			want: false,
+		},
+		{
+			name: "From 1, 1 to 0, 0, 1.415 - true",
+			p:    Point{X: 1, Y: 1},
+			p2:   Point{X: 0, Y: 0},
+			d:    1.415,
+			want: true,
+		},
+		{
+			name: "From 1, 1 to 0, 0, 1.413 - false",
+			p:    Point{X: 1, Y: 1},
+			p2:   Point{X: 0, Y: 0},
+			d:    1.413,
+			want: false,
+		},
+		{
+			name: "From 0, 0 to -1, 1, 1.415 - true",
+			p:    Point{X: 0, Y: 0},
+			p2:   Point{X: -1, Y: 1},
+			d:    1.415,
+			want: true,
+		},
+		{
+			name: "From 0, 0 to 1, -1, 1.413 - false",
+			p:    Point{X: 0, Y: 0},
+			p2:   Point{X: 1, Y: -1},
+			d:    1.413,
+			want: false,
+		},
+		{
+			name: "From 4, 3 to 10, 5, 6.32 + 0.1 - true",
+			p:    Point{X: 4, Y: 3},
+			p2:   Point{X: 10, Y: 5},
+			d:    6.32 + 0.1,
+			want: true,
+		},
+		{
+			name: "From 4, 3 to 10, 5, 6.32 - 0.1 - false",
+			p:    Point{X: 4, Y: 3},
+			p2:   Point{X: 10, Y: 5},
+			d:    6.32 - 0.1,
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.p.Near(tt.p2, tt.d); got != tt.want {
+				t.Errorf("Near() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPoint_EqualApprox(t *testing.T) {
+	tests := []struct {
+		name string
+		p    Point
+		p2   Point
+		d    float64
+		want bool
+	}{
+		{
+			name: "Exact same point - true",
+			p:    Point{1, 1},
+			p2:   Point{1, 1},
+			d:    0.1,
+			want: true,
+		},
+		{
+			name: "false",
+			p:    Point{0, 0},
+			p2:   Point{0, 1},
+			d:    0.5,
+			want: false,
+		},
+		{
+			name: "near - true",
+			p:    Point{0, 0},
+			p2:   Point{0.1, 0.1},
+			d:    0.11,
+			want: true,
+		},
+		{
+			name: "near - true 2",
+			p:    Point{0.1, 0.1},
+			p2:   Point{0, 0},
+			d:    0.11,
+			want: true,
+		},
+		{
+			name: "near - false",
+			p:    Point{0.1, 0.1},
+			p2:   Point{0, 0},
+			d:    0.09,
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.p.EqualApprox(tt.p2, tt.d); got != tt.want {
+				t.Errorf("EqualApprox() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -57,9 +57,21 @@ func (p Point) Normalize() Point {
 
 func (p Point) String() string { return fmt.Sprintf("(%.12f, %.12f)", p.X, p.Y) }
 
+// ToImagePoint returns image.Point representation of Point
 func (p Point) ToImagePoint() image.Point {
 	return image.Point{
 		X: int(p.X),
 		Y: int(p.Y),
 	}
+}
+
+// Near returns true if the distance between p2 and p less oq equal than d (without inaccuracy)
+func (p Point) Near(p2 Point, d float64) bool {
+	pd := (p2.X-p.X)*(p2.X-p.X) + (p2.Y-p.Y)*(p2.Y-p.Y)
+	return pd <= d*d
+}
+
+// EqualApprox returns true if p2 equals p with d difference
+func (p Point) EqualApprox(p2 Point, d float64) bool {
+	return math.Abs(p2.Y-p.Y) < d && math.Abs(p2.X-p.X) < d
 }

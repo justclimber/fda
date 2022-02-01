@@ -8,10 +8,10 @@ import (
 	"github.com/justclimber/fda/server/player"
 )
 
-func TestLevelRegisterNewObj(t *testing.T) {
-	l := NewWorld()
+func TestWorldRegisterNewObj(t *testing.T) {
+	w := NewWorld()
 	_, p := player.NewPlayerWithComponent(3)
 	e := NewPlayerEntity(123, p)
-	err := l.RegisterNewEntity(e)
+	err := w.RegisterNewEntity(e)
 	require.NoError(t, err)
 }

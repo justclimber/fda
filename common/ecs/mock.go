@@ -25,6 +25,14 @@ type sysMock struct {
 	components map[EntityId]components
 }
 
+func (m *sysMock) String() string {
+	return "sysMock"
+}
+
+func (m *sysMock) RequiredComponentKeys() []ComponentKey {
+	return []ComponentKey{c2key, c1key}
+}
+
 func (m *sysMock) AddEntity(e *Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return errors.New("incorrect components count on input")
@@ -44,8 +52,7 @@ func (m *sysMock) AddEntity(e *Entity, in []interface{}) error {
 	return nil
 }
 
-func (m *sysMock) RemoveEntity(e *Entity) {
-}
+func (m *sysMock) RemoveEntity(_ *Entity) {}
 
 func (m *sysMock) DoTick(_ tick.Tick) (error, bool) {
 	for _, cc := range m.components {
@@ -55,10 +62,6 @@ func (m *sysMock) DoTick(_ tick.Tick) (error, bool) {
 	return nil, false
 }
 
-func (m *sysMock) RequiredComponentKeys() []ComponentKey {
-	return []ComponentKey{c2key, c1key}
-}
-
 type objectiveMock struct {
 	curC1           *c1
 	objectiveC1Num1 int
@@ -66,6 +69,14 @@ type objectiveMock struct {
 
 func NewObjectiveMock(o int) *objectiveMock {
 	return &objectiveMock{objectiveC1Num1: o}
+}
+
+func (o *objectiveMock) String() string {
+	return "objectiveMock"
+}
+
+func (o *objectiveMock) RequiredComponentKeys() []ComponentKey {
+	return []ComponentKey{c1key}
 }
 
 func (o *objectiveMock) AddEntity(e *Entity, in []interface{}) error {
@@ -84,8 +95,4 @@ func (o *objectiveMock) DoTick(_ tick.Tick) (error, bool) {
 		return errors.New("oops"), false
 	}
 	return nil, o.curC1.num1 == o.objectiveC1Num1
-}
-
-func (o *objectiveMock) RequiredComponentKeys() []ComponentKey {
-	return []ComponentKey{c1key}
 }

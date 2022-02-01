@@ -11,8 +11,8 @@ import (
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/command"
-	"github.com/justclimber/fda/server/ecs/servcomponent"
-	"github.com/justclimber/fda/server/ecs/servsystem"
+	component "github.com/justclimber/fda/server/ecs/servcomponent"
+	system "github.com/justclimber/fda/server/ecs/servsystem"
 	"github.com/justclimber/fda/server/player"
 	"github.com/justclimber/fda/server/world"
 	"github.com/justclimber/fda/server/worldlog"
@@ -73,10 +73,11 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			moving := servsystem.NewMoving()
-			posObjective := servsystem.NewPosObjective(entityId, tc.posObjectivePoint)
-			tickLimiter := servsystem.NewTickLimiter(currentTick, tc.tickLimit)
-			ec, err := ecs.NewEcs([]ecs.System{moving, posObjective, tickLimiter})
+			ec, err := ecs.NewEcs([]ecs.System{
+				system.NewMoving(),
+				system.NewPosObjective(entityId, tc.posObjectivePoint),
+				system.NewTickLimiter(currentTick, tc.tickLimit),
+			})
 			require.NoError(t, err, "fail to create ecs")
 
 			log := worldlog.NewWorldLog()
@@ -86,8 +87,8 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			_, pl := player.NewPlayerWithComponent(1)
 			e := world.NewPlayerEntity(entityId, pl)
 
-			e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: startPosition})
-			e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(tc.power))
+			e.AddComponent(component.CPosition, &component.Position{Pos: startPosition})
+			e.AddComponent(component.CMovable, component.NewEngine(tc.power))
 
 			err = wp.AddEntity(e)
 			require.NoError(t, err, "fail to add entity")
@@ -108,15 +109,11 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	power := 1.
 	tickLimit := tick.Tick(10)
 
-	moving := servsystem.NewMoving()
-	posObjective := servsystem.NewPosObjective(entityId, objectivePos)
-	playerCommands := servsystem.NewPlayerCommands()
-	tickLimiter := servsystem.NewTickLimiter(currentTick, tickLimit)
 	ec, err := ecs.NewEcs([]ecs.System{
-		playerCommands,
-		moving,
-		posObjective,
-		tickLimiter,
+		system.NewPlayerCommands(),
+		system.NewMoving(),
+		system.NewPosObjective(entityId, objectivePos),
+		system.NewTickLimiter(currentTick, tickLimit),
 	})
 	require.NoError(t, err, "fail to create ecs")
 
@@ -126,8 +123,8 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 
 	pl, plComp := player.NewPlayerWithComponent(3)
 	e := world.NewPlayerEntity(entityId, plComp)
-	e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: startPos})
-	e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(power))
+	e.AddComponent(component.CPosition, &component.Position{Pos: startPos})
+	e.AddComponent(component.CMovable, component.NewEngine(power))
 
 	err = wp.AddEntity(e)
 	require.NoError(t, err, "fail to add entity")

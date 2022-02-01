@@ -73,15 +73,15 @@ func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			log := levellog.NewLevelLog()
 			moving := servsystem.NewMoving()
 			posObjective := servsystem.NewPosObjective(entityId, tc.posObjectivePoint)
 			tickLimiter := servsystem.NewTickLimiter(currentTick, tc.tickLimit)
 			ec, err := ecs.NewEcs([]ecs.System{moving, posObjective, tickLimiter})
-			require.NoError(t, err)
+			require.NoError(t, err, "fail to create ecs")
 
+			log := levellog.NewLevelLog()
 			lp := lpu.NewLpu(log, ec)
-			require.NotNil(t, lp)
+			require.NotNil(t, lp, "fail to create LPU")
 
 			_, pl := player.NewPlayerWithComponent(1)
 			e := level.NewPlayerEntity(entityId, pl)
@@ -90,15 +90,12 @@ func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(tc.power))
 
 			err = lp.AddEntity(e)
-			require.NoError(t, err)
+			require.NoError(t, err, "fail to add entity")
 
 			err = lp.Run(currentTick)
-			require.NoError(t, err)
-
-			resultLogs := lp.Logger().Logs()
-			require.NotEmpty(t, resultLogs)
-
-			require.Len(t, resultLogs, tc.wantLogsCount)
+			require.NoError(t, err, "error while running LPU&ECS")
+			require.NotEmpty(t, log.Logs(), "empty result logs")
+			require.Len(t, log.Logs(), tc.wantLogsCount, "check result logs count")
 		})
 	}
 }
@@ -106,41 +103,44 @@ func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
 func TestLpuRun_WithPpu(t *testing.T) {
 	entityId := ecs.EntityId(13)
 	currentTick := tick.Tick(23)
+	startPos := &fgeom.Point{X: 8, Y: 20}
+	objectivePos := startPos.Add(fgeom.Point{X: 2})
+	power := 1.
+	tickLimit := tick.Tick(10)
 
-	log := levellog.NewLevelLog()
 	moving := servsystem.NewMoving()
-	posObjective := servsystem.NewPosObjective(entityId, fgeom.Point{
-		X: 10,
-		Y: 20,
-	})
+	posObjective := servsystem.NewPosObjective(entityId, objectivePos)
 	playerCommands := servsystem.NewPlayerCommands()
-	tickLimiter := servsystem.NewTickLimiter(currentTick, 10)
+	tickLimiter := servsystem.NewTickLimiter(currentTick, tickLimit)
 	ec, err := ecs.NewEcs([]ecs.System{
 		playerCommands,
 		moving,
 		posObjective,
 		tickLimiter,
 	})
-	require.NoError(t, err)
+	require.NoError(t, err, "fail to create ecs")
 
+	log := levellog.NewLevelLog()
 	lp := lpu.NewLpu(log, ec)
-	require.NotNil(t, lp)
+	require.NotNil(t, lp, "fail to create LPU")
 
 	pl, plComp := player.NewPlayerWithComponent(3)
 	e := level.NewPlayerEntity(entityId, plComp)
-	e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: &fgeom.Point{X: 8, Y: 20}})
-	e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(1))
+	e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: startPos})
+	e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(power))
 
 	err = lp.AddEntity(e)
-	require.NoError(t, err)
+	require.NoError(t, err, "fail to add entity")
 
 	pl.SendCommand(command.Command{Move: 0.5})
 
 	err = lp.Run(currentTick)
-	require.NoError(t, err)
+	require.NoError(t, err, "error while running LPU&ECS")
+	require.NotEmpty(t, log.Logs(), "empty result logs")
 
-	resultLogs := lp.Logger().Logs()
-	require.NotEmpty(t, resultLogs)
+	if len(log.Logs()) == int(tickLimit) {
+		t.Fatal("tick limit reached unexpectedly")
+	}
 
 	expectedLogs := []*levellog.LogEntry{
 		{Tick: 23},
@@ -148,5 +148,5 @@ func TestLpuRun_WithPpu(t *testing.T) {
 		{Tick: 25},
 		{Tick: 26},
 	}
-	require.Equal(t, expectedLogs, resultLogs)
+	require.Equal(t, expectedLogs, log.Logs(), "check result logs")
 }

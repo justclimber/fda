@@ -44,7 +44,3 @@ func (u *LevelProcessingUnit) doTick(currentTick tick.Tick) (error, bool) {
 
 	return nil, stop
 }
-
-func (u *LevelProcessingUnit) Logger() levellog.LevelLogger {
-	return u.logger
-}

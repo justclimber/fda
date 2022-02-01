@@ -1,4 +1,4 @@
-package level
+package world
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestLevelRegisterNewObj(t *testing.T) {
-	l := NewLevel()
+	l := NewWorld()
 	_, p := player.NewPlayerWithComponent(3)
 	e := NewPlayerEntity(123, p)
 	err := l.RegisterNewEntity(e)

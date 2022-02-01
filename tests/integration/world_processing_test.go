@@ -13,25 +13,25 @@ import (
 	"github.com/justclimber/fda/server/command"
 	"github.com/justclimber/fda/server/ecs/servcomponent"
 	"github.com/justclimber/fda/server/ecs/servsystem"
-	"github.com/justclimber/fda/server/level"
-	"github.com/justclimber/fda/server/levellog"
-	"github.com/justclimber/fda/server/lpu"
 	"github.com/justclimber/fda/server/player"
+	"github.com/justclimber/fda/server/world"
+	"github.com/justclimber/fda/server/worldlog"
+	"github.com/justclimber/fda/server/worldprocessor"
 )
 
-func TestLevelProcessing_WithNewObj(t *testing.T) {
-	l := level.NewLevel()
+func TestWorldProcessing_WithNewObj(t *testing.T) {
+	w := world.NewWorld()
 	_, pl := player.NewPlayerWithComponent(1)
-	e := level.NewPlayerEntity(12, pl)
+	e := world.NewPlayerEntity(12, pl)
 
-	err := l.RegisterNewEntity(e)
+	err := w.RegisterNewEntity(e)
 	require.NoError(t, err, "fail to register new object")
 
-	err = l.AllocateEntity(e)
+	err = w.AllocateEntity(e)
 	require.NoError(t, err, "fail to allocate object")
 }
 
-func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
+func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 	entityId := ecs.EntityId(13)
 	currentTick := tick.Tick(23)
 	startPosition := &fgeom.Point{X: 6, Y: 20}
@@ -79,20 +79,20 @@ func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			ec, err := ecs.NewEcs([]ecs.System{moving, posObjective, tickLimiter})
 			require.NoError(t, err, "fail to create ecs")
 
-			log := levellog.NewLevelLog()
-			lp := lpu.NewLpu(log, ec)
-			require.NotNil(t, lp, "fail to create LPU")
+			log := worldlog.NewWorldLog()
+			wp := worldprocessor.NewWorldProcessor(log, ec)
+			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(1)
-			e := level.NewPlayerEntity(entityId, pl)
+			e := world.NewPlayerEntity(entityId, pl)
 
 			e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: startPosition})
 			e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(tc.power))
 
-			err = lp.AddEntity(e)
+			err = wp.AddEntity(e)
 			require.NoError(t, err, "fail to add entity")
 
-			err = lp.Run(currentTick)
+			err = wp.Run(currentTick)
 			require.NoError(t, err, "error while running LPU&ECS")
 			require.NotEmpty(t, log.Logs(), "empty result logs")
 			require.Len(t, log.Logs(), tc.wantLogsCount, "check result logs count")
@@ -100,7 +100,7 @@ func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
 	}
 }
 
-func TestLpuRun_WithPpu(t *testing.T) {
+func TestLpuRun_WithPlayerProcessor(t *testing.T) {
 	entityId := ecs.EntityId(13)
 	currentTick := tick.Tick(23)
 	startPos := &fgeom.Point{X: 8, Y: 20}
@@ -120,21 +120,21 @@ func TestLpuRun_WithPpu(t *testing.T) {
 	})
 	require.NoError(t, err, "fail to create ecs")
 
-	log := levellog.NewLevelLog()
-	lp := lpu.NewLpu(log, ec)
-	require.NotNil(t, lp, "fail to create LPU")
+	log := worldlog.NewWorldLog()
+	wp := worldprocessor.NewWorldProcessor(log, ec)
+	require.NotNil(t, wp, "fail to create WorldProcessor")
 
 	pl, plComp := player.NewPlayerWithComponent(3)
-	e := level.NewPlayerEntity(entityId, plComp)
+	e := world.NewPlayerEntity(entityId, plComp)
 	e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: startPos})
 	e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(power))
 
-	err = lp.AddEntity(e)
+	err = wp.AddEntity(e)
 	require.NoError(t, err, "fail to add entity")
 
 	pl.SendCommand(command.Command{Move: 0.5})
 
-	err = lp.Run(currentTick)
+	err = wp.Run(currentTick)
 	require.NoError(t, err, "error while running LPU&ECS")
 	require.NotEmpty(t, log.Logs(), "empty result logs")
 
@@ -142,7 +142,7 @@ func TestLpuRun_WithPpu(t *testing.T) {
 		t.Fatal("tick limit reached unexpectedly")
 	}
 
-	expectedLogs := []*levellog.LogEntry{
+	expectedLogs := []*worldlog.LogEntry{
 		{Tick: 23},
 		{Tick: 24},
 		{Tick: 25},

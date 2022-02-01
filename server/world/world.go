@@ -1,14 +1,14 @@
-package level
+package world
 
 import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/server/ecs/servcomponent"
 )
 
-type Level struct{}
+type World struct{}
 
-func NewLevel() *Level {
-	return &Level{}
+func NewWorld() *World {
+	return &World{}
 }
 
 func NewPlayerEntity(id ecs.EntityId, p *servcomponent.Player) *ecs.Entity {
@@ -20,10 +20,10 @@ func NewPlayerEntity(id ecs.EntityId, p *servcomponent.Player) *ecs.Entity {
 	}
 }
 
-func (l *Level) RegisterNewEntity(*ecs.Entity) error {
+func (w *World) RegisterNewEntity(*ecs.Entity) error {
 	return nil
 }
 
-func (l *Level) AllocateEntity(*ecs.Entity) error {
+func (w *World) AllocateEntity(*ecs.Entity) error {
 	return nil
 }

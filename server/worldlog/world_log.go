@@ -1,10 +1,10 @@
-package levellog
+package worldlog
 
 import (
 	"github.com/justclimber/fda/common/tick"
 )
 
-type LevelLogger interface {
+type WorldLogger interface {
 	LogTick(tick tick.Tick)
 	Logs() []*LogEntry
 }
@@ -13,18 +13,18 @@ type LogEntry struct {
 	Tick tick.Tick
 }
 
-type LevelLog struct {
+type WorldLog struct {
 	logs []*LogEntry
 }
 
-func NewLevelLog() *LevelLog {
-	return &LevelLog{}
+func NewWorldLog() *WorldLog {
+	return &WorldLog{}
 }
 
-func (l *LevelLog) LogTick(tick tick.Tick) {
+func (l *WorldLog) LogTick(tick tick.Tick) {
 	l.logs = append(l.logs, &LogEntry{Tick: tick})
 }
 
-func (l *LevelLog) Logs() []*LogEntry {
+func (l *WorldLog) Logs() []*LogEntry {
 	return l.logs
 }

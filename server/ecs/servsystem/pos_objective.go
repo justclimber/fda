@@ -20,6 +20,10 @@ func NewPosObjective(eId ecs.EntityId, pos fgeom.Point) *PosObjective {
 	}
 }
 
+func (p *PosObjective) String() string {
+	return "PosObjective"
+}
+
 func (p *PosObjective) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if e.Id != p.eId {
 		return nil
@@ -32,11 +36,10 @@ func (p *PosObjective) AddEntity(e *ecs.Entity, in []interface{}) error {
 	return nil
 }
 
-func (p *PosObjective) RemoveEntity(e *ecs.Entity) {
-}
+func (p *PosObjective) RemoveEntity(e *ecs.Entity) {}
 
 func (p *PosObjective) DoTick(_ tick.Tick) (error, bool) {
-	return nil, p.curPos.Pos.X == p.objectivePos.X
+	return nil, p.curPos.Pos.EqualApprox(p.objectivePos, 0.1)
 }
 
 func (p *PosObjective) RequiredComponentKeys() []ecs.ComponentKey {

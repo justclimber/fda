@@ -6,17 +6,21 @@ import (
 	"github.com/justclimber/fda/server/ecs/servcomponent"
 )
 
-type components struct {
+type movingCs struct {
 	Movable  servcomponent.Movable
 	Position *servcomponent.Position
 }
 
 type Moving struct {
-	components map[ecs.EntityId]components
+	components map[ecs.EntityId]movingCs
 }
 
 func NewMoving() *Moving {
-	return &Moving{components: make(map[ecs.EntityId]components)}
+	return &Moving{components: make(map[ecs.EntityId]movingCs)}
+}
+
+func (m *Moving) String() string {
+	return "Moving"
 }
 
 func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
@@ -29,7 +33,7 @@ func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
 		return ErrInvalidComponent
 	}
 
-	m.components[e.Id] = components{
+	m.components[e.Id] = movingCs{
 		Movable:  movable,
 		Position: pos,
 	}

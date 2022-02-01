@@ -2,6 +2,8 @@ package ecs
 
 import (
 	"errors"
+	"fmt"
+	"log"
 
 	"github.com/justclimber/fda/common/tick"
 )
@@ -25,7 +27,7 @@ func NewEcs(systems []System) (*Ecs, error) {
 
 func (ec *Ecs) AddEntity(e *Entity) error {
 	for _, s := range ec.systems {
-		err := ec.addEntityComponents(e, s)
+		err := ec.checkComponentsAndAddEntity(e, s)
 		if err != nil {
 			return err
 		}
@@ -34,16 +36,27 @@ func (ec *Ecs) AddEntity(e *Entity) error {
 	return nil
 }
 
-func (ec *Ecs) addEntityComponents(e *Entity, s System) error {
+func (ec *Ecs) checkComponentsAndAddEntity(e *Entity, s System) error {
+	requiredComponentKeys := s.RequiredComponentKeys()
+	if requiredComponentKeys == nil {
+		return nil
+	}
+
 	var components []interface{}
-	for _, key := range s.RequiredComponentKeys() {
+	for _, key := range requiredComponentKeys {
 		c, ok := e.Components[key]
 		if !ok {
 			return nil
 		}
 		components = append(components, c)
 	}
-	return s.AddEntity(e, components)
+	err := s.AddEntity(e, components)
+	if err != nil {
+		return fmt.Errorf("%s system: %w", s, err)
+	}
+
+	log.Printf("%s added to %s system", e, s)
+	return nil
 }
 
 func (ec *Ecs) DoTick(currentTick tick.Tick) (error, bool) {

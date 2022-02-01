@@ -10,7 +10,7 @@ import (
 
 func TestLevelRegisterNewObj(t *testing.T) {
 	l := NewLevel()
-	p := player.NewPlayer()
+	_, p := player.NewPlayerWithComponent(3)
 	e := NewPlayerEntity(123, p)
 	err := l.RegisterNewEntity(e)
 	require.NoError(t, err)

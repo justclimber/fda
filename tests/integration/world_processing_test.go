@@ -93,14 +93,14 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			require.NoError(t, err, "fail to add entity")
 
 			err = wp.Run(currentTick)
-			require.NoError(t, err, "error while running LPU&ECS")
+			require.NoError(t, err, "error while running WP&ECS")
 			require.NotEmpty(t, log.Logs(), "empty result logs")
 			require.Len(t, log.Logs(), tc.wantLogsCount, "check result logs count")
 		})
 	}
 }
 
-func TestLpuRun_WithPlayerProcessor(t *testing.T) {
+func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	entityId := ecs.EntityId(13)
 	currentTick := tick.Tick(23)
 	startPos := &fgeom.Point{X: 8, Y: 20}
@@ -135,7 +135,7 @@ func TestLpuRun_WithPlayerProcessor(t *testing.T) {
 	pl.SendCommand(command.Command{Move: 0.5})
 
 	err = wp.Run(currentTick)
-	require.NoError(t, err, "error while running LPU&ECS")
+	require.NoError(t, err, "error while running WP&ECS")
 	require.NotEmpty(t, log.Logs(), "empty result logs")
 
 	if len(log.Logs()) == int(tickLimit) {

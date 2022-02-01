@@ -23,6 +23,13 @@ func (m *Moving) String() string {
 	return "Moving"
 }
 
+func (m *Moving) RequiredComponentKeys() []ecs.ComponentKey {
+	return []ecs.ComponentKey{
+		servcomponent.CMovable,
+		servcomponent.CPosition,
+	}
+}
+
 func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
@@ -49,11 +56,4 @@ func (m *Moving) DoTick(_ tick.Tick) (error, bool) {
 		c.Movable.Move(c.Position.Pos)
 	}
 	return nil, false
-}
-
-func (m *Moving) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{
-		servcomponent.CMovable,
-		servcomponent.CPosition,
-	}
 }

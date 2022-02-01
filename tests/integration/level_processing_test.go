@@ -1,3 +1,5 @@
+//go:build integration
+
 package integration
 
 import (
@@ -29,42 +31,76 @@ func TestLevelProcessing_WithNewObj(t *testing.T) {
 	require.NoError(t, err, "fail to allocate object")
 }
 
-func TestLpuRun_WithObjective(t *testing.T) {
+func TestLpuRun_WithObjectiveAndTickLimiter(t *testing.T) {
 	entityId := ecs.EntityId(13)
+	currentTick := tick.Tick(23)
+	startPosition := &fgeom.Point{X: 6, Y: 20}
 
-	log := levellog.NewLevelLog()
-	moving := servsystem.NewMoving()
-	posObjective := servsystem.NewPosObjective(entityId, fgeom.Point{
-		X: 10,
-		Y: 20,
-	})
-	ec, err := ecs.NewEcs([]ecs.System{moving, posObjective})
-	require.NoError(t, err)
+	for _, tc := range []struct {
+		name              string
+		posObjectivePoint fgeom.Point
+		tickLimit         tick.Tick
+		power             float64
+		wantLogsCount     int
+	}{
+		{
+			name:              "objective_reached_first",
+			posObjectivePoint: startPosition.Add(fgeom.Point{X: 4}),
+			tickLimit:         10,
+			power:             1,
+			wantLogsCount:     4,
+		},
+		{
+			name:              "tick_limiter_reached_first",
+			posObjectivePoint: startPosition.Add(fgeom.Point{X: 4}),
+			tickLimit:         3,
+			power:             1,
+			wantLogsCount:     3,
+		},
+		{
+			name:              "tick_limiter_reached_first_#2",
+			posObjectivePoint: startPosition.Add(fgeom.Point{X: 10}),
+			tickLimit:         4,
+			power:             2,
+			wantLogsCount:     4,
+		},
+		{
+			name:              "tick_limiter_with_objective",
+			posObjectivePoint: startPosition.Add(fgeom.Point{X: 4}),
+			tickLimit:         4,
+			power:             1,
+			wantLogsCount:     4,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			log := levellog.NewLevelLog()
+			moving := servsystem.NewMoving()
+			posObjective := servsystem.NewPosObjective(entityId, tc.posObjectivePoint)
+			tickLimiter := servsystem.NewTickLimiter(currentTick, tc.tickLimit)
+			ec, err := ecs.NewEcs([]ecs.System{moving, posObjective, tickLimiter})
+			require.NoError(t, err)
 
-	lp := lpu.NewLpu(log, ec)
-	require.NotNil(t, lp)
+			lp := lpu.NewLpu(log, ec)
+			require.NotNil(t, lp)
 
-	_, pl := player.NewPlayerWithComponent(1)
-	e := level.NewPlayerEntity(entityId, pl)
-	e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: &fgeom.Point{X: 6, Y: 2}})
-	e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(2))
+			_, pl := player.NewPlayerWithComponent(1)
+			e := level.NewPlayerEntity(entityId, pl)
 
-	err = lp.AddEntity(e)
-	require.NoError(t, err)
+			e.AddComponent(servcomponent.CPosition, &servcomponent.Position{Pos: startPosition})
+			e.AddComponent(servcomponent.CMovable, servcomponent.NewEngine(tc.power))
 
-	err = lp.Run(tick.Tick(23))
-	require.NoError(t, err)
+			err = lp.AddEntity(e)
+			require.NoError(t, err)
 
-	resultLogs := lp.Logger().Logs()
-	require.NotEmpty(t, resultLogs)
+			err = lp.Run(currentTick)
+			require.NoError(t, err)
 
-	expectedLogs := []*levellog.LogEntry{
-		{Tick: 23},
-		{Tick: 24},
-		{Tick: 25},
-		{Tick: 26},
+			resultLogs := lp.Logger().Logs()
+			require.NotEmpty(t, resultLogs)
+
+			require.Len(t, resultLogs, tc.wantLogsCount)
+		})
 	}
-	require.Equal(t, expectedLogs, resultLogs)
 }
 
 func TestLpuRun_WithPpu(t *testing.T) {

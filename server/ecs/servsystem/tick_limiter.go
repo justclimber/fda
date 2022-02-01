@@ -21,16 +21,10 @@ func (t *TickLimiter) String() string {
 	return "TickLimiter"
 }
 
-func (t *TickLimiter) AddEntity(_ *ecs.Entity, _ []interface{}) error {
-	return nil
-}
-
-func (t *TickLimiter) RemoveEntity(_ *ecs.Entity) {}
+func (t *TickLimiter) RequiredComponentKeys() []ecs.ComponentKey      { return nil }
+func (t *TickLimiter) AddEntity(_ *ecs.Entity, _ []interface{}) error { return nil }
+func (t *TickLimiter) RemoveEntity(_ *ecs.Entity)                     {}
 
 func (t *TickLimiter) DoTick(tick tick.Tick) (error, bool) {
 	return nil, tick-t.startTick >= t.limitTo-1
-}
-
-func (t *TickLimiter) RequiredComponentKeys() []ecs.ComponentKey {
-	return nil
 }

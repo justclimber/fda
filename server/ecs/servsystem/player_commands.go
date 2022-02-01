@@ -26,6 +26,10 @@ func (p *PlayerCommands) String() string {
 	return "PlayerCommands"
 }
 
+func (p *PlayerCommands) RequiredComponentKeys() []ecs.ComponentKey {
+	return []ecs.ComponentKey{servcomponent.CPlayer, servcomponent.CMovable}
+}
+
 func (p *PlayerCommands) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
@@ -61,8 +65,4 @@ func (p *PlayerCommands) DoTick(_ tick.Tick) (error, bool) {
 	}
 
 	return nil, false
-}
-
-func (p *PlayerCommands) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{servcomponent.CPlayer, servcomponent.CMovable}
 }

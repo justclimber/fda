@@ -24,6 +24,10 @@ func (p *PosObjective) String() string {
 	return "PosObjective"
 }
 
+func (p *PosObjective) RequiredComponentKeys() []ecs.ComponentKey {
+	return []ecs.ComponentKey{servcomponent.CPosition}
+}
+
 func (p *PosObjective) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if e.Id != p.eId {
 		return nil
@@ -40,8 +44,4 @@ func (p *PosObjective) RemoveEntity(e *ecs.Entity) {}
 
 func (p *PosObjective) DoTick(_ tick.Tick) (error, bool) {
 	return nil, p.curPos.Pos.EqualApprox(p.objectivePos, 0.1)
-}
-
-func (p *PosObjective) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{servcomponent.CPosition}
 }

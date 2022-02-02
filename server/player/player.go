@@ -6,6 +6,7 @@ import (
 )
 
 type Player struct {
+	Id    int64
 	CmdCh chan command.Command
 }
 

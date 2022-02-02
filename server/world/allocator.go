@@ -22,5 +22,5 @@ func (a *Allocator) GetLpuByEntity(_ *ecs.Entity) (*worldprocessor.WorldProcesso
 	if err != nil {
 		return nil, fmt.Errorf("faile to create ecs: %w", err)
 	}
-	return worldprocessor.NewWorldProcessor(a.logger, ec), nil
+	return worldprocessor.NewWorldProcessor(a.logger, ec, nil), nil
 }

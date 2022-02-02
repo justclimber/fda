@@ -10,10 +10,11 @@ import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
-	"github.com/justclimber/fda/server/command"
 	component "github.com/justclimber/fda/server/ecs/servcomponent"
 	system "github.com/justclimber/fda/server/ecs/servsystem"
+	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/player"
+	"github.com/justclimber/fda/server/playersprocessor"
 	"github.com/justclimber/fda/server/world"
 	"github.com/justclimber/fda/server/worldlog"
 	"github.com/justclimber/fda/server/worldprocessor"
@@ -81,7 +82,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			require.NoError(t, err, "fail to create ecs")
 
 			l := worldlog.NewLogger()
-			wp := worldprocessor.NewWorldProcessor(l, ec)
+			wp := worldprocessor.NewWorldProcessor(l, ec, nil)
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(1)
@@ -106,8 +107,10 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	currentTick := tick.Tick(23)
 	startPos := &fgeom.Point{X: 8, Y: 20}
 	objectivePos := startPos.Add(fgeom.Point{X: 2})
-	power := 1.
+	power := 0.
 	tickLimit := tick.Tick(10)
+
+	ppWpLink := internalapi.NewPpWpLink()
 
 	ec, err := ecs.NewEcs([]ecs.System{
 		system.NewPlayerCommands(),
@@ -118,7 +121,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	require.NoError(t, err, "fail to create ecs")
 
 	l := worldlog.NewLogger()
-	wp := worldprocessor.NewWorldProcessor(l, ec)
+	wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink)
 	require.NotNil(t, wp, "fail to create WorldProcessor")
 
 	pl, plComp := player.NewPlayerWithComponent(3)
@@ -129,7 +132,13 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	err = wp.AddEntity(e)
 	require.NoError(t, err, "fail to add entity")
 
-	pl.SendCommand(command.Command{Move: 0.5})
+	pp := playersprocessor.NewPlayersProcessor(ppWpLink)
+	pp.AddPlayer(pl)
+
+	go func() {
+		err = pp.Run()
+		require.NoError(t, err, "error while running PP")
+	}()
 
 	err = wp.Run(currentTick)
 	require.NoError(t, err, "error while running WP&ECS")

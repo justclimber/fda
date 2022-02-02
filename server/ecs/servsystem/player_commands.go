@@ -60,7 +60,7 @@ func (p *PlayerCommands) DoTick(_ tick.Tick) (error, bool) {
 		select {
 		case cmd := <-cs.PlayerC.CmdCh:
 			cs.PowerSettable.SetPower(cmd.Move)
-		default:
+			//default:
 		}
 	}
 

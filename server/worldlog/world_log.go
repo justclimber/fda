@@ -6,25 +6,36 @@ import (
 
 type WorldLogger interface {
 	LogTick(tick tick.Tick)
-	Logs() []*LogEntry
+	Logs() *Logs
+	Count() int
 }
 
 type LogEntry struct {
 	Tick tick.Tick
 }
 
-type WorldLog struct {
-	logs []*LogEntry
+type Logs struct {
+	Entries []LogEntry
 }
 
-func NewWorldLog() *WorldLog {
-	return &WorldLog{}
+type Logger struct {
+	logs *Logs
 }
 
-func (l *WorldLog) LogTick(tick tick.Tick) {
-	l.logs = append(l.logs, &LogEntry{Tick: tick})
+func NewLogger() *Logger {
+	return &Logger{logs: &Logs{
+		Entries: []LogEntry{},
+	}}
 }
 
-func (l *WorldLog) Logs() []*LogEntry {
+func (l *Logger) LogTick(tick tick.Tick) {
+	l.logs.Entries = append(l.logs.Entries, LogEntry{Tick: tick})
+}
+
+func (l *Logger) Logs() *Logs {
 	return l.logs
+}
+
+func (l *Logger) Count() int {
+	return len(l.logs.Entries)
 }

@@ -80,8 +80,8 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			})
 			require.NoError(t, err, "fail to create ecs")
 
-			log := worldlog.NewWorldLog()
-			wp := worldprocessor.NewWorldProcessor(log, ec)
+			l := worldlog.NewLogger()
+			wp := worldprocessor.NewWorldProcessor(l, ec)
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(1)
@@ -95,8 +95,8 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 
 			err = wp.Run(currentTick)
 			require.NoError(t, err, "error while running WP&ECS")
-			require.NotEmpty(t, log.Logs(), "empty result logs")
-			require.Len(t, log.Logs(), tc.wantLogsCount, "check result logs count")
+			require.NotEmpty(t, l.Logs(), "empty result logs")
+			require.Equal(t, l.Count(), tc.wantLogsCount, "check result logs count")
 		})
 	}
 }
@@ -117,8 +117,8 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	})
 	require.NoError(t, err, "fail to create ecs")
 
-	log := worldlog.NewWorldLog()
-	wp := worldprocessor.NewWorldProcessor(log, ec)
+	l := worldlog.NewLogger()
+	wp := worldprocessor.NewWorldProcessor(l, ec)
 	require.NotNil(t, wp, "fail to create WorldProcessor")
 
 	pl, plComp := player.NewPlayerWithComponent(3)
@@ -133,17 +133,17 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 
 	err = wp.Run(currentTick)
 	require.NoError(t, err, "error while running WP&ECS")
-	require.NotEmpty(t, log.Logs(), "empty result logs")
+	require.NotEmpty(t, l.Logs(), "empty result logs")
 
-	if len(log.Logs()) == int(tickLimit) {
+	if l.Count() == int(tickLimit) {
 		t.Fatal("tick limit reached unexpectedly")
 	}
 
-	expectedLogs := []*worldlog.LogEntry{
+	expectedLogs := &worldlog.Logs{Entries: []worldlog.LogEntry{
 		{Tick: 23},
 		{Tick: 24},
 		{Tick: 25},
 		{Tick: 26},
-	}
-	require.Equal(t, expectedLogs, log.Logs(), "check result logs")
+	}}
+	require.Equal(t, expectedLogs, l.Logs(), "check result logs")
 }

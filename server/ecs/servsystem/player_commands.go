@@ -1,6 +1,7 @@
 package servsystem
 
 import (
+	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/ecs/servcomponent"
@@ -13,12 +14,14 @@ type playerCs struct {
 }
 
 type PlayerCommands struct {
-	components map[ecs.EntityId]playerCs
+	components map[ecs.EntityId]*playerCs
+	debugger   *debugger.Debugger
 }
 
-func NewPlayerCommands() *PlayerCommands {
+func NewPlayerCommands(debugger *debugger.Debugger) *PlayerCommands {
 	return &PlayerCommands{
-		components: map[ecs.EntityId]playerCs{},
+		components: map[ecs.EntityId]*playerCs{},
+		debugger:   debugger,
 	}
 }
 
@@ -40,18 +43,20 @@ func (p *PlayerCommands) AddEntity(e *ecs.Entity, in []interface{}) error {
 		return ErrInvalidComponent
 	}
 
-	p.components[e.Id] = playerCs{
+	p.components[e.Id] = &playerCs{
 		PowerSettable: powerSettable,
 		PlayerC:       pl,
+		delayLeft:     pl.Delay,
 	}
 	return nil
 }
 
 func (p *PlayerCommands) RemoveEntity(_ *ecs.Entity) {}
 
-func (p *PlayerCommands) DoTick(_ tick.Tick) (error, bool) {
+func (p *PlayerCommands) DoTick(tick tick.Tick) (error, bool) {
 	for _, cs := range p.components {
 		cs.delayLeft--
+		//p.debugger.Printf("DoTick", "[tick %d], delayLeft: %d", tick, cs.delayLeft)
 		if cs.delayLeft > 0 {
 			continue
 		}
@@ -59,6 +64,7 @@ func (p *PlayerCommands) DoTick(_ tick.Tick) (error, bool) {
 
 		select {
 		case cmd := <-cs.PlayerC.CmdCh:
+			p.debugger.Printf("DoTick", "get commands")
 			cs.PowerSettable.SetPower(cmd.Move)
 			//default:
 		}

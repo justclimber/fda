@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
@@ -19,6 +20,8 @@ import (
 	"github.com/justclimber/fda/server/worldlog"
 	"github.com/justclimber/fda/server/worldprocessor"
 )
+
+const isDebug = true
 
 func TestWorldProcessing_WithNewObj(t *testing.T) {
 	w := world.NewWorld()
@@ -36,6 +39,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 	entityId := ecs.EntityId(13)
 	currentTick := tick.Tick(23)
 	startPosition := &fgeom.Point{X: 6, Y: 20}
+	delay := 1
 
 	for _, tc := range []struct {
 		name              string
@@ -74,18 +78,20 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			d := debugger.NewDebugger("app", isDebug)
+			wpDebugger := d.CreateNested("World Processor")
 			ec, err := ecs.NewEcs([]ecs.System{
 				system.NewMoving(),
 				system.NewPosObjective(entityId, tc.posObjectivePoint),
 				system.NewTickLimiter(currentTick, tc.tickLimit),
-			})
+			}, wpDebugger.CreateNested("ECS"))
 			require.NoError(t, err, "fail to create ecs")
 
 			l := worldlog.NewLogger()
-			wp := worldprocessor.NewWorldProcessor(l, ec, nil)
+			wp := worldprocessor.NewWorldProcessor(l, ec, nil, delay, wpDebugger)
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
-			_, pl := player.NewPlayerWithComponent(1)
+			_, pl := player.NewPlayerWithComponent(delay)
 			e := world.NewPlayerEntity(entityId, pl)
 
 			e.AddComponent(component.CPosition, &component.Position{Pos: startPosition})
@@ -109,22 +115,29 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	objectivePos := startPos.Add(fgeom.Point{X: 2})
 	power := 0.
 	tickLimit := tick.Tick(10)
+	delay := 3
+	sendLogsDelay := 4
+	d := debugger.NewDebugger("app", isDebug)
+	wpDebugger := d.CreateNested("World Processor")
+	ppDebugger := d.CreateNested("Players Processor")
+	ecsDebugger := wpDebugger.CreateNested("ECS")
+	playerCommandsDebugger := ecsDebugger.CreateNested("PlayerCommands")
 
 	ppWpLink := internalapi.NewPpWpLink()
 
 	ec, err := ecs.NewEcs([]ecs.System{
-		system.NewPlayerCommands(),
+		system.NewPlayerCommands(playerCommandsDebugger),
 		system.NewMoving(),
 		system.NewPosObjective(entityId, objectivePos),
 		system.NewTickLimiter(currentTick, tickLimit),
-	})
+	}, ecsDebugger)
 	require.NoError(t, err, "fail to create ecs")
 
 	l := worldlog.NewLogger()
-	wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink)
+	wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink, sendLogsDelay, wpDebugger)
 	require.NotNil(t, wp, "fail to create WorldProcessor")
 
-	pl, plComp := player.NewPlayerWithComponent(3)
+	pl, plComp := player.NewPlayerWithComponent(delay)
 	e := world.NewPlayerEntity(entityId, plComp)
 	e.AddComponent(component.CPosition, &component.Position{Pos: startPos})
 	e.AddComponent(component.CMovable, component.NewEngine(power))
@@ -132,7 +145,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	err = wp.AddEntity(e)
 	require.NoError(t, err, "fail to add entity")
 
-	pp := playersprocessor.NewPlayersProcessor(ppWpLink)
+	pp := playersprocessor.NewPlayersProcessor(ppWpLink, ppDebugger)
 	pp.AddPlayer(pl)
 
 	go func() {

@@ -3,6 +3,7 @@ package playersprocessor
 import (
 	"log"
 
+	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/command"
 	"github.com/justclimber/fda/server/internalapi"
@@ -14,12 +15,14 @@ type PlayersProcessor struct {
 	players  map[int64]*player.Player
 	wpLink   *internalapi.PpWpLink
 	currTick tick.Tick
+	debugger *debugger.Debugger
 }
 
-func NewPlayersProcessor(wpLink *internalapi.PpWpLink) *PlayersProcessor {
+func NewPlayersProcessor(wpLink *internalapi.PpWpLink, debugger *debugger.Debugger) *PlayersProcessor {
 	return &PlayersProcessor{
-		wpLink:  wpLink,
-		players: make(map[int64]*player.Player),
+		wpLink:   wpLink,
+		players:  make(map[int64]*player.Player),
+		debugger: debugger,
 	}
 }
 
@@ -28,15 +31,19 @@ func (p *PlayersProcessor) AddPlayer(pl *player.Player) {
 }
 
 func (p *PlayersProcessor) Run() error {
+	// todo: init world?
 	for {
+		p.debugger.Printf("Run", "init [tick: %d]", p.currTick)
 		select {
 		case <-p.wpLink.DoneCh:
 			return nil
 		case logs := <-p.wpLink.LogsCh:
+			p.debugger.Printf("Run", "get logs")
 			if err := p.applyLogs(logs); err != nil {
 				return err
 			}
 			p.processPlayers()
+			p.wpLink.SyncCh <- true
 		}
 	}
 }
@@ -47,6 +54,7 @@ func (p *PlayersProcessor) processPlayers() {
 		if err != nil {
 			log.Println(err)
 		}
+		p.debugger.Printf("Run", "Send command [tick: %d]", p.currTick)
 		pl.SendCommand(cmd)
 	}
 }

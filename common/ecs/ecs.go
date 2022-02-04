@@ -3,8 +3,8 @@ package ecs
 import (
 	"errors"
 	"fmt"
-	"log"
 
+	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/tick"
 )
 
@@ -13,15 +13,17 @@ var ErrNewEcsShouldBeWithAtLeastOneSystem = errors.New("should be at least one s
 type Ecs struct {
 	systems  []System
 	entities map[EntityId]*Entity
+	debugger *debugger.Debugger
 }
 
-func NewEcs(systems []System) (*Ecs, error) {
+func NewEcs(systems []System, debugger *debugger.Debugger) (*Ecs, error) {
 	if len(systems) == 0 {
 		return nil, ErrNewEcsShouldBeWithAtLeastOneSystem
 	}
 	return &Ecs{
 		systems:  systems,
 		entities: make(map[EntityId]*Entity),
+		debugger: debugger,
 	}, nil
 }
 
@@ -55,7 +57,8 @@ func (ec *Ecs) checkComponentsAndAddEntity(e *Entity, s System) error {
 		return fmt.Errorf("%s system: %w", s, err)
 	}
 
-	log.Printf("%s added to %s system", e, s)
+	ec.debugger.Printf("Add entity", "%s added to %s system", e, s)
+
 	return nil
 }
 

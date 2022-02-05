@@ -1,0 +1,53 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,300,700);
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: rgba(33,32,31,1);
+    color: rgb(225, 222, 217);
+}
+
+div {
+    max-width: 40em;
+    max-height: 20em;
+    overflow: scroll;
+    position: relative;
+}
+
+div.container {
+    overflow: scroll;
+    max-width: 1000px;
+    max-height: 1000px;
+}
+
+table {
+    position: relative;
+    border-collapse: collapse;
+}
+
+td,
+th {
+    padding: 0.25em;
+}
+
+td {
+    min-width: 150px;
+    border: 1px solid #7a7a7a;
+}
+
+thead th {
+    position: -webkit-sticky; /* for Safari */
+    position: sticky;
+    top: 0;
+    background-color: #212121;
+}
+
+thead th:first-child {
+    left: 0;
+    z-index: 1;
+}
+
+tbody th {
+    position: -webkit-sticky; /* for Safari */
+    position: sticky;
+    left: 0;
+    background-color: #212121;
+}

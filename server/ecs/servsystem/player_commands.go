@@ -15,10 +15,10 @@ type playerCs struct {
 
 type PlayerCommands struct {
 	components map[ecs.EntityId]*playerCs
-	debugger   *debugger.Debugger
+	debugger   *debugger.Nested
 }
 
-func NewPlayerCommands(debugger *debugger.Debugger) *PlayerCommands {
+func NewPlayerCommands(debugger *debugger.Nested) *PlayerCommands {
 	return &PlayerCommands{
 		components: map[ecs.EntityId]*playerCs{},
 		debugger:   debugger,
@@ -56,7 +56,7 @@ func (p *PlayerCommands) RemoveEntity(_ *ecs.Entity) {}
 func (p *PlayerCommands) DoTick(tick tick.Tick) (error, bool) {
 	for _, cs := range p.components {
 		cs.delayLeft--
-		//p.debugger.Printf("DoTick", "[tick %d], delayLeft: %d", tick, cs.delayLeft)
+		//p.debugger.LogF("DoTick", "[tick %d], delayLeft: %d", tick, cs.delayLeft)
 		if cs.delayLeft > 0 {
 			continue
 		}
@@ -64,7 +64,7 @@ func (p *PlayerCommands) DoTick(tick tick.Tick) (error, bool) {
 
 		select {
 		case cmd := <-cs.PlayerC.CmdCh:
-			p.debugger.Printf("DoTick", "get commands")
+			p.debugger.LogF("DoTick", "get commands")
 			cs.PowerSettable.SetPower(cmd.Move)
 			//default:
 		}

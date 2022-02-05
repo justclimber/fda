@@ -14,7 +14,7 @@ type PpWpLink struct {
 
 func NewPpWpLink() *PpWpLink {
 	return &PpWpLink{
-		DoneCh: make(chan bool),
+		DoneCh: make(chan bool, 1),
 		SyncCh: make(chan bool),
 		LogsCh: make(chan *worldlog.Logs, 1),
 		CmdsCh: make(chan map[int64]command.Command, 1),

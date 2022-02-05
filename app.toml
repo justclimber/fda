@@ -1,1 +1,2 @@
 ServerUrl = "localhost:50051"
+DebuggerHtmlReport = "/reports/debug/html/report.html"

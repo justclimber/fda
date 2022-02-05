@@ -13,10 +13,10 @@ var ErrNewEcsShouldBeWithAtLeastOneSystem = errors.New("should be at least one s
 type Ecs struct {
 	systems  []System
 	entities map[EntityId]*Entity
-	debugger *debugger.Debugger
+	debugger *debugger.Nested
 }
 
-func NewEcs(systems []System, debugger *debugger.Debugger) (*Ecs, error) {
+func NewEcs(systems []System, debugger *debugger.Nested) (*Ecs, error) {
 	if len(systems) == 0 {
 		return nil, ErrNewEcsShouldBeWithAtLeastOneSystem
 	}
@@ -57,7 +57,7 @@ func (ec *Ecs) checkComponentsAndAddEntity(e *Entity, s System) error {
 		return fmt.Errorf("%s system: %w", s, err)
 	}
 
-	ec.debugger.Printf("Add entity", "%s added to %s system", e, s)
+	ec.debugger.LogF("Add entity", "%s -> %s", e, s)
 
 	return nil
 }
@@ -71,6 +71,7 @@ func (ec *Ecs) DoTick(currentTick tick.Tick) (error, bool) {
 			return err, false
 		}
 		if stop {
+			ec.debugger.LogF("DoTick", "Stop from %s", s)
 			break
 		}
 	}

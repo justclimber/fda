@@ -15,7 +15,7 @@ type WorldProcessor struct {
 	logsIndex     int
 	sendLogsDelay int
 	syncDelay     int
-	debugger      *debugger.Debugger
+	debugger      *debugger.Nested
 }
 
 func NewWorldProcessor(
@@ -23,7 +23,7 @@ func NewWorldProcessor(
 	ecs *ecs.Ecs,
 	ppLink *internalapi.PpWpLink,
 	sendLogsDelay int,
-	debugger *debugger.Debugger,
+	debugger *debugger.Nested,
 ) *WorldProcessor {
 	return &WorldProcessor{
 		logger:        logger,
@@ -40,11 +40,11 @@ func (w *WorldProcessor) AddEntity(e *ecs.Entity) error {
 }
 
 func (w *WorldProcessor) Run(currentTick tick.Tick) error {
-	w.logger.LogTick(currentTick)
-	w.debugger.Printf("Run", "send logs on init")
+	//w.logger.LogTick(currentTick)
+	w.debugger.LogF("Run", "send logs on init")
 	w.ppLink.LogsCh <- w.logger.GetLastBatch()
 	for {
-		w.debugger.Printf("Run", "tick: %d", currentTick)
+		w.debugger.LogF("Run", "[tick: %d]", currentTick)
 		err, stop := w.doTick(currentTick)
 		if err != nil {
 			return err
@@ -71,11 +71,12 @@ func (w *WorldProcessor) doTick(currentTick tick.Tick) (error, bool) {
 func (w *WorldProcessor) sendLogsAndSync() {
 	w.logsIndex++
 	if w.logsIndex >= w.sendLogsDelay {
-		w.debugger.Printf("Run", "send logs")
+		w.debugger.LogF("Run", "send logs")
 		w.ppLink.LogsCh <- w.logger.GetLastBatch()
 		w.logsIndex = 0
 	} else if w.logsIndex == w.syncDelay {
-		w.debugger.Printf("Run", "wait sync")
+		w.debugger.LogF("Run", "wait sync")
 		<-w.ppLink.SyncCh
+		w.debugger.LogF("Run", "sync get")
 	}
 }

@@ -25,12 +25,13 @@ func NewConfigLoader() *ConfigLoader {
 
 func (c *ConfigLoader) Load() (config.Config, error) {
 	var appCfg config.Config
-	path, err := findAppConfigFilePath()
+	dir, err := findAppConfigDirPath()
 	if err != nil {
 		return config.Config{}, err
 	}
 
-	fileData, err := ioutil.ReadFile(path)
+	fileData, err := ioutil.ReadFile(filepath.Join(dir, appConfigFileName))
+
 	if err != nil {
 		return config.Config{}, fmt.Errorf("can't read config file: %w", err)
 	}
@@ -38,11 +39,11 @@ func (c *ConfigLoader) Load() (config.Config, error) {
 	if _, err = toml.Decode(string(fileData), &appCfg); err != nil {
 		return config.Config{}, fmt.Errorf("can't decode config file: %w", err)
 	}
-
+	appCfg.SetBaseDir(dir)
 	return appCfg, nil
 }
 
-func findAppConfigFilePath() (string, error) {
+func findAppConfigDirPath() (string, error) {
 	_, from, _, _ := runtime.Caller(1)
 	dir := filepath.Dir(from)
 	gopath := filepath.Clean(os.Getenv("GOPATH"))
@@ -52,7 +53,7 @@ func findAppConfigFilePath() (string, error) {
 			dir = filepath.Dir(dir)
 			continue
 		}
-		return appTomlFile, nil
+		return dir, nil
 	}
 	return "", ErrAppConfigNotFound
 }

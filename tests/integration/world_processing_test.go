@@ -4,10 +4,13 @@ package integration
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/justclimber/fda/common/configloader"
 	"github.com/justclimber/fda/common/debugger"
+	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
@@ -40,6 +43,10 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 	currentTick := tick.Tick(23)
 	startPosition := &fgeom.Point{X: 6, Y: 20}
 	delay := 1
+	sendLogsDelay := 1000
+
+	appCfg, err := configloader.NewConfigLoader().Load()
+	require.NoError(t, err, "loading config")
 
 	for _, tc := range []struct {
 		name              string
@@ -78,8 +85,14 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			d := debugger.NewDebugger("app", isDebug)
+
+			hr := debugger.NewHtmlReport(appCfg.DebuggerHtmlReportFullPath(), templates.EmbeddedFS, time.Second*2)
+			d, finish := debugger.NewDebuggerWithReportFinish(isDebug, hr)
+			defer finish()
 			wpDebugger := d.CreateNested("World Processor")
+
+			ppWpLink := internalapi.NewPpWpLink()
+
 			ec, err := ecs.NewEcs([]ecs.System{
 				system.NewMoving(),
 				system.NewPosObjective(entityId, tc.posObjectivePoint),
@@ -88,7 +101,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			require.NoError(t, err, "fail to create ecs")
 
 			l := worldlog.NewLogger()
-			wp := worldprocessor.NewWorldProcessor(l, ec, nil, delay, wpDebugger)
+			wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink, sendLogsDelay, wpDebugger)
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(delay)
@@ -103,7 +116,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			err = wp.Run(currentTick)
 			require.NoError(t, err, "error while running WP&ECS")
 			require.NotEmpty(t, l.Logs(), "empty result logs")
-			require.Equal(t, l.Count(), tc.wantLogsCount, "check result logs count")
+			require.Equal(t, tc.wantLogsCount, l.Count(), "check result logs count")
 		})
 	}
 }
@@ -117,7 +130,14 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	tickLimit := tick.Tick(10)
 	delay := 3
 	sendLogsDelay := 4
-	d := debugger.NewDebugger("app", isDebug)
+
+	appCfg, err := configloader.NewConfigLoader().Load()
+	require.NoError(t, err, "loading config")
+
+	hr := debugger.NewHtmlReport(appCfg.DebuggerHtmlReportFullPath(), templates.EmbeddedFS, time.Second*2)
+	d, finish := debugger.NewDebuggerWithReportFinish(isDebug, hr)
+	defer finish()
+
 	wpDebugger := d.CreateNested("World Processor")
 	ppDebugger := d.CreateNested("Players Processor")
 	ecsDebugger := wpDebugger.CreateNested("ECS")
@@ -166,6 +186,8 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 		{Tick: 24},
 		{Tick: 25},
 		{Tick: 26},
+		{Tick: 27},
+		{Tick: 28},
 	}}
 	require.Equal(t, expectedLogs, l.Logs(), "check result logs")
 }

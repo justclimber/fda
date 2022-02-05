@@ -15,10 +15,10 @@ type PlayersProcessor struct {
 	players  map[int64]*player.Player
 	wpLink   *internalapi.PpWpLink
 	currTick tick.Tick
-	debugger *debugger.Debugger
+	debugger *debugger.Nested
 }
 
-func NewPlayersProcessor(wpLink *internalapi.PpWpLink, debugger *debugger.Debugger) *PlayersProcessor {
+func NewPlayersProcessor(wpLink *internalapi.PpWpLink, debugger *debugger.Nested) *PlayersProcessor {
 	return &PlayersProcessor{
 		wpLink:   wpLink,
 		players:  make(map[int64]*player.Player),
@@ -33,16 +33,17 @@ func (p *PlayersProcessor) AddPlayer(pl *player.Player) {
 func (p *PlayersProcessor) Run() error {
 	// todo: init world?
 	for {
-		p.debugger.Printf("Run", "init [tick: %d]", p.currTick)
+		p.debugger.LogF("Run", "[tick: %d]", p.currTick)
 		select {
 		case <-p.wpLink.DoneCh:
 			return nil
 		case logs := <-p.wpLink.LogsCh:
-			p.debugger.Printf("Run", "get logs")
+			p.debugger.LogF("Run", "get logs")
 			if err := p.applyLogs(logs); err != nil {
 				return err
 			}
 			p.processPlayers()
+			p.debugger.LogF("Run", "send sync")
 			p.wpLink.SyncCh <- true
 		}
 	}
@@ -54,7 +55,7 @@ func (p *PlayersProcessor) processPlayers() {
 		if err != nil {
 			log.Println(err)
 		}
-		p.debugger.Printf("Run", "Send command [tick: %d]", p.currTick)
+		p.debugger.LogF("Run", "Send command [tick: %d]", p.currTick)
 		pl.SendCommand(cmd)
 	}
 }

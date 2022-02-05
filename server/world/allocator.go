@@ -13,7 +13,7 @@ func NewAllocator(logger worldlog.WorldLogger) *Allocator {
 }
 
 //func (a *Allocator) GetLpuByEntity(_ *ecs.Entity) (*worldprocessor.WorldProcessor, error) {
-//	ec, err := ecs.NewEcs([]ecs.System{servsystem.NewMoving()})
+//	ec, err := ecs.NewEcs([]ecs.System{wpsystem.NewMoving()})
 //	if err != nil {
 //		return nil, fmt.Errorf("faile to create ecs: %w", err)
 //	}

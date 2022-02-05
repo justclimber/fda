@@ -1,16 +1,16 @@
-package servsystem
+package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
-	"github.com/justclimber/fda/server/ecs/servcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type PosObjective struct {
 	eId          ecs.EntityId
 	objectivePos fgeom.Point
-	curPos       *servcomponent.Position
+	curPos       *wpcomponent.Position
 }
 
 func NewPosObjective(eId ecs.EntityId, pos fgeom.Point) *PosObjective {
@@ -25,14 +25,14 @@ func (p *PosObjective) String() string {
 }
 
 func (p *PosObjective) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{servcomponent.CPosition}
+	return []ecs.ComponentKey{wpcomponent.CPosition}
 }
 
 func (p *PosObjective) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if e.Id != p.eId {
 		return nil
 	}
-	c, ok := in[0].(*servcomponent.Position)
+	c, ok := in[0].(*wpcomponent.Position)
 	if !ok {
 		return ErrInvalidComponent
 	}

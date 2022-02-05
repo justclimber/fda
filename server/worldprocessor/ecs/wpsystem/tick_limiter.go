@@ -1,4 +1,4 @@
-package servsystem
+package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/ecs"

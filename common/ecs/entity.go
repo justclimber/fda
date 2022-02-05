@@ -4,16 +4,22 @@ import (
 	"fmt"
 )
 
-type ComponentKey string
 type EntityId int64
 
 type Entity struct {
 	Id         EntityId
-	Components map[ComponentKey]interface{}
+	Components map[ComponentKey]Component
 }
 
-func (e *Entity) AddComponent(key ComponentKey, component interface{}) {
-	e.Components[key] = component
+func NewEntity(Id EntityId) *Entity {
+	return &Entity{
+		Id:         Id,
+		Components: map[ComponentKey]Component{},
+	}
+}
+
+func (e *Entity) AddComponent(c Component) {
+	e.Components[c.Key()] = c
 }
 
 func (e Entity) String() string {

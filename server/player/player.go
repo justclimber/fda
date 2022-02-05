@@ -2,7 +2,7 @@ package player
 
 import (
 	"github.com/justclimber/fda/server/command"
-	"github.com/justclimber/fda/server/ecs/servcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type Player struct {
@@ -14,9 +14,9 @@ func NewPlayer(cmdCh chan command.Command) *Player {
 	return &Player{CmdCh: cmdCh}
 }
 
-func NewPlayerWithComponent(delay int) (*Player, *servcomponent.Player) {
+func NewPlayerWithComponent(delay int) (*Player, *wpcomponent.Player) {
 	cmdCh := make(chan command.Command, 1)
-	return NewPlayer(cmdCh), servcomponent.NewPlayer(delay, cmdCh)
+	return NewPlayer(cmdCh), wpcomponent.NewPlayer(delay, cmdCh)
 }
 
 func (p *Player) SendCommand(command command.Command) {

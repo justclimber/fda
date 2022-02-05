@@ -1,14 +1,14 @@
-package servsystem
+package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/tick"
-	"github.com/justclimber/fda/server/ecs/servcomponent"
+	servcomponent2 "github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type movingCs struct {
-	Movable  servcomponent.Movable
-	Position *servcomponent.Position
+	Movable  servcomponent2.Movable
+	Position *servcomponent2.Position
 }
 
 type Moving struct {
@@ -25,8 +25,8 @@ func (m *Moving) String() string {
 
 func (m *Moving) RequiredComponentKeys() []ecs.ComponentKey {
 	return []ecs.ComponentKey{
-		servcomponent.CMovable,
-		servcomponent.CPosition,
+		servcomponent2.CMovable,
+		servcomponent2.CPosition,
 	}
 }
 
@@ -34,8 +34,8 @@ func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
 	}
-	movable, ok1 := in[0].(servcomponent.Movable)
-	pos, ok2 := in[1].(*servcomponent.Position)
+	movable, ok1 := in[0].(servcomponent2.Movable)
+	pos, ok2 := in[1].(*servcomponent2.Position)
 	if !ok1 || !ok2 {
 		return ErrInvalidComponent
 	}

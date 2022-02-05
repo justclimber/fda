@@ -14,21 +14,20 @@ import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
-	component "github.com/justclimber/fda/server/ecs/servcomponent"
-	system "github.com/justclimber/fda/server/ecs/servsystem"
 	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/player"
 	"github.com/justclimber/fda/server/world"
 	"github.com/justclimber/fda/server/worldlog"
 	"github.com/justclimber/fda/server/worldprocessor"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpsystem"
 )
-
-const isDebug = true
 
 func TestWorldProcessing_WithNewObj(t *testing.T) {
 	w := world.NewWorld()
 	_, pl := player.NewPlayerWithComponent(1)
-	e := world.NewPlayerEntity(12, pl)
+	e := ecs.NewEntity(12)
+	e.AddComponent(pl)
 
 	err := w.RegisterNewEntity(e)
 	require.NoError(t, err, "fail to register new object")
@@ -86,16 +85,16 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 
 			hr := debugger.NewHtmlReport(appCfg.DebuggerHtmlReportFullPath(), templates.EmbeddedFS, time.Second*2)
-			d, finish := debugger.NewDebuggerWithReportFinish(isDebug, hr)
+			d, finish := debugger.NewDebuggerWithReportFinish(true, hr)
 			defer finish()
 			wpDebugger := d.CreateNested("World Processor")
 
 			ppWpLink := internalapi.NewPpWpLink()
 
 			ec, err := ecs.NewEcs([]ecs.System{
-				system.NewMoving(),
-				system.NewPosObjective(entityId, tc.posObjectivePoint),
-				system.NewTickLimiter(currentTick, tc.tickLimit),
+				wpsystem.NewMoving(),
+				wpsystem.NewPosObjective(entityId, tc.posObjectivePoint),
+				wpsystem.NewTickLimiter(currentTick, tc.tickLimit),
 			}, wpDebugger.CreateNested("ECS"))
 			require.NoError(t, err, "fail to create ecs")
 
@@ -104,10 +103,11 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(delay)
-			e := world.NewPlayerEntity(entityId, pl)
+			e := ecs.NewEntity(entityId)
+			e.AddComponent(pl)
 
-			e.AddComponent(component.CPosition, &component.Position{Pos: startPosition})
-			e.AddComponent(component.CMovable, component.NewEngine(tc.power))
+			e.AddComponent(&wpcomponent.Position{Pos: startPosition})
+			e.AddComponent(wpcomponent.NewEngine(tc.power))
 
 			err = wp.AddEntity(e)
 			require.NoError(t, err, "fail to add entity")

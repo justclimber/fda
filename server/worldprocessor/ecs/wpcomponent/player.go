@@ -1,8 +1,11 @@
-package servcomponent
+package wpcomponent
 
 import (
+	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/server/command"
 )
+
+const CPlayer ecs.ComponentKey = "pl"
 
 type Player struct {
 	Delay int
@@ -11,4 +14,8 @@ type Player struct {
 
 func NewPlayer(delay int, cmdCh chan command.Command) *Player {
 	return &Player{Delay: delay, CmdCh: cmdCh}
+}
+
+func (p *Player) Key() ecs.ComponentKey {
+	return CPlayer
 }

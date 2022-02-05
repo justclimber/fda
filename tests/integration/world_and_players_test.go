@@ -12,14 +12,13 @@ import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
-	component "github.com/justclimber/fda/server/ecs/servcomponent"
-	system "github.com/justclimber/fda/server/ecs/servsystem"
 	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/player"
 	"github.com/justclimber/fda/server/playersprocessor"
-	"github.com/justclimber/fda/server/world"
 	"github.com/justclimber/fda/server/worldlog"
 	"github.com/justclimber/fda/server/worldprocessor"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpsystem"
 )
 
 func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
@@ -36,7 +35,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	require.NoError(t, err, "loading config")
 
 	hr := debugger.NewHtmlReport(appCfg.DebuggerHtmlReportFullPath(), templates.EmbeddedFS, time.Second*2)
-	d, finish := debugger.NewDebuggerWithReportFinish(isDebug, hr)
+	d, finish := debugger.NewDebuggerWithReportFinish(true, hr)
 	defer finish()
 
 	wpDebugger := d.CreateNested("World Processor")
@@ -47,10 +46,10 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	ppWpLink := internalapi.NewPpWpLink()
 
 	ec, err := ecs.NewEcs([]ecs.System{
-		system.NewPlayerCommands(playerCommandsDebugger),
-		system.NewMoving(),
-		system.NewPosObjective(entityId, objectivePos),
-		system.NewTickLimiter(currentTick, tickLimit),
+		wpsystem.NewPlayerCommands(playerCommandsDebugger),
+		wpsystem.NewMoving(),
+		wpsystem.NewPosObjective(entityId, objectivePos),
+		wpsystem.NewTickLimiter(currentTick, tickLimit),
 	}, ecsDebugger)
 	require.NoError(t, err, "fail to create ecs")
 
@@ -59,9 +58,10 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	require.NotNil(t, wp, "fail to create WorldProcessor")
 
 	pl, plComp := player.NewPlayerWithComponent(delay)
-	e := world.NewPlayerEntity(entityId, plComp)
-	e.AddComponent(component.CPosition, &component.Position{Pos: startPos})
-	e.AddComponent(component.CMovable, component.NewEngine(power))
+	e := ecs.NewEntity(entityId)
+	e.AddComponent(plComp)
+	e.AddComponent(wpcomponent.NewPosition(startPos))
+	e.AddComponent(wpcomponent.NewEngine(power))
 
 	err = wp.AddEntity(e)
 	require.NoError(t, err, "fail to add entity")

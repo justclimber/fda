@@ -1,7 +1,8 @@
 package wpsystem
 
 import (
-	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/component"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
@@ -12,25 +13,25 @@ type movingCs struct {
 }
 
 type Moving struct {
-	components map[ecs.EntityId]movingCs
+	components map[entity.Id]movingCs
 }
 
 func NewMoving() *Moving {
-	return &Moving{components: make(map[ecs.EntityId]movingCs)}
+	return &Moving{components: make(map[entity.Id]movingCs)}
 }
 
 func (m *Moving) String() string {
 	return "Moving"
 }
 
-func (m *Moving) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{
+func (m *Moving) RequiredComponentKeys() []component.Key {
+	return []component.Key{
 		wpcomponent.CMovable,
 		wpcomponent.CPosition,
 	}
 }
 
-func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
+func (m *Moving) AddEntity(e *entity.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
 	}
@@ -47,7 +48,7 @@ func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
 	return nil
 }
 
-func (m *Moving) RemoveEntity(e *ecs.Entity) {
+func (m *Moving) RemoveEntity(e *entity.Entity) {
 	delete(m.components, e.Id)
 }
 

@@ -5,29 +5,33 @@ import (
 	"fmt"
 
 	"github.com/justclimber/fda/common/debugger"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
+	"github.com/justclimber/fda/server/worldlog"
 )
 
 var ErrNewEcsShouldBeWithAtLeastOneSystem = errors.New("should be at least one system")
 
 type Ecs struct {
 	systems  []System
-	entities map[EntityId]*Entity
+	entities map[entity.Id]*entity.Entity
+	logger   *worldlog.Logger
 	debugger *debugger.Nested
 }
 
-func NewEcs(systems []System, debugger *debugger.Nested) (*Ecs, error) {
+func NewEcs(systems []System, logger *worldlog.Logger, debugger *debugger.Nested) (*Ecs, error) {
 	if len(systems) == 0 {
 		return nil, ErrNewEcsShouldBeWithAtLeastOneSystem
 	}
 	return &Ecs{
 		systems:  systems,
-		entities: make(map[EntityId]*Entity),
+		entities: make(map[entity.Id]*entity.Entity),
+		logger:   logger,
 		debugger: debugger,
 	}, nil
 }
 
-func (ec *Ecs) AddEntity(e *Entity) error {
+func (ec *Ecs) AddEntity(e *entity.Entity) error {
 	for _, s := range ec.systems {
 		err := ec.checkComponentsAndAddEntity(e, s)
 		if err != nil {
@@ -38,7 +42,7 @@ func (ec *Ecs) AddEntity(e *Entity) error {
 	return nil
 }
 
-func (ec *Ecs) checkComponentsAndAddEntity(e *Entity, s System) error {
+func (ec *Ecs) checkComponentsAndAddEntity(e *entity.Entity, s System) error {
 	requiredComponentKeys := s.RequiredComponentKeys()
 	if requiredComponentKeys == nil {
 		return nil

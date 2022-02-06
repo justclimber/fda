@@ -1,6 +1,8 @@
 package worldlog
 
 import (
+	"github.com/justclimber/fda/common/ecs/component"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 )
 
@@ -17,6 +19,17 @@ type LogEntry struct {
 
 type Logs struct {
 	Entries []LogEntry
+}
+
+type TickComponent struct {
+	Tick       tick.Tick
+	Components map[component.Key]component.Component
+}
+
+type LogBatch struct {
+	StartTick    tick.Tick
+	EndTick      tick.Tick
+	EntitiesLogs map[entity.Id]TickComponent
 }
 
 type Logger struct {

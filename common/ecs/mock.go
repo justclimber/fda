@@ -3,13 +3,15 @@ package ecs
 import (
 	"errors"
 
+	"github.com/justclimber/fda/common/ecs/component"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 )
 
 const (
-	c1key ComponentKey = "c1"
-	c2key ComponentKey = "c2"
-	c3key ComponentKey = "c3"
+	c1key component.Key = "c1"
+	c2key component.Key = "c2"
+	c3key component.Key = "c3"
 )
 
 type c1 struct{ num1 int }
@@ -22,18 +24,18 @@ type components struct {
 }
 
 type sysMock struct {
-	components map[EntityId]components
+	components map[entity.Id]components
 }
 
 func (m *sysMock) String() string {
 	return "sysMock"
 }
 
-func (m *sysMock) RequiredComponentKeys() []ComponentKey {
-	return []ComponentKey{c2key, c1key}
+func (m *sysMock) RequiredComponentKeys() []component.Key {
+	return []component.Key{c2key, c1key}
 }
 
-func (m *sysMock) AddEntity(e *Entity, in []interface{}) error {
+func (m *sysMock) AddEntity(e *entity.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return errors.New("incorrect components count on input")
 	}
@@ -52,7 +54,7 @@ func (m *sysMock) AddEntity(e *Entity, in []interface{}) error {
 	return nil
 }
 
-func (m *sysMock) RemoveEntity(_ *Entity) {}
+func (m *sysMock) RemoveEntity(_ *entity.Entity) {}
 
 func (m *sysMock) DoTick(_ tick.Tick) (error, bool) {
 	for _, cc := range m.components {
@@ -75,11 +77,11 @@ func (o *objectiveMock) String() string {
 	return "objectiveMock"
 }
 
-func (o *objectiveMock) RequiredComponentKeys() []ComponentKey {
-	return []ComponentKey{c1key}
+func (o *objectiveMock) RequiredComponentKeys() []component.Key {
+	return []component.Key{c1key}
 }
 
-func (o *objectiveMock) AddEntity(e *Entity, in []interface{}) error {
+func (o *objectiveMock) AddEntity(e *entity.Entity, in []interface{}) error {
 	if e.Id != 10 {
 		return nil
 	}
@@ -88,7 +90,7 @@ func (o *objectiveMock) AddEntity(e *Entity, in []interface{}) error {
 	return nil
 }
 
-func (o *objectiveMock) RemoveEntity(_ *Entity) {}
+func (o *objectiveMock) RemoveEntity(_ *entity.Entity) {}
 
 func (o *objectiveMock) DoTick(_ tick.Tick) (error, bool) {
 	if o.curC1 == nil {

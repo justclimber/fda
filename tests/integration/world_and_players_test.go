@@ -10,6 +10,7 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
@@ -22,7 +23,7 @@ import (
 )
 
 func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
-	entityId := ecs.EntityId(13)
+	entityId := entity.Id(13)
 	currentTick := tick.Tick(23)
 	startPos := &fgeom.Point{X: 8, Y: 20}
 	objectivePos := startPos.Add(fgeom.Point{X: 2})
@@ -45,20 +46,20 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 
 	ppWpLink := internalapi.NewPpWpLink()
 
+	l := worldlog.NewLogger()
 	ec, err := ecs.NewEcs([]ecs.System{
 		wpsystem.NewPlayerCommands(playerCommandsDebugger),
 		wpsystem.NewMoving(),
 		wpsystem.NewPosObjective(entityId, objectivePos),
 		wpsystem.NewTickLimiter(currentTick, tickLimit),
-	}, ecsDebugger)
+	}, l, ecsDebugger)
 	require.NoError(t, err, "fail to create ecs")
 
-	l := worldlog.NewLogger()
 	wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink, sendLogsDelay, wpDebugger)
 	require.NotNil(t, wp, "fail to create WorldProcessor")
 
 	pl, plComp := player.NewPlayerWithComponent(delay)
-	e := ecs.NewEntity(entityId)
+	e := entity.NewEntity(entityId)
 	e.AddComponent(plComp)
 	e.AddComponent(wpcomponent.NewPosition(startPos))
 	e.AddComponent(wpcomponent.NewEngine(power))

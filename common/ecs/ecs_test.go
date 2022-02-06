@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/justclimber/fda/common/ecs/component"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 )
 
@@ -15,13 +17,13 @@ func TestEcs_NewShouldBeWithAtLeastOneSystem(t *testing.T) {
 }
 
 func TestEcs_AddEntityWithMock(t *testing.T) {
-	sysMock := &sysMock{components: make(map[EntityId]components)}
+	sysMock := &sysMock{components: make(map[entity.Id]components)}
 	ec, err := NewEcs([]System{sysMock})
 	require.NoError(t, err)
 
-	e := &Entity{
+	e := &entity.Entity{
 		Id: 10,
-		Components: map[ComponentKey]interface{}{
+		Components: map[component.Key]interface{}{
 			c1key: &c1{num1: 54},
 			c2key: &c2{str: "foo"},
 			c3key: &c3{num2: 5.4},
@@ -37,7 +39,7 @@ func TestEcs_AddEntityWithMock(t *testing.T) {
 }
 
 func TestEcs_DoTickWithMock(t *testing.T) {
-	sysMock := &sysMock{components: make(map[EntityId]components)}
+	sysMock := &sysMock{components: make(map[entity.Id]components)}
 	ec, err := NewEcs([]System{sysMock})
 	require.NoError(t, err)
 
@@ -45,9 +47,9 @@ func TestEcs_DoTickWithMock(t *testing.T) {
 	c2c := &c2{str: "foo"}
 	c3c := &c3{num2: 5.4}
 
-	e := &Entity{
+	e := &entity.Entity{
 		Id: 10,
-		Components: map[ComponentKey]interface{}{
+		Components: map[component.Key]interface{}{
 			c1key: c1c,
 			c2key: c2c,
 			c3key: c3c,
@@ -67,7 +69,7 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 	cases := []struct {
 		name      string
 		objective *objectiveMock
-		e         *Entity
+		e         *entity.Entity
 		wantStop  bool
 		wantErr   bool
 		errMsg    string
@@ -75,9 +77,9 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 		{
 			name:      "objective reached",
 			objective: NewObjectiveMock(53),
-			e: &Entity{
+			e: &entity.Entity{
 				Id: 10,
-				Components: map[ComponentKey]interface{}{
+				Components: map[component.Key]interface{}{
 					c1key: &c1{num1: 33},
 					c2key: &c2{str: "foo"},
 					c3key: &c3{num2: 5.4},
@@ -88,9 +90,9 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 		{
 			name:      "objective not reached",
 			objective: NewObjectiveMock(50),
-			e: &Entity{
+			e: &entity.Entity{
 				Id: 10,
-				Components: map[ComponentKey]interface{}{
+				Components: map[component.Key]interface{}{
 					c1key: &c1{num1: 33},
 					c2key: &c2{str: "foo"},
 					c3key: &c3{num2: 5.4},
@@ -101,9 +103,9 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 		{
 			name:      "error returned",
 			objective: NewObjectiveMock(50),
-			e: &Entity{
+			e: &entity.Entity{
 				Id: 5,
-				Components: map[ComponentKey]interface{}{
+				Components: map[component.Key]interface{}{
 					c1key: &c1{num1: 33},
 					c2key: &c2{str: "foo"},
 					c3key: &c3{num2: 5.4},
@@ -116,7 +118,7 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			sysMock := &sysMock{components: make(map[EntityId]components)}
+			sysMock := &sysMock{components: make(map[entity.Id]components)}
 			ec, err := NewEcs([]System{sysMock, tc.objective})
 			require.NoError(t, err)
 

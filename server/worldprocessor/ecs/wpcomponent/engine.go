@@ -1,11 +1,11 @@
 package wpcomponent
 
 import (
-	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/fgeom"
 )
 
-const CMovable ecs.ComponentKey = "mov"
+const CMovable component.Key = "mov"
 
 type Movable interface {
 	Move(p *fgeom.Point)
@@ -19,7 +19,7 @@ type Engine struct {
 	power float64
 }
 
-func (e *Engine) Key() ecs.ComponentKey {
+func (e *Engine) Key() component.Key {
 	return CMovable
 }
 

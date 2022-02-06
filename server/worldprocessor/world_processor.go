@@ -3,6 +3,7 @@ package worldprocessor
 import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/worldlog"
@@ -35,7 +36,7 @@ func NewWorldProcessor(
 	}
 }
 
-func (w *WorldProcessor) AddEntity(e *ecs.Entity) error {
+func (w *WorldProcessor) AddEntity(e *entity.Entity) error {
 	return w.ecs.AddEntity(e)
 }
 

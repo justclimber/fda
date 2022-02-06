@@ -12,6 +12,7 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
@@ -26,7 +27,7 @@ import (
 func TestWorldProcessing_WithNewObj(t *testing.T) {
 	w := world.NewWorld()
 	_, pl := player.NewPlayerWithComponent(1)
-	e := ecs.NewEntity(12)
+	e := entity.NewEntity(12)
 	e.AddComponent(pl)
 
 	err := w.RegisterNewEntity(e)
@@ -37,7 +38,7 @@ func TestWorldProcessing_WithNewObj(t *testing.T) {
 }
 
 func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
-	entityId := ecs.EntityId(13)
+	entityId := entity.Id(13)
 	currentTick := tick.Tick(23)
 	startPosition := &fgeom.Point{X: 6, Y: 20}
 	delay := 1
@@ -91,19 +92,19 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 
 			ppWpLink := internalapi.NewPpWpLink()
 
+			l := worldlog.NewLogger()
 			ec, err := ecs.NewEcs([]ecs.System{
 				wpsystem.NewMoving(),
 				wpsystem.NewPosObjective(entityId, tc.posObjectivePoint),
 				wpsystem.NewTickLimiter(currentTick, tc.tickLimit),
-			}, wpDebugger.CreateNested("ECS"))
+			}, l, wpDebugger.CreateNested("ECS"))
 			require.NoError(t, err, "fail to create ecs")
 
-			l := worldlog.NewLogger()
 			wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink, sendLogsDelay, wpDebugger)
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(delay)
-			e := ecs.NewEntity(entityId)
+			e := entity.NewEntity(entityId)
 			e.AddComponent(pl)
 
 			e.AddComponent(&wpcomponent.Position{Pos: startPosition})

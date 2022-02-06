@@ -2,7 +2,8 @@ package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/debugger"
-	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/component"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
@@ -14,13 +15,13 @@ type playerCs struct {
 }
 
 type PlayerCommands struct {
-	components map[ecs.EntityId]*playerCs
+	components map[entity.Id]*playerCs
 	debugger   *debugger.Nested
 }
 
 func NewPlayerCommands(debugger *debugger.Nested) *PlayerCommands {
 	return &PlayerCommands{
-		components: map[ecs.EntityId]*playerCs{},
+		components: map[entity.Id]*playerCs{},
 		debugger:   debugger,
 	}
 }
@@ -29,11 +30,11 @@ func (p *PlayerCommands) String() string {
 	return "PlayerCommands"
 }
 
-func (p *PlayerCommands) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{wpcomponent.CPlayer, wpcomponent.CMovable}
+func (p *PlayerCommands) RequiredComponentKeys() []component.Key {
+	return []component.Key{wpcomponent.CPlayer, wpcomponent.CMovable}
 }
 
-func (p *PlayerCommands) AddEntity(e *ecs.Entity, in []interface{}) error {
+func (p *PlayerCommands) AddEntity(e *entity.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
 	}
@@ -51,7 +52,7 @@ func (p *PlayerCommands) AddEntity(e *ecs.Entity, in []interface{}) error {
 	return nil
 }
 
-func (p *PlayerCommands) RemoveEntity(_ *ecs.Entity) {}
+func (p *PlayerCommands) RemoveEntity(_ *entity.Entity) {}
 
 func (p *PlayerCommands) DoTick(tick tick.Tick) (error, bool) {
 	for _, cs := range p.components {

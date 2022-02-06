@@ -3,12 +3,12 @@ package wpsystem
 import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/tick"
-	servcomponent2 "github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type movingCs struct {
-	Movable  servcomponent2.Movable
-	Position *servcomponent2.Position
+	Movable  wpcomponent.Movable
+	Position *wpcomponent.Position
 }
 
 type Moving struct {
@@ -25,8 +25,8 @@ func (m *Moving) String() string {
 
 func (m *Moving) RequiredComponentKeys() []ecs.ComponentKey {
 	return []ecs.ComponentKey{
-		servcomponent2.CMovable,
-		servcomponent2.CPosition,
+		wpcomponent.CMovable,
+		wpcomponent.CPosition,
 	}
 }
 
@@ -34,8 +34,8 @@ func (m *Moving) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
 	}
-	movable, ok1 := in[0].(servcomponent2.Movable)
-	pos, ok2 := in[1].(*servcomponent2.Position)
+	movable, ok1 := in[0].(wpcomponent.Movable)
+	pos, ok2 := in[1].(*wpcomponent.Position)
 	if !ok1 || !ok2 {
 		return ErrInvalidComponent
 	}

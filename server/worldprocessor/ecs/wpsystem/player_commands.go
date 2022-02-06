@@ -4,12 +4,12 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/tick"
-	servcomponent2 "github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type playerCs struct {
-	PowerSettable servcomponent2.PowerSettable
-	PlayerC       *servcomponent2.Player
+	PowerSettable wpcomponent.PowerSettable
+	PlayerC       *wpcomponent.Player
 	delayLeft     int
 }
 
@@ -30,15 +30,15 @@ func (p *PlayerCommands) String() string {
 }
 
 func (p *PlayerCommands) RequiredComponentKeys() []ecs.ComponentKey {
-	return []ecs.ComponentKey{servcomponent2.CPlayer, servcomponent2.CMovable}
+	return []ecs.ComponentKey{wpcomponent.CPlayer, wpcomponent.CMovable}
 }
 
 func (p *PlayerCommands) AddEntity(e *ecs.Entity, in []interface{}) error {
 	if len(in) != 2 {
 		return ErrInvalidComponent
 	}
-	pl, ok1 := in[0].(*servcomponent2.Player)
-	powerSettable, ok2 := in[1].(servcomponent2.PowerSettable)
+	pl, ok1 := in[0].(*wpcomponent.Player)
+	powerSettable, ok2 := in[1].(wpcomponent.PowerSettable)
 	if !ok1 || !ok2 {
 		return ErrInvalidComponent
 	}

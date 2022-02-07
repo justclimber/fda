@@ -21,9 +21,9 @@ func NewPosObjective(eId entity.Id, pos fgeom.Point) *PosObjective {
 	}
 }
 
-func (p *PosObjective) String() string {
-	return "PosObjective"
-}
+func (p *PosObjective) String() string { return "PosObjective" }
+
+func (p *PosObjective) Init() {}
 
 func (p *PosObjective) RequiredComponentKeys() []component.Key {
 	return []component.Key{wpcomponent.CPosition}

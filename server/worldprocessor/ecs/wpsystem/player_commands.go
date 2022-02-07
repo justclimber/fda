@@ -26,9 +26,9 @@ func NewPlayerCommands(debugger *debugger.Nested) *PlayerCommands {
 	}
 }
 
-func (p *PlayerCommands) String() string {
-	return "PlayerCommands"
-}
+func (p *PlayerCommands) String() string { return "PlayerCommands" }
+
+func (p *PlayerCommands) Init() {}
 
 func (p *PlayerCommands) RequiredComponentKeys() []component.Key {
 	return []component.Key{wpcomponent.CPlayer, wpcomponent.CMovable}

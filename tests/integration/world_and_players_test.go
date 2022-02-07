@@ -31,6 +31,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	tickLimit := tick.Tick(10)
 	delay := 3
 	sendLogsDelay := 4
+	syncDelay := 2
 
 	appCfg, err := configloader.NewConfigLoader().Load()
 	require.NoError(t, err, "loading config")
@@ -43,6 +44,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	ppDebugger := d.CreateNested("Players Processor")
 	ecsDebugger := wpDebugger.CreateNested("ECS")
 	playerCommandsDebugger := ecsDebugger.CreateNested("PlayerCommands")
+	logDebugger := ecsDebugger.CreateNested("Log")
 
 	ppWpLink := internalapi.NewPpWpLink()
 
@@ -52,10 +54,11 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 		wpsystem.NewMoving(),
 		wpsystem.NewPosObjective(entityId, objectivePos),
 		wpsystem.NewTickLimiter(currentTick, tickLimit),
-	}, l, ecsDebugger)
+		wpsystem.NewLog(l, ppWpLink, sendLogsDelay, syncDelay, logDebugger),
+	}, ecsDebugger)
 	require.NoError(t, err, "fail to create ecs")
 
-	wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink, sendLogsDelay, wpDebugger)
+	wp := worldprocessor.NewWorldProcessor(ec, ppWpLink, wpDebugger)
 	require.NotNil(t, wp, "fail to create WorldProcessor")
 
 	pl, plComp := player.NewPlayerWithComponent(delay)

@@ -6,33 +6,23 @@ import (
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
-	"github.com/justclimber/fda/server/worldlog"
 )
 
 type WorldProcessor struct {
-	logger        worldlog.WorldLogger
-	ecs           *ecs.Ecs
-	ppLink        *internalapi.PpWpLink
-	logsIndex     int
-	sendLogsDelay int
-	syncDelay     int
-	debugger      *debugger.Nested
+	ecs      *ecs.Ecs
+	ppLink   *internalapi.PpWpLink
+	debugger *debugger.Nested
 }
 
 func NewWorldProcessor(
-	logger worldlog.WorldLogger,
 	ecs *ecs.Ecs,
 	ppLink *internalapi.PpWpLink,
-	sendLogsDelay int,
 	debugger *debugger.Nested,
 ) *WorldProcessor {
 	return &WorldProcessor{
-		logger:        logger,
-		ecs:           ecs,
-		ppLink:        ppLink,
-		sendLogsDelay: sendLogsDelay,
-		syncDelay:     sendLogsDelay - 2,
-		debugger:      debugger,
+		ecs:      ecs,
+		ppLink:   ppLink,
+		debugger: debugger,
 	}
 }
 
@@ -41,12 +31,10 @@ func (w *WorldProcessor) AddEntity(e *entity.Entity) error {
 }
 
 func (w *WorldProcessor) Run(currentTick tick.Tick) error {
-	//w.logger.LogTick(currentTick)
-	w.debugger.LogF("Run", "send logs on init")
-	w.ppLink.LogsCh <- w.logger.GetLastBatch()
+	w.ecs.Init(currentTick)
 	for {
 		w.debugger.LogF("Run", "[tick: %d]", currentTick)
-		err, stop := w.doTick(currentTick)
+		err, stop := w.ecs.DoTick(currentTick)
 		if err != nil {
 			return err
 		}
@@ -55,29 +43,5 @@ func (w *WorldProcessor) Run(currentTick tick.Tick) error {
 			return nil
 		}
 		currentTick++
-	}
-}
-
-func (w *WorldProcessor) doTick(currentTick tick.Tick) (error, bool) {
-	err, stop := w.ecs.DoTick(currentTick)
-	if err != nil {
-		return err, false
-	}
-	w.logger.LogTick(currentTick)
-	w.sendLogsAndSync()
-
-	return nil, stop
-}
-
-func (w *WorldProcessor) sendLogsAndSync() {
-	w.logsIndex++
-	if w.logsIndex >= w.sendLogsDelay {
-		w.debugger.LogF("Run", "send logs")
-		w.ppLink.LogsCh <- w.logger.GetLastBatch()
-		w.logsIndex = 0
-	} else if w.logsIndex == w.syncDelay {
-		w.debugger.LogF("Run", "wait sync")
-		<-w.ppLink.SyncCh
-		w.debugger.LogF("Run", "sync get")
 	}
 }

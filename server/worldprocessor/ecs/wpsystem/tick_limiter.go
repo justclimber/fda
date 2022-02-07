@@ -18,10 +18,8 @@ func NewTickLimiter(startTick, limitTo tick.Tick) *TickLimiter {
 	}
 }
 
-func (t *TickLimiter) String() string {
-	return "TickLimiter"
-}
-
+func (t *TickLimiter) String() string                                    { return "TickLimiter" }
+func (t *TickLimiter) Init()                                             {}
 func (t *TickLimiter) RequiredComponentKeys() []component.Key            { return nil }
 func (t *TickLimiter) AddEntity(_ *entity.Entity, _ []interface{}) error { return nil }
 func (t *TickLimiter) RemoveEntity(_ *entity.Entity)                     {}

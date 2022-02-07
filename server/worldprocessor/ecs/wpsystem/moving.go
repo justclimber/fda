@@ -20,9 +20,9 @@ func NewMoving() *Moving {
 	return &Moving{components: make(map[entity.Id]movingCs)}
 }
 
-func (m *Moving) String() string {
-	return "Moving"
-}
+func (m *Moving) String() string { return "Moving" }
+
+func (m *Moving) Init() {}
 
 func (m *Moving) RequiredComponentKeys() []component.Key {
 	return []component.Key{

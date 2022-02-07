@@ -12,18 +12,18 @@ import (
 )
 
 func TestEcs_NewShouldBeWithAtLeastOneSystem(t *testing.T) {
-	_, err := NewEcs([]System{})
+	_, err := NewEcs([]System{}, &emptyDebugger{})
 	assert.Equal(t, ErrNewEcsShouldBeWithAtLeastOneSystem, err)
 }
 
 func TestEcs_AddEntityWithMock(t *testing.T) {
 	sysMock := &sysMock{components: make(map[entity.Id]components)}
-	ec, err := NewEcs([]System{sysMock})
+	ec, err := NewEcs([]System{sysMock}, &emptyDebugger{})
 	require.NoError(t, err)
 
 	e := &entity.Entity{
 		Id: 10,
-		Components: map[component.Key]interface{}{
+		Components: map[component.Key]component.Component{
 			c1key: &c1{num1: 54},
 			c2key: &c2{str: "foo"},
 			c3key: &c3{num2: 5.4},
@@ -40,7 +40,7 @@ func TestEcs_AddEntityWithMock(t *testing.T) {
 
 func TestEcs_DoTickWithMock(t *testing.T) {
 	sysMock := &sysMock{components: make(map[entity.Id]components)}
-	ec, err := NewEcs([]System{sysMock})
+	ec, err := NewEcs([]System{sysMock}, &emptyDebugger{})
 	require.NoError(t, err)
 
 	c1c := &c1{num1: 54}
@@ -49,7 +49,7 @@ func TestEcs_DoTickWithMock(t *testing.T) {
 
 	e := &entity.Entity{
 		Id: 10,
-		Components: map[component.Key]interface{}{
+		Components: map[component.Key]component.Component{
 			c1key: c1c,
 			c2key: c2c,
 			c3key: c3c,
@@ -79,7 +79,7 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 			objective: NewObjectiveMock(53),
 			e: &entity.Entity{
 				Id: 10,
-				Components: map[component.Key]interface{}{
+				Components: map[component.Key]component.Component{
 					c1key: &c1{num1: 33},
 					c2key: &c2{str: "foo"},
 					c3key: &c3{num2: 5.4},
@@ -92,7 +92,7 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 			objective: NewObjectiveMock(50),
 			e: &entity.Entity{
 				Id: 10,
-				Components: map[component.Key]interface{}{
+				Components: map[component.Key]component.Component{
 					c1key: &c1{num1: 33},
 					c2key: &c2{str: "foo"},
 					c3key: &c3{num2: 5.4},
@@ -105,7 +105,7 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 			objective: NewObjectiveMock(50),
 			e: &entity.Entity{
 				Id: 5,
-				Components: map[component.Key]interface{}{
+				Components: map[component.Key]component.Component{
 					c1key: &c1{num1: 33},
 					c2key: &c2{str: "foo"},
 					c3key: &c3{num2: 5.4},
@@ -119,7 +119,7 @@ func TestEcs_DoTickWithMockObjective(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			sysMock := &sysMock{components: make(map[entity.Id]components)}
-			ec, err := NewEcs([]System{sysMock, tc.objective})
+			ec, err := NewEcs([]System{sysMock, tc.objective}, &emptyDebugger{})
 			require.NoError(t, err)
 
 			err = ec.AddEntity(tc.e)

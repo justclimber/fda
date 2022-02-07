@@ -10,8 +10,9 @@ import (
 
 type System interface {
 	fmt.Stringer
+	Init()
+	RequiredComponentKeys() []component.Key
 	AddEntity(e *entity.Entity, in []interface{}) error
 	RemoveEntity(e *entity.Entity)
 	DoTick(tick tick.Tick) (error, bool)
-	RequiredComponentKeys() []component.Key
 }

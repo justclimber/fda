@@ -4,10 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
-	"github.com/justclimber/fda/server/worldlog"
 )
 
 var ErrNewEcsShouldBeWithAtLeastOneSystem = errors.New("should be at least one system")
@@ -15,20 +13,24 @@ var ErrNewEcsShouldBeWithAtLeastOneSystem = errors.New("should be at least one s
 type Ecs struct {
 	systems  []System
 	entities map[entity.Id]*entity.Entity
-	logger   *worldlog.Logger
-	debugger *debugger.Nested
+	debugger nestedDebugger
 }
 
-func NewEcs(systems []System, logger *worldlog.Logger, debugger *debugger.Nested) (*Ecs, error) {
+func NewEcs(systems []System, debugger nestedDebugger) (*Ecs, error) {
 	if len(systems) == 0 {
 		return nil, ErrNewEcsShouldBeWithAtLeastOneSystem
 	}
 	return &Ecs{
 		systems:  systems,
 		entities: make(map[entity.Id]*entity.Entity),
-		logger:   logger,
 		debugger: debugger,
 	}, nil
+}
+
+func (ec *Ecs) Init(_ tick.Tick) {
+	for _, s := range ec.systems {
+		s.Init()
+	}
 }
 
 func (ec *Ecs) AddEntity(e *entity.Entity) error {
@@ -67,16 +69,15 @@ func (ec *Ecs) checkComponentsAndAddEntity(e *entity.Entity, s System) error {
 }
 
 func (ec *Ecs) DoTick(currentTick tick.Tick) (error, bool) {
-	var err error
 	var stop bool
 	for _, s := range ec.systems {
-		err, stop = s.DoTick(currentTick)
+		err, stopFromSystem := s.DoTick(currentTick)
 		if err != nil {
 			return err, false
 		}
-		if stop {
+		if stopFromSystem {
+			stop = true
 			ec.debugger.LogF("DoTick", "Stop from %s", s)
-			break
 		}
 	}
 	return nil, stop

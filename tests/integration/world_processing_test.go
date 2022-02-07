@@ -93,14 +93,16 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			ppWpLink := internalapi.NewPpWpLink()
 
 			l := worldlog.NewLogger()
+			ecsDebugger := wpDebugger.CreateNested("ECS")
 			ec, err := ecs.NewEcs([]ecs.System{
 				wpsystem.NewMoving(),
 				wpsystem.NewPosObjective(entityId, tc.posObjectivePoint),
 				wpsystem.NewTickLimiter(currentTick, tc.tickLimit),
-			}, l, wpDebugger.CreateNested("ECS"))
+				wpsystem.NewLog(l, ppWpLink, sendLogsDelay, sendLogsDelay-2, ecsDebugger.CreateNested("Log")),
+			}, ecsDebugger)
 			require.NoError(t, err, "fail to create ecs")
 
-			wp := worldprocessor.NewWorldProcessor(l, ec, ppWpLink, sendLogsDelay, wpDebugger)
+			wp := worldprocessor.NewWorldProcessor(ec, ppWpLink, wpDebugger)
 			require.NotNil(t, wp, "fail to create WorldProcessor")
 
 			_, pl := player.NewPlayerWithComponent(delay)

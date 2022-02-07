@@ -18,6 +18,10 @@ type c1 struct{ num1 int }
 type c2 struct{ str string }
 type c3 struct{ num2 float64 }
 
+func (c *c1) Key() component.Key { return c1key }
+func (c *c2) Key() component.Key { return c2key }
+func (c *c3) Key() component.Key { return c3key }
+
 type components struct {
 	c1 *c1
 	c2 *c2
@@ -27,9 +31,8 @@ type sysMock struct {
 	components map[entity.Id]components
 }
 
-func (m *sysMock) String() string {
-	return "sysMock"
-}
+func (m *sysMock) String() string { return "sysMock" }
+func (m *sysMock) Init()          {}
 
 func (m *sysMock) RequiredComponentKeys() []component.Key {
 	return []component.Key{c2key, c1key}
@@ -73,9 +76,8 @@ func NewObjectiveMock(o int) *objectiveMock {
 	return &objectiveMock{objectiveC1Num1: o}
 }
 
-func (o *objectiveMock) String() string {
-	return "objectiveMock"
-}
+func (o *objectiveMock) String() string { return "objectiveMock" }
+func (o *objectiveMock) Init()          {}
 
 func (o *objectiveMock) RequiredComponentKeys() []component.Key {
 	return []component.Key{c1key}

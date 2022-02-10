@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const reportTitle = "Debug Report"
+
 type column struct {
 	Name string
 }
@@ -40,7 +42,7 @@ func NewHtmlReport(reportFilePath string, templatesFs fs.ReadFileFS, delay time.
 		delay:          delay,
 		threadIndexes:  map[*Thread]int{},
 		data: &data{
-			Title:   "Report",
+			Title:   reportTitle,
 			Columns: []column{},
 			Rows:    []row{},
 		},

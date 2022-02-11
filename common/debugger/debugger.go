@@ -16,10 +16,9 @@ type lazyReporter interface {
 }
 
 func NewDebuggerWithReportFinish(enabled bool, r lazyReporter) (*Debugger, func()) {
-	t := time.Now()
 	return &Debugger{
 		enabled:   enabled,
-		startTime: t,
+		startTime: time.Now(),
 		r:         r,
 	}, r.Finish
 }
@@ -56,7 +55,7 @@ func (d *Debugger) AddThread(t *Thread) {
 	d.r.AddThread(t)
 }
 
-func (d *Debugger) Log(t *Thread, method, logStr string) {
+func (d *Debugger) AddLog(t *Thread, method, logStr string) {
 	te := TimeEntry{
 		tId:    time.Now().Sub(d.startTime).Microseconds(),
 		thread: t,
@@ -108,5 +107,5 @@ func (n *Nested) LogF(method string, str string, args ...interface{}) {
 	}
 	logStr := fmt.Sprintf("%s: %s", fullMethod, fmt.Sprintf(str, args...))
 
-	n.root.Log(n.thread, method, logStr)
+	n.root.AddLog(n.thread, method, logStr)
 }

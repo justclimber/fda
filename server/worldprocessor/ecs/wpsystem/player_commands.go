@@ -3,73 +3,54 @@ package wpsystem
 import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs/component"
-	"github.com/justclimber/fda/common/ecs/entity"
+	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 )
 
-type playerCs struct {
-	PowerSettable wpcomponent.PowerSettable
-	PlayerC       *wpcomponent.Player
-	delayLeft     int
-}
-
 type PlayerCommands struct {
-	components map[entity.Id]*playerCs
+	entityRepo *wprepo.RepoForMask6
+	delay      int
 	debugger   *debugger.Nested
 }
 
-func NewPlayerCommands(debugger *debugger.Nested) *PlayerCommands {
-	return &PlayerCommands{
-		components: map[entity.Id]*playerCs{},
+func NewPlayerCommands(
+	repoForMask6 *wprepo.RepoForMask6,
+	delay int,
+	debugger *debugger.Nested,
+) *PlayerCommands {
+	p := &PlayerCommands{
+		entityRepo: repoForMask6,
+		delay:      delay,
 		debugger:   debugger,
 	}
+	p.entityRepo.InitRepoLink(p.mask())
+	return p
 }
 
 func (p *PlayerCommands) String() string { return "PlayerCommands" }
 
-func (p *PlayerCommands) Init() {}
+func (p *PlayerCommands) Init(_ tick.Tick) {}
 
-func (p *PlayerCommands) RequiredComponentKeys() []component.Key {
-	return []component.Key{wpcomponent.CPlayer, wpcomponent.CMovable}
+func (p *PlayerCommands) mask() component.Mask {
+	return component.NewMask([]component.Key{wpcomponent.KeyMoving, wpcomponent.KeyPlayer})
 }
 
-func (p *PlayerCommands) AddEntity(e *entity.Entity, in []interface{}) error {
-	if len(in) != 2 {
-		return ErrInvalidComponent
-	}
-	pl, ok1 := in[0].(*wpcomponent.Player)
-	powerSettable, ok2 := in[1].(wpcomponent.PowerSettable)
-	if !ok1 || !ok2 {
-		return ErrInvalidComponent
-	}
-
-	p.components[e.Id] = &playerCs{
-		PowerSettable: powerSettable,
-		PlayerC:       pl,
-		delayLeft:     pl.Delay,
-	}
-	return nil
-}
-
-func (p *PlayerCommands) RemoveEntity(_ *entity.Entity) {}
-
-func (p *PlayerCommands) DoTick(tick tick.Tick) (error, bool) {
-	for _, cs := range p.components {
-		cs.delayLeft--
-		//p.debugger.LogF("DoTick", "[tick %d], delayLeft: %d", tick, cs.delayLeft)
-		if cs.delayLeft > 0 {
-			continue
+func (p *PlayerCommands) DoTick(_ tick.Tick) bool {
+	p.entityRepo.Iterate(func(mov wpcomponent.Moving, pl wpcomponent.Player) (*wpcomponent.Moving, *wpcomponent.Player) {
+		pl.Delay--
+		if pl.Delay > 0 {
+			return nil, &pl
 		}
-		cs.delayLeft = cs.PlayerC.Delay
-
 		select {
-		case cmd := <-cs.PlayerC.CmdCh:
+		case cmd := <-pl.CmdCh:
 			p.debugger.LogF("DoTick", "get commands")
-			cs.PowerSettable.SetPower(cmd.Move)
-			//default:
+			newMov := wpcomponent.Moving{D: mov.D.Add(fgeom.Point{X: cmd.Move})}
+			return &newMov, &pl
+		default:
 		}
-	}
-
-	return nil, false
+		return nil, nil
+	})
+	return false
 }

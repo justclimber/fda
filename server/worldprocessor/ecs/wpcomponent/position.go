@@ -5,16 +5,14 @@ import (
 	"github.com/justclimber/fda/common/fgeom"
 )
 
-const CPosition component.Key = "pos"
-
 type Position struct {
-	Pos *fgeom.Point
+	Pos fgeom.Point
 }
 
-func NewPosition(p *fgeom.Point) *Position {
+func NewPosition(p fgeom.Point) *Position {
 	return &Position{Pos: p}
 }
 
 func (p *Position) Key() component.Key {
-	return CPosition
+	return KeyPosition
 }

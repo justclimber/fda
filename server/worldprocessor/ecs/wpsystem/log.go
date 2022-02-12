@@ -2,8 +2,6 @@ package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/debugger"
-	"github.com/justclimber/fda/common/ecs/component"
-	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/worldlog"
@@ -34,26 +32,17 @@ func NewLog(
 	}
 }
 
-func (l *Log) String() string {
-	return "Log"
-}
+func (l *Log) String() string { return "Log" }
 
-func (l *Log) Init() {
+func (l *Log) Init(_ tick.Tick) {
 	l.sendLog()
 }
 
-func (l *Log) RequiredComponentKeys() []component.Key {
-	return []component.Key{}
-}
-
-func (l *Log) AddEntity(_ *entity.Entity, _ []interface{}) error { return nil }
-func (l *Log) RemoveEntity(_ *entity.Entity)                     {}
-
-func (l *Log) DoTick(tick tick.Tick) (error, bool) {
+func (l *Log) DoTick(tick tick.Tick) bool {
 	l.logger.LogTick(tick)
 
 	l.sendLogAndSync()
-	return nil, false
+	return false
 }
 
 func (l *Log) sendLogAndSync() {

@@ -26,21 +26,18 @@ func NewWorldProcessor(
 	}
 }
 
-func (w *WorldProcessor) AddEntity(e *entity.Entity) error {
-	return w.ecs.AddEntity(e)
+func (w *WorldProcessor) AddEntity(e entity.Entity) {
+	w.ecs.AddEntity(e)
 }
 
-func (w *WorldProcessor) Run(currentTick tick.Tick) error {
+func (w *WorldProcessor) Run(currentTick tick.Tick) {
 	w.ecs.Init(currentTick)
 	for {
 		w.debugger.LogF("Run", "[tick: %d]", currentTick)
-		err, stop := w.ecs.DoTick(currentTick)
-		if err != nil {
-			return err
-		}
-		if stop {
+
+		if stop := w.ecs.DoTick(currentTick); stop {
 			w.ppLink.DoneCh <- true
-			return nil
+			return
 		}
 		currentTick++
 	}

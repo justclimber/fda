@@ -11,10 +11,11 @@ type Id int64
 type Entity struct {
 	Id         Id
 	Components map[component.Key]component.Component
+	CMask      component.Mask
 }
 
-func NewEntity(Id Id) *Entity {
-	return &Entity{
+func NewEntity(Id Id) Entity {
+	return Entity{
 		Id:         Id,
 		Components: map[component.Key]component.Component{},
 	}
@@ -22,6 +23,7 @@ func NewEntity(Id Id) *Entity {
 
 func (e *Entity) AddComponent(c component.Component) {
 	e.Components[c.Key()] = c
+	e.CMask.Add(c.Key())
 }
 
 func (e Entity) String() string {

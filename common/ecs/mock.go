@@ -1,102 +1,203 @@
 package ecs
 
 import (
-	"errors"
-
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
+	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/tick"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
-const (
-	c1key component.Key = "c1"
-	c2key component.Key = "c2"
-	c3key component.Key = "c3"
-)
+const chunkSize = 10
 
-type c1 struct{ num1 int }
-type c2 struct{ str string }
-type c3 struct{ num2 float64 }
-
-func (c *c1) Key() component.Key { return c1key }
-func (c *c2) Key() component.Key { return c2key }
-func (c *c3) Key() component.Key { return c3key }
-
-type components struct {
-	c1 *c1
-	c2 *c2
+type Moving2 struct {
+	repoForMask3 *RepoForMask3
 }
 
-type sysMock struct {
-	components map[entity.Id]components
+func NewMoving2(compIterator *RepoForMask3) *Moving2 {
+	m := &Moving2{repoForMask3: compIterator}
+	m.repoForMask3.InitRepoLink(m.mask())
+	return m
 }
 
-func (m *sysMock) String() string { return "sysMock" }
-func (m *sysMock) Init()          {}
+func (m *Moving2) String() string   { return "Moving" }
+func (m *Moving2) Init(_ tick.Tick) {}
 
-func (m *sysMock) RequiredComponentKeys() []component.Key {
-	return []component.Key{c2key, c1key}
+func (m *Moving2) mask() component.Mask {
+	return component.NewMask([]component.Key{wpcomponent.KeyMoving, wpcomponent.KeyPosition})
 }
 
-func (m *sysMock) AddEntity(e *entity.Entity, in []interface{}) error {
-	if len(in) != 2 {
-		return errors.New("incorrect components count on input")
+func (m *Moving2) DoTick(_ tick.Tick) bool {
+	m.repoForMask3.Iterate(func(mov wpcomponent.Moving, p wpcomponent.Position) (*wpcomponent.Moving, *wpcomponent.Position) {
+		if mov.D.Empty() {
+			return nil, nil
+		}
+		return nil, &wpcomponent.Position{Pos: p.Pos.Add(mov.D)}
+	})
+	return false
+}
+
+type RepoForMask3 struct {
+	cGroups  []entityrepo.CGroup
+	repoLink EntityRepo
+}
+
+func NewRepoForMask3(repoLink EntityRepo) *RepoForMask3 {
+	return &RepoForMask3{
+		repoLink: repoLink,
 	}
-	c2, ok := in[0].(*c2)
-	if !ok {
-		return errors.New("incorrect components on input")
-	}
-	c1, ok := in[1].(*c1)
-	if !ok {
-		return errors.New("incorrect components on input")
-	}
-	m.components[e.Id] = components{
-		c1: c1,
-		c2: c2,
-	}
-	return nil
 }
 
-func (m *sysMock) RemoveEntity(_ *entity.Entity) {}
+func (ci *RepoForMask3) InitRepoLink(mask component.Mask) {
+	ci.cGroups = ci.repoLink.GetCGroupsWithMask(mask)
+}
 
-func (m *sysMock) DoTick(_ tick.Tick) (error, bool) {
-	for _, cc := range m.components {
-		cc.c1.num1 = cc.c1.num1 + 20
-		cc.c2.str = "changed"
+func (ci *RepoForMask3) Iterate(f func(
+	moving wpcomponent.Moving,
+	position wpcomponent.Position,
+) (*wpcomponent.Moving, *wpcomponent.Position)) {
+	for _, cGroup := range ci.cGroups {
+		switch cg := cGroup.(type) {
+		case *CGroup3:
+			for _, chunk := range cg.Chunks {
+				for k := 0; k < chunk.Size; k++ {
+					newMoving, newPosition := f(chunk.Moving[k], chunk.Position[k])
+					if newMoving != nil {
+						chunk.Moving[k] = *newMoving
+					}
+					if newPosition != nil {
+						chunk.Position[k] = *newPosition
+					}
+				}
+			}
+		case *CGroup7:
+			for _, chunk := range cg.Chunks {
+				for k := 0; k < chunk.Size; k++ {
+					newMoving, newPosition := f(chunk.Moving[k], chunk.Position[k])
+					if newMoving != nil {
+						chunk.Moving[k] = *newMoving
+					}
+					if newPosition != nil {
+						chunk.Position[k] = *newPosition
+					}
+				}
+			}
+		}
 	}
-	return nil, false
 }
 
-type objectiveMock struct {
-	curC1           *c1
-	objectiveC1Num1 int
+type CGroup3 struct {
+	Chunks []*Chunk3
+	last   *Chunk3
 }
 
-func NewObjectiveMock(o int) *objectiveMock {
-	return &objectiveMock{objectiveC1Num1: o}
+func NewCGroup3() *CGroup3 {
+	chunks := []*Chunk3{{}}
+	return &CGroup3{
+		Chunks: chunks,
+		last:   chunks[0],
+	}
 }
 
-func (o *objectiveMock) String() string { return "objectiveMock" }
-func (o *objectiveMock) Init()          {}
-
-func (o *objectiveMock) RequiredComponentKeys() []component.Key {
-	return []component.Key{c1key}
+func (cg *CGroup3) Add(e entity.Entity) (int, int) {
+	if cg.last.Size == chunkSize {
+		cg.last = &Chunk3{}
+		cg.Chunks = append(cg.Chunks, cg.last)
+	}
+	cg.last.Add(e)
+	return len(cg.Chunks) - 1, cg.last.Size - 1
 }
 
-func (o *objectiveMock) AddEntity(e *entity.Entity, in []interface{}) error {
-	if e.Id != 10 {
-		return nil
+func (cg *CGroup3) Get(addr entityrepo.EAddress) (entity.Entity, bool) {
+	if addr.ChunkIndex >= len(cg.Chunks) {
+		return entity.Entity{}, false
 	}
 
-	o.curC1, _ = in[0].(*c1)
-	return nil
+	chunk := cg.Chunks[addr.ChunkIndex]
+
+	if addr.Index >= chunk.Size {
+		return entity.Entity{}, false
+	}
+
+	return entity.Entity{
+		Id: chunk.Ids[addr.Index],
+		Components: map[component.Key]component.Component{
+			wpcomponent.KeyPosition: &chunk.Position[addr.Index],
+			wpcomponent.KeyMoving:   &chunk.Moving[addr.Index],
+		},
+		CMask: component.NewMask([]component.Key{wpcomponent.KeyPosition, wpcomponent.KeyMoving}),
+	}, true
 }
 
-func (o *objectiveMock) RemoveEntity(_ *entity.Entity) {}
+type CGroup7 struct {
+	Chunks []*Chunk7
+	last   *Chunk7
+}
 
-func (o *objectiveMock) DoTick(_ tick.Tick) (error, bool) {
-	if o.curC1 == nil {
-		return errors.New("oops"), false
+func NewCGroup7() *CGroup7 {
+	chunks := []*Chunk7{{}}
+	return &CGroup7{
+		Chunks: chunks,
+		last:   chunks[0],
 	}
-	return nil, o.curC1.num1 == o.objectiveC1Num1
+}
+
+func (cg *CGroup7) Add(e entity.Entity) (int, int) {
+	if cg.last.Size == chunkSize {
+		cg.last = &Chunk7{}
+		cg.Chunks = append(cg.Chunks, cg.last)
+	}
+	cg.last.Add(e)
+	return len(cg.Chunks) - 1, cg.last.Size - 1
+}
+
+func (cg *CGroup7) Get(addr entityrepo.EAddress) (entity.Entity, bool) {
+	if addr.ChunkIndex >= len(cg.Chunks) {
+		return entity.Entity{}, false
+	}
+
+	chunk := cg.Chunks[addr.ChunkIndex]
+
+	if addr.Index >= chunk.Size {
+		return entity.Entity{}, false
+	}
+
+	return entity.Entity{
+		Id: chunk.Ids[addr.Index],
+		Components: map[component.Key]component.Component{
+			wpcomponent.KeyPosition: &chunk.Position[addr.Index],
+			wpcomponent.KeyMoving:   &chunk.Moving[addr.Index],
+		},
+		CMask: component.NewMask([]component.Key{wpcomponent.KeyPosition, wpcomponent.KeyMoving}),
+	}, true
+}
+
+type Chunk3 struct {
+	Size     int
+	Ids      [chunkSize]entity.Id
+	Moving   [chunkSize]wpcomponent.Moving
+	Position [chunkSize]wpcomponent.Position
+}
+
+type Chunk7 struct {
+	Size     int
+	Ids      [chunkSize]entity.Id
+	Moving   [chunkSize]wpcomponent.Moving
+	Position [chunkSize]wpcomponent.Position
+	Player   [chunkSize]wpcomponent.Player
+}
+
+func (ch *Chunk3) Add(e entity.Entity) {
+	ch.Ids[ch.Size] = e.Id
+	ch.Moving[ch.Size] = *e.Components[wpcomponent.KeyMoving].(*wpcomponent.Moving)
+	ch.Position[ch.Size] = *e.Components[wpcomponent.KeyPosition].(*wpcomponent.Position)
+	ch.Size++
+}
+
+func (ch *Chunk7) Add(e entity.Entity) {
+	ch.Ids[ch.Size] = e.Id
+	ch.Moving[ch.Size] = *e.Components[wpcomponent.KeyMoving].(*wpcomponent.Moving)
+	ch.Position[ch.Size] = *e.Components[wpcomponent.KeyPosition].(*wpcomponent.Position)
+	ch.Player[ch.Size] = *e.Components[wpcomponent.KeyPlayer].(*wpcomponent.Player)
+	ch.Size++
 }

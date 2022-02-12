@@ -3,135 +3,73 @@ package ecs
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
+	"github.com/justclimber/fda/common/ecs/entityrepo"
+	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
-func TestEcs_NewShouldBeWithAtLeastOneSystem(t *testing.T) {
-	_, err := NewEcs([]System{}, &emptyDebugger{})
-	assert.Equal(t, ErrNewEcsShouldBeWithAtLeastOneSystem, err)
-}
+func TestEcs(t *testing.T) {
+	entityId1 := entity.Id(12)
+	entityId2 := entity.Id(89)
+	entityId3 := entity.Id(5)
+	curTick := tick.Tick(55)
 
-func TestEcs_AddEntityWithMock(t *testing.T) {
-	sysMock := &sysMock{components: make(map[entity.Id]components)}
-	ec, err := NewEcs([]System{sysMock}, &emptyDebugger{})
+	e1 := entity.NewEntity(entityId1)
+	d1 := fgeom.Point{X: 1}
+	pos1 := fgeom.Point{X: 2}
+	e1.AddComponent(&wpcomponent.Moving{D: d1})
+	e1.AddComponent(&wpcomponent.Position{Pos: pos1})
+	mask3 := e1.CMask
+
+	e2 := entity.NewEntity(entityId2)
+	d2 := fgeom.Point{X: -3}
+	pos2 := fgeom.Point{X: 10}
+	e2.AddComponent(&wpcomponent.Moving{D: d2})
+	e2.AddComponent(&wpcomponent.Position{Pos: pos2})
+	e2.AddComponent(&wpcomponent.Player{Delay: 10})
+
+	e3 := entity.NewEntity(entityId3)
+	d3 := fgeom.Point{X: -30}
+	pos3 := fgeom.Point{X: 100}
+	e3.AddComponent(&wpcomponent.Moving{D: d3})
+	e3.AddComponent(&wpcomponent.Position{Pos: pos3})
+	e3.AddComponent(&wpcomponent.Player{Delay: 10})
+
+	mask7 := e2.CMask
+
+	cg3 := NewCGroup3()
+	cg7 := NewCGroup7()
+	repo := entityrepo.NewChunked(map[component.Mask]entityrepo.CGroup{
+		mask3: cg3,
+		mask7: cg7,
+	})
+
+	repoForMask3 := NewRepoForMask3(repo)
+	movSys := NewMoving2(repoForMask3)
+
+	ec, err := NewEcs([]System{movSys}, repo, &emptyDebugger{})
 	require.NoError(t, err)
 
-	e := &entity.Entity{
-		Id: 10,
-		Components: map[component.Key]component.Component{
-			c1key: &c1{num1: 54},
-			c2key: &c2{str: "foo"},
-			c3key: &c3{num2: 5.4},
-		},
-	}
-	err = ec.AddEntity(e)
-	require.NoError(t, err, "fail to add entity to ecs")
+	ec.AddEntity(e1)
+	ec.AddEntity(e2)
+	ec.AddEntity(e3)
 
-	c, ok := sysMock.components[e.Id]
-	require.True(t, ok, "entity must be in system")
-	require.Equal(t, 54, c.c1.num1, "check component data")
-	require.Equal(t, "foo", c.c2.str, "check component data")
-}
+	stop := ec.DoTick(curTick)
+	require.False(t, stop)
+	require.Equal(t, pos1.Add(d1), cg3.Chunks[0].Position[0].Pos, "check pos for entity 1")
+	require.Equal(t, pos2.Add(d2), cg7.Chunks[0].Position[0].Pos, "check pos for entity 2")
+	require.Equal(t, pos3.Add(d3), cg7.Chunks[0].Position[1].Pos, "check pos for entity 3")
 
-func TestEcs_DoTickWithMock(t *testing.T) {
-	sysMock := &sysMock{components: make(map[entity.Id]components)}
-	ec, err := NewEcs([]System{sysMock}, &emptyDebugger{})
-	require.NoError(t, err)
+	e1n, ok := repo.Get(entityId1)
+	require.True(t, ok)
+	require.Equal(t, pos1.Add(d1), e1n.Components[wpcomponent.KeyPosition].(*wpcomponent.Position).Pos)
 
-	c1c := &c1{num1: 54}
-	c2c := &c2{str: "foo"}
-	c3c := &c3{num2: 5.4}
-
-	e := &entity.Entity{
-		Id: 10,
-		Components: map[component.Key]component.Component{
-			c1key: c1c,
-			c2key: c2c,
-			c3key: c3c,
-		},
-	}
-	err = ec.AddEntity(e)
-	require.NoError(t, err, "fail to add entity to ecs")
-
-	err, _ = ec.DoTick(tick.Tick(10))
-	require.NoError(t, err, "ecs do tick error")
-
-	assert.Equal(t, 74, c1c.num1, "expect component data to be changed during ecs->system tick")
-	assert.Equal(t, "changed", c2c.str, "expect component data to be changed during ecs->system tick")
-}
-
-func TestEcs_DoTickWithMockObjective(t *testing.T) {
-	cases := []struct {
-		name      string
-		objective *objectiveMock
-		e         *entity.Entity
-		wantStop  bool
-		wantErr   bool
-		errMsg    string
-	}{
-		{
-			name:      "objective reached",
-			objective: NewObjectiveMock(53),
-			e: &entity.Entity{
-				Id: 10,
-				Components: map[component.Key]component.Component{
-					c1key: &c1{num1: 33},
-					c2key: &c2{str: "foo"},
-					c3key: &c3{num2: 5.4},
-				},
-			},
-			wantStop: true,
-		},
-		{
-			name:      "objective not reached",
-			objective: NewObjectiveMock(50),
-			e: &entity.Entity{
-				Id: 10,
-				Components: map[component.Key]component.Component{
-					c1key: &c1{num1: 33},
-					c2key: &c2{str: "foo"},
-					c3key: &c3{num2: 5.4},
-				},
-			},
-			wantStop: false,
-		},
-		{
-			name:      "error returned",
-			objective: NewObjectiveMock(50),
-			e: &entity.Entity{
-				Id: 5,
-				Components: map[component.Key]component.Component{
-					c1key: &c1{num1: 33},
-					c2key: &c2{str: "foo"},
-					c3key: &c3{num2: 5.4},
-				},
-			},
-			wantErr: true,
-			errMsg:  "oops",
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			sysMock := &sysMock{components: make(map[entity.Id]components)}
-			ec, err := NewEcs([]System{sysMock, tc.objective}, &emptyDebugger{})
-			require.NoError(t, err)
-
-			err = ec.AddEntity(tc.e)
-			require.NoError(t, err, "fail to add entity to ecs")
-
-			err, stop := ec.DoTick(tick.Tick(10))
-			if tc.wantErr {
-				require.EqualError(t, err, tc.errMsg, "should be error")
-			} else {
-				require.NoError(t, err, "ecs do tick error")
-			}
-			require.Equal(t, tc.wantStop, stop, "should be stopped by objective or not")
-		})
-	}
+	e2n, ok := repo.Get(entityId2)
+	require.True(t, ok)
+	require.Equal(t, pos2.Add(d2), e2n.Components[wpcomponent.KeyPosition].(*wpcomponent.Position).Pos)
 }

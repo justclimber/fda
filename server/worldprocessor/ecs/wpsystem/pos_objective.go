@@ -6,43 +6,44 @@ import (
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 )
 
 type PosObjective struct {
 	eId          entity.Id
 	objectivePos fgeom.Point
-	curPos       *wpcomponent.Position
+	entityRepo   *wprepo.RepoForMask3
 }
 
-func NewPosObjective(eId entity.Id, pos fgeom.Point) *PosObjective {
-	return &PosObjective{
+func NewPosObjective(repoForMask3 *wprepo.RepoForMask3, eId entity.Id, pos fgeom.Point) *PosObjective {
+	p := &PosObjective{
+		entityRepo:   repoForMask3,
 		eId:          eId,
 		objectivePos: pos,
 	}
+	p.entityRepo.InitRepoLink(p.mask())
+	return p
 }
 
 func (p *PosObjective) String() string { return "PosObjective" }
 
-func (p *PosObjective) Init() {}
+func (p *PosObjective) Init(_ tick.Tick) {}
 
-func (p *PosObjective) RequiredComponentKeys() []component.Key {
-	return []component.Key{wpcomponent.CPosition}
+func (p *PosObjective) mask() component.Mask {
+	return component.NewMask([]component.Key{wpcomponent.KeyMoving, wpcomponent.KeyPosition})
 }
 
-func (p *PosObjective) AddEntity(e *entity.Entity, in []interface{}) error {
-	if e.Id != p.eId {
-		return nil
-	}
-	c, ok := in[0].(*wpcomponent.Position)
-	if !ok {
-		return ErrInvalidComponent
-	}
-	p.curPos = c
-	return nil
-}
-
-func (p *PosObjective) RemoveEntity(e *entity.Entity) {}
-
-func (p *PosObjective) DoTick(_ tick.Tick) (error, bool) {
-	return nil, p.curPos.Pos.EqualApprox(p.objectivePos, 0.1)
+func (p *PosObjective) DoTick(_ tick.Tick) bool {
+	stop := false
+	p.entityRepo.Iterate(func(
+		id entity.Id,
+		mov wpcomponent.Moving,
+		pos wpcomponent.Position,
+	) (*wpcomponent.Moving, *wpcomponent.Position) {
+		if id == p.eId && p.objectivePos.EqualApprox(pos.Pos, 0.1) {
+			stop = true
+		}
+		return nil, nil
+	})
+	return stop
 }

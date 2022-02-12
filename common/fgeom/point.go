@@ -75,3 +75,7 @@ func (p Point) Near(p2 Point, d float64) bool {
 func (p Point) EqualApprox(p2 Point, d float64) bool {
 	return math.Abs(p2.Y-p.Y) < d && math.Abs(p2.X-p.X) < d
 }
+
+func (p Point) Empty() bool {
+	return p == EmptyPoint
+}

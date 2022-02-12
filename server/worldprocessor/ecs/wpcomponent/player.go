@@ -5,8 +5,6 @@ import (
 	"github.com/justclimber/fda/server/command"
 )
 
-const CPlayer component.Key = "pl"
-
 type Player struct {
 	Delay int
 	CmdCh chan command.Command
@@ -17,5 +15,5 @@ func NewPlayer(delay int, cmdCh chan command.Command) *Player {
 }
 
 func (p *Player) Key() component.Key {
-	return CPlayer
+	return KeyPlayer
 }

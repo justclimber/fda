@@ -31,6 +31,10 @@ func (m *Mask) Intersect(m2 Mask) bool {
 	return m.data&m2.data != 0
 }
 
+func (m *Mask) Contains(m2 Mask) bool {
+	return m.data&m2.data == m2.data
+}
+
 type Component interface {
 	Key() Key
 }

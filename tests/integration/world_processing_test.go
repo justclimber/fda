@@ -21,8 +21,8 @@ import (
 	"github.com/justclimber/fda/server/player"
 	"github.com/justclimber/fda/server/worldlog"
 	"github.com/justclimber/fda/server/worldprocessor"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/generated/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpsystem"
 )
 
@@ -87,7 +87,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			e.AddComponent(wpcomponent.NewPosition(startPosition))
 			e.AddComponent(wpcomponent.NewMoving(fgeom.Point{X: tc.power}))
 
-			cg7 := wprepo.NewCGroup7()
+			cg7 := wprepo.NewECGroupMask7()
 			repo := entityrepo.NewChunked(map[component.Mask]entityrepo.CGroup{
 				e.CMask: cg7,
 			})

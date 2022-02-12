@@ -5,7 +5,7 @@ import (
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
-//go:generate go run ../../../common/generators/entityrepo/main.go
+//go:generate go run ../../../common/generators/entityrepo/main.go wprepo
 
 //generate:entities
 var _ = [][]component.Key{

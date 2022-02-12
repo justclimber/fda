@@ -5,8 +5,8 @@ import (
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/generated/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 )
 
 type PosObjective struct {
@@ -37,9 +37,9 @@ func (p *PosObjective) DoTick(_ tick.Tick) bool {
 	stop := false
 	p.entityRepo.Iterate(func(
 		id entity.Id,
-		mov wpcomponent.Moving,
 		pos wpcomponent.Position,
-	) (*wpcomponent.Moving, *wpcomponent.Position) {
+		mov wpcomponent.Moving,
+	) (*wpcomponent.Position, *wpcomponent.Moving) {
 		if id == p.eId && p.objectivePos.EqualApprox(pos.Pos, 0.1) {
 			stop = true
 		}

@@ -50,7 +50,7 @@ type Chunk interface {
 func (c *Chunked) GetCGroupsWithMask(mask component.Mask) []CGroup {
 	var cgs []CGroup
 	for m, cgroup := range c.cgroups {
-		if mask.Intersect(m) {
+		if m.Contains(mask) {
 			cgs = append(cgs, cgroup)
 		}
 	}

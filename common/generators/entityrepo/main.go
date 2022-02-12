@@ -44,6 +44,11 @@ type ecGroupData struct {
 	KeysPackages map[string]bool
 }
 
+type allECGroupData struct {
+	ECGroups    map[int64]ecGroupData
+	PackageName string
+}
+
 type repoData struct {
 	Mask         int64
 	PackageName  string
@@ -68,13 +73,16 @@ func (r repositoryGenerator) Generate() {
 		ParseFS(gentemplates.EmbeddedFS, "*.go.tpl"),
 	)
 
-	newPath := filepath.Join(".", "generated", "wp")
+	newPath := filepath.Join(".", "generated", r.packageName)
 	err := os.MkdirAll(newPath, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 
 	var entityMasks []int64
+	allECGroups := allECGroupData{
+		ECGroups: map[int64]ecGroupData{},
+	}
 
 	for _, ecGroupAst := range r.entitiesValueSpec.Values[0].(*ast.CompositeLit).Elts {
 		ecgData := ecGroupData{
@@ -101,20 +109,23 @@ func (r repositoryGenerator) Generate() {
 				FullStr:          fmt.Sprintf("%s.%s", keyPackage, keySel.Sel.Name),
 				StrWithoutPrefix: keySel.Sel.Name[len(keyPrefix):],
 			})
-			entityMasks = append(entityMasks, mask)
 		}
+		entityMasks = append(entityMasks, mask)
 		ecgData.Mask = mask
 		ecgData.MaskName = fmt.Sprintf("Mask%d", mask)
+		allECGroups.ECGroups[mask] = ecgData
+		allECGroups.PackageName = ecgData.PackageName
 		r.writeECGroupFile(newPath, ecgData, templates)
 		r.writeChunkFile(newPath, ecgData, templates)
 	}
+	r.writeAllECGroupsFile(newPath, allECGroups, templates)
 
 	for _, systemAst := range r.systemsValueSpec.Values[0].(*ast.CompositeLit).Elts {
 		rData := repoData{
 			PackageName:  r.packageName,
 			Keys:         make([]key, 0),
 			KeysPackages: map[string]bool{},
-			ECGroups:     []string{"ECGroupMask3"},
+			ECGroups:     []string{},
 		}
 		var mask int64
 		for _, keyAst := range systemAst.(*ast.CompositeLit).Elts {
@@ -135,7 +146,11 @@ func (r repositoryGenerator) Generate() {
 				FullStr:          fmt.Sprintf("%s.%s", keyPackage, keySel.Sel.Name),
 				StrWithoutPrefix: keySel.Sel.Name[len(keyPrefix):],
 			})
-			entityMasks = append(entityMasks, mask)
+		}
+		for _, entityMask := range entityMasks {
+			if entityMask&mask == mask {
+				rData.ECGroups = append(rData.ECGroups, fmt.Sprintf("ECGroupMask%d", entityMask))
+			}
 		}
 		rData.Mask = mask
 		rData.MaskName = fmt.Sprintf("Mask%d", mask)
@@ -144,79 +159,65 @@ func (r repositoryGenerator) Generate() {
 }
 
 func (r repositoryGenerator) writeECGroupFile(newPath string, ecgData ecGroupData, templates *template.Template) {
-	ecGroupFilename := fmt.Sprintf("%s/ecgroup_%d.go", newPath, ecgData.Mask)
-	f, err := os.OpenFile(ecGroupFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
-	if err = templates.ExecuteTemplate(f, "ecgroup.go.tpl", ecgData); err != nil {
-		panic(err)
-	}
-
+	filename := fmt.Sprintf("%s/ecgroup_%d.go", newPath, ecgData.Mask)
+	writeToTemplate(filename, ecgData, templates, "ecgroup.go.tpl")
 }
 
 func (r repositoryGenerator) writeChunkFile(newPath string, ecgData ecGroupData, templates *template.Template) {
-	chunkFilename := fmt.Sprintf("%s/chunk_%d.go", newPath, ecgData.Mask)
-	f, err := os.OpenFile(chunkFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			panic(err)
-		}
-	}()
+	filename := fmt.Sprintf("%s/chunk_%d.go", newPath, ecgData.Mask)
+	writeToTemplate(filename, ecgData, templates, "chunk.go.tpl")
+}
 
-	if err = templates.ExecuteTemplate(f, "chunk.go.tpl", ecgData); err != nil {
-		panic(err)
-	}
-
+func (r repositoryGenerator) writeAllECGroupsFile(newPath string, ecGroups allECGroupData, templates *template.Template) {
+	filename := fmt.Sprintf("%s/ecgroups.go", newPath)
+	writeToTemplate(filename, ecGroups, templates, "all_ecgroups.go.tpl")
 }
 
 func (r repositoryGenerator) writeRepoFile(newPath string, rData repoData, templates *template.Template) {
-	chunkFilename := fmt.Sprintf("%s/repo_%d.go", newPath, rData.Mask)
-	f, err := os.OpenFile(chunkFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	filename := fmt.Sprintf("%s/repo_%d.go", newPath, rData.Mask)
+	writeToTemplate(filename, rData, templates, "repo_for_mask.go.tpl")
+}
+
+func writeToTemplate(filepath string, data interface{}, t *template.Template, tString string) {
+	f, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
-	if err = templates.ExecuteTemplate(f, "repo_for_mask.go.tpl", rData); err != nil {
+	defer mustCloseFile(f)
+	if err = t.ExecuteTemplate(f, tString, data); err != nil {
 		panic(err)
 	}
+}
 
+func mustCloseFile(f *os.File) {
+	if err := f.Close(); err != nil {
+		panic(err)
+	}
 }
 
 func main() {
-	fmt.Printf("Running %s go on %s\n", os.Args[0], os.Getenv("GOFILE"))
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("  cwd = %s\n", cwd)
-	fmt.Printf("  os.Args = %#v\n", os.Args)
-
-	for _, ev := range []string{"GOARCH", "GOOS", "GOFILE", "GOLINE", "GOPACKAGE"} {
-		fmt.Println("  ", ev, "=", os.Getenv(ev))
-	}
-
-	path := "/Users/aaakimov/pet/fda/server/worldprocessor/ecs/declaration.go"
-	//path := os.Getenv("GOFILE")
-	//if path == "" {
-	//	log.Fatal("GOFILE must be set")
+	//cwd, err := os.Getwd()
+	//if err != nil {
+	//	panic(err)
 	//}
-	//Разбираем целевой файл в AST
+	//fmt.Printf("  cwd = %s\n", cwd)
+	//fmt.Printf("  os.Args = %#v\n", os.Args)
+	//
+	//for _, ev := range []string{"GOARCH", "GOOS", "GOFILE", "GOLINE", "GOPACKAGE"} {
+	//	fmt.Println("  ", ev, "=", os.Getenv(ev))
+	//}
+
+	//path := "/Users/aaakimov/pet/fda/server/worldprocessor/ecs/declaration.go"
+
+	if len(os.Args) < 2 {
+		log.Fatal("Please specify new package name as an argument")
+	}
+
+	path := os.Getenv("GOFILE")
+	if path == "" {
+		log.Fatal("GOFILE must be set")
+	}
+
 	fileSet := token.NewFileSet()
 	astInFile, err := parser.ParseFile(
 		fileSet,
@@ -228,9 +229,7 @@ func main() {
 		log.Fatalf("parse file: %v", err)
 	}
 
-	//Для выбора интересных нам деклараций
-	//используем Inspector из golang.org/x/tools/go/ast/inspector
-	i := inspector.New([]*ast.File{astInFile})
+	insp := inspector.New([]*ast.File{astInFile})
 
 	// Obtain type information.
 	conf := types.Config{Importer: importer.ForCompiler(fileSet, "source", nil)}
@@ -238,25 +237,22 @@ func main() {
 		Defs:  make(map[*ast.Ident]types.Object),
 		Types: make(map[ast.Expr]types.TypeAndValue),
 	}
-	_, err = conf.Check("github.com/justclimber/fda/server/worldprocessor/ecs", fileSet, []*ast.File{astInFile}, info)
-	//_, err = conf.Check(os.Getenv("GOPACKAGE"), fileSet, []*ast.File{astInFile}, info)
+	//_, err = conf.Check("github.com/justclimber/fda/server/worldprocessor/ecs", fileSet, []*ast.File{astInFile}, info)
+	_, err = conf.Check(os.Getenv("GOPACKAGE"), fileSet, []*ast.File{astInFile}, info)
 	if err != nil {
 		log.Fatal(err) // type error
 	}
 
 	genTask := repositoryGenerator{
-		info: info,
-		//packageName: os.Getenv("GOPACKAGE"),
-		packageName: "wp",
+		info:        info,
+		packageName: os.Args[1],
 	}
 
-	//Подготовим фильтр для этого инспектора
 	iFilter := []ast.Node{
-		//Нас интересуют декларации
 		&ast.GenDecl{},
 	}
 
-	i.Nodes(iFilter, func(node ast.Node, push bool) (proceed bool) {
+	insp.Nodes(iFilter, func(node ast.Node, push bool) (proceed bool) {
 		genDecl := node.(*ast.GenDecl)
 		if genDecl.Doc == nil {
 			return false

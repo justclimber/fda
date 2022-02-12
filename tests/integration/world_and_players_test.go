@@ -10,7 +10,6 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/fgeom"
@@ -20,8 +19,8 @@ import (
 	"github.com/justclimber/fda/server/playersprocessor"
 	"github.com/justclimber/fda/server/worldlog"
 	"github.com/justclimber/fda/server/worldprocessor"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/generated/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpsystem"
 )
 
@@ -56,10 +55,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	e.AddComponent(wpcomponent.NewPosition(startPos))
 	e.AddComponent(wpcomponent.NewMoving(fgeom.EmptyPoint))
 
-	cg7 := wprepo.NewCGroup7()
-	repo := entityrepo.NewChunked(map[component.Mask]entityrepo.CGroup{
-		e.CMask: cg7,
-	})
+	repo := entityrepo.NewChunked(wprepo.GetAllECGroups())
 
 	repoForMask3 := wprepo.NewRepoForMask3(repo)
 	repoForMask6 := wprepo.NewRepoForMask6(repo)

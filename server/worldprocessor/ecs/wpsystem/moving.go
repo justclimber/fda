@@ -4,8 +4,8 @@ import (
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/generated/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 )
 
 type Moving struct {
@@ -29,13 +29,13 @@ func (m *Moving) mask() component.Mask {
 func (m *Moving) DoTick(_ tick.Tick) bool {
 	m.entityRepo.Iterate(func(
 		_ entity.Id,
-		mov wpcomponent.Moving,
 		p wpcomponent.Position,
-	) (*wpcomponent.Moving, *wpcomponent.Position) {
+		mov wpcomponent.Moving,
+	) (*wpcomponent.Position, *wpcomponent.Moving) {
 		if mov.D.Empty() {
 			return nil, nil
 		}
-		return nil, &wpcomponent.Position{Pos: p.Pos.Add(mov.D)}
+		return &wpcomponent.Position{Pos: p.Pos.Add(mov.D)}, nil
 	})
 	return false
 }

@@ -3,10 +3,11 @@ package wpsystem
 import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/ecs/component"
+	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
+	"github.com/justclimber/fda/server/worldprocessor/ecs/generated/wprepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wprepo"
 )
 
 type PlayerCommands struct {
@@ -38,7 +39,7 @@ func (p *PlayerCommands) mask() component.Mask {
 }
 
 func (p *PlayerCommands) DoTick(_ tick.Tick) bool {
-	p.entityRepo.Iterate(func(mov wpcomponent.Moving, pl wpcomponent.Player) (*wpcomponent.Moving, *wpcomponent.Player) {
+	p.entityRepo.Iterate(func(_ entity.Id, mov wpcomponent.Moving, pl wpcomponent.Player) (*wpcomponent.Moving, *wpcomponent.Player) {
 		pl.Delay--
 		if pl.Delay > 0 {
 			return nil, &pl

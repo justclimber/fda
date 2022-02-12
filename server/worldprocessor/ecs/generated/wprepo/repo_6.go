@@ -3,7 +3,6 @@ package wprepo
 
 import (
 	"github.com/justclimber/fda/common/ecs"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
@@ -15,13 +14,15 @@ type RepoForMask6 struct {
 }
 
 func NewRepoForMask6(repoLink ecs.EntityRepo) *RepoForMask6 {
-	return &RepoForMask6{
+	r := &RepoForMask6{
 		repoLink: repoLink,
 	}
+	r.initRepoLink()
+	return r
 }
 
-func (r *RepoForMask6) InitRepoLink(mask component.Mask) {
-	r.cGroups = r.repoLink.GetCGroupsWithMask(mask)
+func (r *RepoForMask6) initRepoLink() {
+	r.cGroups = r.repoLink.GetCGroupsWithMask(Mask6)
 }
 
 func (r *RepoForMask6) Iterate(f func(

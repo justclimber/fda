@@ -80,6 +80,7 @@ func (r repositoryGenerator) Generate() {
 	}
 
 	var entityMasks []int64
+
 	allECGroups := allECGroupData{
 		ECGroups: map[int64]ecGroupData{},
 	}
@@ -147,6 +148,11 @@ func (r repositoryGenerator) Generate() {
 				StrWithoutPrefix: keySel.Sel.Name[len(keyPrefix):],
 			})
 		}
+		allECGroups.ECGroups[mask] = ecGroupData{
+			Mask:     mask,
+			MaskName: fmt.Sprintf("Mask%d", mask),
+			Keys:     rData.Keys,
+		}
 		for _, entityMask := range entityMasks {
 			if entityMask&mask == mask {
 				rData.ECGroups = append(rData.ECGroups, fmt.Sprintf("ECGroupMask%d", entityMask))
@@ -156,6 +162,7 @@ func (r repositoryGenerator) Generate() {
 		rData.MaskName = fmt.Sprintf("Mask%d", mask)
 		r.writeRepoFile(newPath, rData, templates)
 	}
+	r.writeAllMasksFile(newPath, allECGroups, templates)
 }
 
 func (r repositoryGenerator) writeECGroupFile(newPath string, ecgData ecGroupData, templates *template.Template) {
@@ -171,6 +178,11 @@ func (r repositoryGenerator) writeChunkFile(newPath string, ecgData ecGroupData,
 func (r repositoryGenerator) writeAllECGroupsFile(newPath string, ecGroups allECGroupData, templates *template.Template) {
 	filename := fmt.Sprintf("%s/ecgroups.go", newPath)
 	writeToTemplate(filename, ecGroups, templates, "all_ecgroups.go.tpl")
+}
+
+func (r repositoryGenerator) writeAllMasksFile(newPath string, ecGroups allECGroupData, templates *template.Template) {
+	filename := fmt.Sprintf("%s/masks.go", newPath)
+	writeToTemplate(filename, ecGroups, templates, "masks.go.tpl")
 }
 
 func (r repositoryGenerator) writeRepoFile(newPath string, rData repoData, templates *template.Template) {

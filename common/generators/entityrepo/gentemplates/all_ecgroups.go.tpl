@@ -4,17 +4,12 @@ package [[ .PackageName ]]
 import (
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 func GetAllECGroups() map[component.Mask]entityrepo.CGroup {
 	return map[component.Mask]entityrepo.CGroup{
 	    [[- range .ECGroups ]]
-		component.NewMask([]component.Key{
-		    [[- range .Keys ]]
-		    [[ .FullStr ]],
-		    [[- end ]]
-		}): NewECGroup[[ .MaskName ]](),
+		[[ .MaskName ]]: NewECGroup[[ .MaskName ]](),
 		[[- end ]]
 	}
 }

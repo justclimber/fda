@@ -3,7 +3,6 @@ package [[ .PackageName ]]
 
 import (
 	"github.com/justclimber/fda/common/ecs"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 [[- range $key, $value := .KeysPackages]]
@@ -17,13 +16,15 @@ type RepoFor[[ .MaskName ]] struct {
 }
 
 func NewRepoFor[[ .MaskName ]](repoLink ecs.EntityRepo) *RepoFor[[ .MaskName ]] {
-	return &RepoFor[[ .MaskName ]]{
-		repoLink: repoLink,
-	}
+	r := &RepoFor[[ .MaskName ]]{
+        repoLink: repoLink,
+    }
+    r.initRepoLink()
+    return r
 }
 
-func (r *RepoFor[[ .MaskName ]]) InitRepoLink(mask component.Mask) {
-	r.cGroups = r.repoLink.GetCGroupsWithMask(mask)
+func (r *RepoFor[[ .MaskName ]]) initRepoLink() {
+	r.cGroups = r.repoLink.GetCGroupsWithMask([[ .MaskName ]])
 }
 
 func (r *RepoFor[[ .MaskName ]]) Iterate(f func(

@@ -2,7 +2,6 @@ package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/debugger"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
@@ -21,22 +20,15 @@ func NewPlayerCommands(
 	delay int,
 	debugger *debugger.Nested,
 ) *PlayerCommands {
-	p := &PlayerCommands{
+	return &PlayerCommands{
 		entityRepo: repoForMask6,
 		delay:      delay,
 		debugger:   debugger,
 	}
-	p.entityRepo.InitRepoLink(p.mask())
-	return p
 }
 
-func (p *PlayerCommands) String() string { return "PlayerCommands" }
-
+func (p *PlayerCommands) String() string   { return "PlayerCommands" }
 func (p *PlayerCommands) Init(_ tick.Tick) {}
-
-func (p *PlayerCommands) mask() component.Mask {
-	return component.NewMask([]component.Key{wpcomponent.KeyMoving, wpcomponent.KeyPlayer})
-}
 
 func (p *PlayerCommands) DoTick(_ tick.Tick) bool {
 	p.entityRepo.Iterate(func(_ entity.Id, mov wpcomponent.Moving, pl wpcomponent.Player) (*wpcomponent.Moving, *wpcomponent.Player) {

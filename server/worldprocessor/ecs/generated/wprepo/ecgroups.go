@@ -4,19 +4,11 @@ package wprepo
 import (
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 func GetAllECGroups() map[component.Mask]entityrepo.CGroup {
 	return map[component.Mask]entityrepo.CGroup{
-		component.NewMask([]component.Key{
-			wpcomponent.KeyPosition,
-			wpcomponent.KeyMoving,
-		}): NewECGroupMask3(),
-		component.NewMask([]component.Key{
-			wpcomponent.KeyPosition,
-			wpcomponent.KeyMoving,
-			wpcomponent.KeyPlayer,
-		}): NewECGroupMask7(),
+		Mask3: NewECGroupMask3(),
+		Mask7: NewECGroupMask7(),
 	}
 }

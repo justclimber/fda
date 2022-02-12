@@ -1,7 +1,6 @@
 package wpsystem
 
 import (
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/tick"
@@ -16,22 +15,15 @@ type PosObjective struct {
 }
 
 func NewPosObjective(repoForMask3 *wprepo.RepoForMask3, eId entity.Id, pos fgeom.Point) *PosObjective {
-	p := &PosObjective{
+	return &PosObjective{
 		entityRepo:   repoForMask3,
 		eId:          eId,
 		objectivePos: pos,
 	}
-	p.entityRepo.InitRepoLink(p.mask())
-	return p
 }
 
-func (p *PosObjective) String() string { return "PosObjective" }
-
+func (p *PosObjective) String() string   { return "PosObjective" }
 func (p *PosObjective) Init(_ tick.Tick) {}
-
-func (p *PosObjective) mask() component.Mask {
-	return component.NewMask([]component.Key{wpcomponent.KeyMoving, wpcomponent.KeyPosition})
-}
 
 func (p *PosObjective) DoTick(_ tick.Tick) bool {
 	stop := false

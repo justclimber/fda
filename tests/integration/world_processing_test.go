@@ -98,7 +98,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 				wpsystem.NewMoving(repoForMask3),
 				wpsystem.NewPosObjective(repoForMask3, entityId, tc.posObjectivePoint),
 				wpsystem.NewTickLimiter(currentTick, tc.tickLimit),
-				wpsystem.NewLog(l, ppWpLink, sendLogsDelay, sendLogsDelay-2, ecsDebugger.CreateNested("Log")),
+				wpsystem.NewLog(repoForMask3, l, ppWpLink, sendLogsDelay, sendLogsDelay-2, ecsDebugger.CreateNested("Log")),
 			}, repo, ecsDebugger)
 			require.NoError(t, err, "fail to create ecs")
 

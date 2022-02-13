@@ -60,11 +60,8 @@ func (p *PlayersProcessor) processPlayers() {
 	}
 }
 
-func (p *PlayersProcessor) applyLogs(logs *worldlog.Logs) error {
-	if logs == nil {
-		return nil
-	}
-	p.currTick = logs.Entries[len(logs.Entries)-1].Tick
+func (p *PlayersProcessor) applyLogs(logs worldlog.LogBatch) error {
+	p.currTick = logs.StartTick
 	return nil
 }
 

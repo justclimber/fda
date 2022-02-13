@@ -10,6 +10,7 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
+	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/fgeom"
@@ -68,7 +69,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 		wpsystem.NewMoving(repoForMask3),
 		wpsystem.NewPosObjective(repoForMask3, entityId, objectivePos),
 		wpsystem.NewTickLimiter(currentTick, tickLimit),
-		wpsystem.NewLog(l, ppWpLink, sendLogsDelay, syncDelay, logDebugger),
+		wpsystem.NewLog(repoForMask3, l, ppWpLink, sendLogsDelay, syncDelay, logDebugger),
 	}, repo, ecsDebugger)
 	require.NoError(t, err, "fail to create ecs")
 
@@ -90,13 +91,46 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 		t.Fatal("tick limit reached unexpectedly")
 	}
 
-	expectedLogs := &worldlog.Logs{Entries: []worldlog.LogEntry{
-		{Tick: 23},
-		{Tick: 24},
-		{Tick: 25},
-		{Tick: 26},
-		{Tick: 27},
-		{Tick: 28},
-	}}
+	expectedLogs := &worldlog.Logs{
+		Entries: []worldlog.LogEntry{
+			{Tick: 23},
+			{Tick: 24},
+			{Tick: 25},
+			{Tick: 26},
+			{Tick: 27},
+			{Tick: 28},
+		},
+		Batches: []worldlog.LogBatch{
+			{
+				StartTick:      23,
+				EndTick:        23,
+				EntitiesLogs:   map[entity.Id][]worldlog.TickComponent{},
+				LastComponents: map[entity.Id]map[component.Key]component.Component{},
+			},
+			{
+				StartTick: 23,
+				EndTick:   26,
+				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+					entityId: {
+						{
+							Tick: 23,
+							Components: map[component.Key]component.Component{
+								wpcomponent.KeyMoving: wpcomponent.Moving{D: fgeom.Point{}},
+							},
+						},
+						{
+							Tick: 25,
+							Components: map[component.Key]component.Component{
+								wpcomponent.KeyMoving: wpcomponent.Moving{D: fgeom.Point{X: 0.5}},
+							},
+						},
+					},
+				},
+				LastComponents: map[entity.Id]map[component.Key]component.Component{
+					entityId: {wpcomponent.KeyMoving: wpcomponent.Moving{D: fgeom.Point{X: 0.5}}},
+				},
+			},
+		},
+	}
 	require.Equal(t, expectedLogs, l.Logs(), "check result logs")
 }

@@ -73,8 +73,6 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	require.NoError(t, err, "fail to create ecs")
 
 	wp := worldprocessor.NewWorldProcessor(ec, ppWpLink, wpDebugger)
-	require.NotNil(t, wp, "fail to create WorldProcessor")
-
 	wp.AddEntity(e)
 
 	pp := playersprocessor.NewPlayersProcessor(ppWpLink, ppDebugger)

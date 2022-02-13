@@ -20,7 +20,7 @@ func (e *emptyDebugger) LogF(_ string, _ string, _ ...interface{}) {}
 type EntityRepo interface {
 	Add(e entity.MaskedEntity)
 	Get(id entity.Id) (entity.MaskedEntity, bool)
-	GetCGroupsWithMask(mask component.Mask) []entityrepo.CGroup
+	GetECGroupsWithMask(mask component.Mask) []entityrepo.ECGroup
 }
 
 type System interface {

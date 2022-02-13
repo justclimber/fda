@@ -51,7 +51,7 @@ func NewRepoForMask3(repoLink EntityRepo) *RepoForMask3 {
 }
 
 func (ci *RepoForMask3) InitRepoLink(mask component.Mask) {
-	ci.cGroups = ci.repoLink.GetCGroupsWithMask(mask)
+	ci.cGroups = ci.repoLink.GetECGroupsWithMask(mask)
 }
 
 func (ci *RepoForMask3) Iterate(f func(

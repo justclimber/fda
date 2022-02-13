@@ -9,15 +9,15 @@ import (
 
 type EntityMask3 struct {
 	Id       entity.Id
-	Position wpcomponent.Position
-	Moving   wpcomponent.Moving
+    Position wpcomponent.Position
+    Moving wpcomponent.Moving
 }
 
 type EntityMask7 struct {
 	Id       entity.Id
-	Position wpcomponent.Position
-	Moving   wpcomponent.Moving
-	Player   wpcomponent.Player
+    Position wpcomponent.Position
+    Moving wpcomponent.Moving
+    Player wpcomponent.Player
 }
 
 func (e EntityMask3) EId() entity.Id       { return e.Id }

@@ -6,8 +6,8 @@ import (
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 )
 
-func GetAllECGroups() map[component.Mask]entityrepo.CGroup {
-	return map[component.Mask]entityrepo.CGroup{
+func GetAllECGroups() map[component.Mask]entityrepo.ECGroup {
+	return map[component.Mask]entityrepo.ECGroup{
 	    [[- range .ECGroups ]]
 		[[ .MaskName ]]: NewECGroup[[ .MaskName ]](),
 		[[- end ]]

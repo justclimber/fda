@@ -5,24 +5,21 @@ import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-)
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent")
 
 type RepoForMask3 struct {
-	cGroups  []entityrepo.CGroup
+	ecGroups  []entityrepo.ECGroup
 	repoLink ecs.EntityRepo
 }
 
 func NewRepoForMask3(repoLink ecs.EntityRepo) *RepoForMask3 {
-	r := &RepoForMask3{
-		repoLink: repoLink,
-	}
-	r.initRepoLink()
-	return r
+	r := &RepoForMask3{ repoLink: repoLink }
+    r.initRepoLink()
+    return r
 }
 
 func (r *RepoForMask3) initRepoLink() {
-	r.cGroups = r.repoLink.GetCGroupsWithMask(Mask3)
+	r.ecGroups = r.repoLink.GetECGroupsWithMask(Mask3)
 }
 
 func (r *RepoForMask3) Iterate(f func(
@@ -30,13 +27,13 @@ func (r *RepoForMask3) Iterate(f func(
 	Position wpcomponent.Position,
 	Moving wpcomponent.Moving,
 ) (*wpcomponent.Position, *wpcomponent.Moving)) {
-	for _, cGroup := range r.cGroups {
+	for _, cGroup := range r.ecGroups {
 		switch cg := cGroup.(type) {
 		case *ECGroupMask3:
 			for _, chunk := range cg.Chunks {
 				for k := 0; k < chunk.Size; k++ {
-					newPosition, newMoving := f(chunk.Ids[k], chunk.Position[k], chunk.Moving[k])
-
+                    newPosition, newMoving := f(chunk.Ids[k], chunk.Position[k], chunk.Moving[k])
+                    
 					if newPosition != nil {
 						chunk.Position[k] = *newPosition
 					}
@@ -48,8 +45,8 @@ func (r *RepoForMask3) Iterate(f func(
 		case *ECGroupMask7:
 			for _, chunk := range cg.Chunks {
 				for k := 0; k < chunk.Size; k++ {
-					newPosition, newMoving := f(chunk.Ids[k], chunk.Position[k], chunk.Moving[k])
-
+                    newPosition, newMoving := f(chunk.Ids[k], chunk.Position[k], chunk.Moving[k])
+                    
 					if newPosition != nil {
 						chunk.Position[k] = *newPosition
 					}

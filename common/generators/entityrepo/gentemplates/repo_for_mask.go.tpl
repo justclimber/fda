@@ -11,20 +11,18 @@ import (
 )
 
 type RepoFor[[ .MaskName ]] struct {
-	cGroups  []entityrepo.CGroup
+	ecGroups  []entityrepo.ECGroup
 	repoLink ecs.EntityRepo
 }
 
 func NewRepoFor[[ .MaskName ]](repoLink ecs.EntityRepo) *RepoFor[[ .MaskName ]] {
-	r := &RepoFor[[ .MaskName ]]{
-        repoLink: repoLink,
-    }
+	r := &RepoFor[[ .MaskName ]]{ repoLink: repoLink }
     r.initRepoLink()
     return r
 }
 
 func (r *RepoFor[[ .MaskName ]]) initRepoLink() {
-	r.cGroups = r.repoLink.GetCGroupsWithMask([[ .MaskName ]])
+	r.ecGroups = r.repoLink.GetECGroupsWithMask([[ .MaskName ]])
 }
 
 func (r *RepoFor[[ .MaskName ]]) Iterate(f func(
@@ -33,7 +31,7 @@ func (r *RepoFor[[ .MaskName ]]) Iterate(f func(
 	[[ .StrWithoutPrefix ]] [[ .PackageName ]].[[ .StrWithoutPrefix ]],
 	[[- end ]]
 ) ([[ joinKeys ", " "*wpcomponent." "" $.Keys ]])) {
-	for _, cGroup := range r.cGroups {
+	for _, cGroup := range r.ecGroups {
 		switch cg := cGroup.(type) {
 		[[ range .ECGroups -]]
 		case *[[ . ]]:

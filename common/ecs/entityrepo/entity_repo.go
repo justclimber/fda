@@ -12,21 +12,21 @@ type EAddress struct {
 }
 
 type Chunked struct {
-	cgroups     map[component.Mask]CGroup
+	ecgroups    map[component.Mask]ECGroup
 	entityIndex map[entity.Id]EAddress
 }
 
-func NewChunked(cgroups map[component.Mask]CGroup) *Chunked {
+func NewChunked(ecgroups map[component.Mask]ECGroup) *Chunked {
 	return &Chunked{
-		cgroups:     cgroups,
+		ecgroups:    ecgroups,
 		entityIndex: map[entity.Id]EAddress{},
 	}
 }
 
 func (c *Chunked) Add(e entity.MaskedEntity) {
-	cgroup := c.cgroups[e.Mask()]
+	ecgroup := c.ecgroups[e.Mask()]
 
-	chunkIndex, index := cgroup.Add(e)
+	chunkIndex, index := ecgroup.Add(e)
 	c.entityIndex[e.EId()] = EAddress{
 		Mask:       e.Mask(),
 		ChunkIndex: chunkIndex,
@@ -34,7 +34,7 @@ func (c *Chunked) Add(e entity.MaskedEntity) {
 	}
 }
 
-type CGroup interface {
+type ECGroup interface {
 	Add(e entity.MaskedEntity) (int, int)
 	Get(addr EAddress) entity.MaskedEntity
 }
@@ -43,9 +43,9 @@ type Chunk interface {
 	Size() int
 }
 
-func (c *Chunked) GetCGroupsWithMask(mask component.Mask) []CGroup {
-	var cgs []CGroup
-	for m, cgroup := range c.cgroups {
+func (c *Chunked) GetECGroupsWithMask(mask component.Mask) []ECGroup {
+	var cgs []ECGroup
+	for m, cgroup := range c.ecgroups {
 		if m.Contains(mask) {
 			cgs = append(cgs, cgroup)
 		}
@@ -59,5 +59,5 @@ func (c *Chunked) Get(id entity.Id) (entity.MaskedEntity, bool) {
 		return nil, false
 	}
 
-	return c.cgroups[addr.Mask].Get(addr), true
+	return c.ecgroups[addr.Mask].Get(addr), true
 }

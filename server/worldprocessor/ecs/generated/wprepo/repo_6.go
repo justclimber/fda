@@ -5,24 +5,21 @@ import (
 	"github.com/justclimber/fda/common/ecs"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
-)
+	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent")
 
 type RepoForMask6 struct {
-	cGroups  []entityrepo.CGroup
+	ecGroups  []entityrepo.ECGroup
 	repoLink ecs.EntityRepo
 }
 
 func NewRepoForMask6(repoLink ecs.EntityRepo) *RepoForMask6 {
-	r := &RepoForMask6{
-		repoLink: repoLink,
-	}
-	r.initRepoLink()
-	return r
+	r := &RepoForMask6{ repoLink: repoLink }
+    r.initRepoLink()
+    return r
 }
 
 func (r *RepoForMask6) initRepoLink() {
-	r.cGroups = r.repoLink.GetCGroupsWithMask(Mask6)
+	r.ecGroups = r.repoLink.GetECGroupsWithMask(Mask6)
 }
 
 func (r *RepoForMask6) Iterate(f func(
@@ -30,13 +27,13 @@ func (r *RepoForMask6) Iterate(f func(
 	Moving wpcomponent.Moving,
 	Player wpcomponent.Player,
 ) (*wpcomponent.Moving, *wpcomponent.Player)) {
-	for _, cGroup := range r.cGroups {
+	for _, cGroup := range r.ecGroups {
 		switch cg := cGroup.(type) {
 		case *ECGroupMask7:
 			for _, chunk := range cg.Chunks {
 				for k := 0; k < chunk.Size; k++ {
-					newMoving, newPlayer := f(chunk.Ids[k], chunk.Moving[k], chunk.Player[k])
-
+                    newMoving, newPlayer := f(chunk.Ids[k], chunk.Moving[k], chunk.Player[k])
+                    
 					if newMoving != nil {
 						chunk.Moving[k] = *newMoving
 					}

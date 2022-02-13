@@ -20,7 +20,7 @@ func NewECGroupMask3() *ECGroupMask3 {
 }
 
 func (eg *ECGroupMask3) Add(e entity.MaskedEntity) (int, int) {
-	em := e.(EntityMask3)
+    em := e.(EntityMask3)
 	if eg.last.Size == chunkSizeMask3 {
 		eg.last = &ChunkMask3{}
 		eg.Chunks = append(eg.Chunks, eg.last)
@@ -33,8 +33,8 @@ func (eg *ECGroupMask3) Get(addr entityrepo.EAddress) entity.MaskedEntity {
 	chunk := eg.Chunks[addr.ChunkIndex]
 
 	return EntityMask3{
-		Id:       chunk.Ids[addr.Index],
-		Position: chunk.Position[addr.Index],
-		Moving:   chunk.Moving[addr.Index],
+		Id: chunk.Ids[addr.Index],
+        Position: chunk.Position[addr.Index],
+        Moving: chunk.Moving[addr.Index],
 	}
 }

@@ -11,7 +11,7 @@ const chunkSizeMask7 = 10
 type ChunkMask7 struct {
 	Size     int
 	Ids      [chunkSizeMask7]entity.Id
-	Position [chunkSizeMask7]wpcomponent.Position
+	Position   [chunkSizeMask7]wpcomponent.Position
 	Moving   [chunkSizeMask7]wpcomponent.Moving
 	Player   [chunkSizeMask7]wpcomponent.Player
 }

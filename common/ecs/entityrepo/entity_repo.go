@@ -1,8 +1,6 @@
 package entityrepo
 
 import (
-	"log"
-
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 )
@@ -25,22 +23,20 @@ func NewChunked(cgroups map[component.Mask]CGroup) *Chunked {
 	}
 }
 
-func (c *Chunked) Add(e entity.Entity) {
-	cgroup, ok := c.cgroups[e.CMask]
-	if !ok {
-		log.Fatalf("CGroup for mask %s doesn't exist", e.CMask)
-	}
+func (c *Chunked) Add(e entity.MaskedEntity) {
+	cgroup := c.cgroups[e.Mask()]
+
 	chunkIndex, index := cgroup.Add(e)
-	c.entityIndex[e.Id] = EAddress{
-		Mask:       e.CMask,
+	c.entityIndex[e.EId()] = EAddress{
+		Mask:       e.Mask(),
 		ChunkIndex: chunkIndex,
 		Index:      index,
 	}
 }
 
 type CGroup interface {
-	Add(e entity.Entity) (int, int)
-	Get(addr EAddress) (entity.Entity, bool)
+	Add(e entity.MaskedEntity) (int, int)
+	Get(addr EAddress) entity.MaskedEntity
 }
 
 type Chunk interface {
@@ -57,16 +53,11 @@ func (c *Chunked) GetCGroupsWithMask(mask component.Mask) []CGroup {
 	return cgs
 }
 
-func (c *Chunked) Get(id entity.Id) (entity.Entity, bool) {
+func (c *Chunked) Get(id entity.Id) (entity.MaskedEntity, bool) {
 	addr, ok := c.entityIndex[id]
 	if !ok {
-		return entity.Entity{}, false
+		return nil, false
 	}
 
-	cgroup, ok := c.cgroups[addr.Mask]
-	if !ok {
-		log.Fatalf("CGroup for mask %s doesn't exist", addr.Mask)
-	}
-
-	return cgroup.Get(addr)
+	return c.cgroups[addr.Mask].Get(addr), true
 }

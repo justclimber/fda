@@ -1,5 +1,7 @@
 package ecs
 
+/*
+
 import (
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
@@ -201,3 +203,4 @@ func (ch *Chunk7) Add(e entity.Entity) {
 	ch.Player[ch.Size] = *e.Components[wpcomponent.KeyPlayer].(*wpcomponent.Player)
 	ch.Size++
 }
+*/

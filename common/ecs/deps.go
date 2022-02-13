@@ -18,8 +18,8 @@ type emptyDebugger struct{}
 func (e *emptyDebugger) LogF(_ string, _ string, _ ...interface{}) {}
 
 type EntityRepo interface {
-	Add(e entity.Entity)
-	Get(id entity.Id) (entity.Entity, bool)
+	Add(e entity.MaskedEntity)
+	Get(id entity.Id) (entity.MaskedEntity, bool)
 	GetCGroupsWithMask(mask component.Mask) []entityrepo.CGroup
 }
 

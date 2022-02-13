@@ -120,6 +120,7 @@ func (r repositoryGenerator) Generate() {
 		r.writeChunkFile(newPath, ecgData, templates)
 	}
 	r.writeAllECGroupsFile(newPath, allECGroups, templates)
+	r.writeMaskedEntitiesFile(newPath, allECGroups, templates)
 
 	for _, systemAst := range r.systemsValueSpec.Values[0].(*ast.CompositeLit).Elts {
 		rData := repoData{
@@ -183,6 +184,11 @@ func (r repositoryGenerator) writeAllECGroupsFile(newPath string, ecGroups allEC
 func (r repositoryGenerator) writeAllMasksFile(newPath string, ecGroups allECGroupData, templates *template.Template) {
 	filename := fmt.Sprintf("%s/masks.go", newPath)
 	writeToTemplate(filename, ecGroups, templates, "masks.go.tpl")
+}
+
+func (r repositoryGenerator) writeMaskedEntitiesFile(newPath string, ecGroups allECGroupData, templates *template.Template) {
+	filename := fmt.Sprintf("%s/masked_entities.go", newPath)
+	writeToTemplate(filename, ecGroups, templates, "masked_entities.go.tpl")
 }
 
 func (r repositoryGenerator) writeRepoFile(newPath string, rData repoData, templates *template.Template) {

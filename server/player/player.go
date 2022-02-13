@@ -14,7 +14,7 @@ func NewPlayer(cmdCh chan command.Command) *Player {
 	return &Player{CmdCh: cmdCh}
 }
 
-func NewPlayerWithComponent(delay int) (*Player, *wpcomponent.Player) {
+func NewPlayerWithComponent(delay int) (*Player, wpcomponent.Player) {
 	cmdCh := make(chan command.Command, 1)
 	return NewPlayer(cmdCh), wpcomponent.NewPlayer(delay, cmdCh)
 }

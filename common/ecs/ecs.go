@@ -32,7 +32,7 @@ func (ec *Ecs) Init(currentTick tick.Tick) {
 	}
 }
 
-func (ec *Ecs) AddEntity(e entity.Entity) {
+func (ec *Ecs) AddEntity(e entity.MaskedEntity) {
 	ec.entityRepo.Add(e)
 }
 

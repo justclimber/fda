@@ -12,7 +12,6 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/fgeom"
@@ -82,15 +81,14 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 			ppWpLink := internalapi.NewPpWpLink()
 
 			_, pl := player.NewPlayerWithComponent(delay)
-			e := entity.NewEntity(entityId)
-			e.AddComponent(pl)
-			e.AddComponent(wpcomponent.NewPosition(startPosition))
-			e.AddComponent(wpcomponent.NewMoving(fgeom.Point{X: tc.power}))
+			e := wprepo.EntityMask7{
+				Id:       entityId,
+				Position: wpcomponent.NewPosition(startPosition),
+				Moving:   wpcomponent.NewMoving(fgeom.Point{X: tc.power}),
+				Player:   pl,
+			}
 
-			cg7 := wprepo.NewECGroupMask7()
-			repo := entityrepo.NewChunked(map[component.Mask]entityrepo.CGroup{
-				e.CMask: cg7,
-			})
+			repo := entityrepo.NewChunked(wprepo.GetAllECGroups())
 
 			repoForMask3 := wprepo.NewRepoForMask3(repo)
 

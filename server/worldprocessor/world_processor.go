@@ -26,7 +26,7 @@ func NewWorldProcessor(
 	}
 }
 
-func (w *WorldProcessor) AddEntity(e entity.Entity) {
+func (w *WorldProcessor) AddEntity(e entity.MaskedEntity) {
 	w.ecs.AddEntity(e)
 }
 

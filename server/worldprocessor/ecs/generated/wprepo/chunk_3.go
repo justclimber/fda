@@ -15,9 +15,9 @@ type ChunkMask3 struct {
 	Moving   [chunkSizeMask3]wpcomponent.Moving
 }
 
-func (ch *ChunkMask3) Add(e entity.Entity) {
-	ch.Ids[ch.Size] = e.Id
-	ch.Position[ch.Size] = *e.Components[wpcomponent.KeyPosition].(*wpcomponent.Position)
-	ch.Moving[ch.Size] = *e.Components[wpcomponent.KeyMoving].(*wpcomponent.Moving)
+func (ch *ChunkMask3) Add(e EntityMask3) {
+	ch.Ids[ch.Size] = e.EId()
+	ch.Position[ch.Size] = e.Position
+	ch.Moving[ch.Size] = e.Moving
 	ch.Size++
 }

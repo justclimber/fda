@@ -50,10 +50,12 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	ppWpLink := internalapi.NewPpWpLink()
 
 	pl, plComp := player.NewPlayerWithComponent(delay)
-	e := entity.NewEntity(entityId)
-	e.AddComponent(plComp)
-	e.AddComponent(wpcomponent.NewPosition(startPos))
-	e.AddComponent(wpcomponent.NewMoving(fgeom.EmptyPoint))
+	e := wprepo.EntityMask7{
+		Id:       entityId,
+		Position: wpcomponent.NewPosition(startPos),
+		Moving:   wpcomponent.NewMoving(fgeom.EmptyPoint),
+		Player:   plComp,
+	}
 
 	repo := entityrepo.NewChunked(wprepo.GetAllECGroups())
 

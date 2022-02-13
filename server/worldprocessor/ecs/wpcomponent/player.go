@@ -10,8 +10,8 @@ type Player struct {
 	CmdCh chan command.Command
 }
 
-func NewPlayer(delay int, cmdCh chan command.Command) *Player {
-	return &Player{Delay: delay, CmdCh: cmdCh}
+func NewPlayer(delay int, cmdCh chan command.Command) Player {
+	return Player{Delay: delay, CmdCh: cmdCh}
 }
 
 func (p *Player) Key() component.Key {

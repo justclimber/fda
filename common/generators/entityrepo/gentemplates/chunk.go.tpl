@@ -18,10 +18,10 @@ type Chunk[[ .MaskName ]] struct {
 [[- end]]
 }
 
-func (ch *Chunk[[ .MaskName ]]) Add(e entity.Entity) {
-	ch.Ids[ch.Size] = e.Id
+func (ch *Chunk[[ .MaskName ]]) Add(e Entity[[ $.MaskName ]]) {
+	ch.Ids[ch.Size] = e.EId()
 [[- range .Keys]]
-	ch.[[ .StrWithoutPrefix ]][ch.Size] = *e.Components[ [[- .FullStr -]] ].(*[[ .PackageName ]].[[ .StrWithoutPrefix ]])
+	ch.[[ .StrWithoutPrefix ]][ch.Size] = e.[[ .StrWithoutPrefix ]]
 [[- end]]
 	ch.Size++
 }

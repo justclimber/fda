@@ -16,10 +16,10 @@ type ChunkMask7 struct {
 	Player   [chunkSizeMask7]wpcomponent.Player
 }
 
-func (ch *ChunkMask7) Add(e entity.Entity) {
-	ch.Ids[ch.Size] = e.Id
-	ch.Position[ch.Size] = *e.Components[wpcomponent.KeyPosition].(*wpcomponent.Position)
-	ch.Moving[ch.Size] = *e.Components[wpcomponent.KeyMoving].(*wpcomponent.Moving)
-	ch.Player[ch.Size] = *e.Components[wpcomponent.KeyPlayer].(*wpcomponent.Player)
+func (ch *ChunkMask7) Add(e EntityMask7) {
+	ch.Ids[ch.Size] = e.EId()
+	ch.Position[ch.Size] = e.Position
+	ch.Moving[ch.Size] = e.Moving
+	ch.Player[ch.Size] = e.Player
 	ch.Size++
 }

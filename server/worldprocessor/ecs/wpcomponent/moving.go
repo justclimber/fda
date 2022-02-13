@@ -9,10 +9,10 @@ type Moving struct {
 	D fgeom.Point
 }
 
-func NewMoving(d fgeom.Point) *Moving {
-	return &Moving{D: d}
+func NewMoving(d fgeom.Point) Moving {
+	return Moving{D: d}
 }
 
-func (m *Moving) Key() component.Key {
+func (m Moving) Key() component.Key {
 	return KeyMoving
 }

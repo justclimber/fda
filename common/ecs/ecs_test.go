@@ -1,5 +1,6 @@
 package ecs
 
+/*
 import (
 	"testing"
 
@@ -73,3 +74,4 @@ func TestEcs(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, pos2.Add(d2), e2n.Components[wpcomponent.KeyPosition].(*wpcomponent.Position).Pos)
 }
+*/

@@ -9,10 +9,10 @@ type Position struct {
 	Pos fgeom.Point
 }
 
-func NewPosition(p fgeom.Point) *Position {
-	return &Position{Pos: p}
+func NewPosition(p fgeom.Point) Position {
+	return Position{Pos: p}
 }
 
-func (p *Position) Key() component.Key {
+func (p Position) Key() component.Key {
 	return KeyPosition
 }

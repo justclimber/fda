@@ -2,10 +2,8 @@
 package wprepo
 
 import (
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type ECGroupMask7 struct {
@@ -21,37 +19,23 @@ func NewECGroupMask7() *ECGroupMask7 {
 	}
 }
 
-func (eg *ECGroupMask7) Add(e entity.Entity) (int, int) {
+func (eg *ECGroupMask7) Add(e entity.MaskedEntity) (int, int) {
+	em := e.(EntityMask7)
 	if eg.last.Size == chunkSizeMask7 {
 		eg.last = &ChunkMask7{}
 		eg.Chunks = append(eg.Chunks, eg.last)
 	}
-	eg.last.Add(e)
+	eg.last.Add(em)
 	return len(eg.Chunks) - 1, eg.last.Size - 1
 }
 
-func (eg *ECGroupMask7) Get(addr entityrepo.EAddress) (entity.Entity, bool) {
-	if addr.ChunkIndex >= len(eg.Chunks) {
-		return entity.Entity{}, false
-	}
-
+func (eg *ECGroupMask7) Get(addr entityrepo.EAddress) entity.MaskedEntity {
 	chunk := eg.Chunks[addr.ChunkIndex]
 
-	if addr.Index >= chunk.Size {
-		return entity.Entity{}, false
+	return EntityMask7{
+		Id:       chunk.Ids[addr.Index],
+		Position: chunk.Position[addr.Index],
+		Moving:   chunk.Moving[addr.Index],
+		Player:   chunk.Player[addr.Index],
 	}
-
-	return entity.Entity{
-		Id: chunk.Ids[addr.Index],
-		Components: map[component.Key]component.Component{
-			wpcomponent.KeyPosition: &chunk.Position[addr.Index],
-			wpcomponent.KeyMoving:   &chunk.Moving[addr.Index],
-			wpcomponent.KeyPlayer:   &chunk.Player[addr.Index],
-		},
-		CMask: component.NewMask([]component.Key{
-			wpcomponent.KeyPosition,
-			wpcomponent.KeyMoving,
-			wpcomponent.KeyPlayer,
-		}),
-	}, true
 }

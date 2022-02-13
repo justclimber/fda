@@ -2,12 +2,8 @@
 package [[ .PackageName ]]
 
 import (
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
-[[- range $key, $value := .KeysPackages]]
-	"github.com/justclimber/fda/server/worldprocessor/ecs/[[ $key ]]"
-[[- end -]]
 )
 
 type ECGroup[[ .MaskName ]] struct {
@@ -23,37 +19,23 @@ func NewECGroup[[ .MaskName ]]() *ECGroup[[ .MaskName ]] {
 	}
 }
 
-func (eg *ECGroup[[ .MaskName ]]) Add(e entity.Entity) (int, int) {
+func (eg *ECGroup[[ .MaskName ]]) Add(e entity.MaskedEntity) (int, int) {
+    em := e.(Entity[[ .MaskName ]])
 	if eg.last.Size == chunkSize[[ .MaskName ]] {
 		eg.last = &Chunk[[ .MaskName ]]{}
 		eg.Chunks = append(eg.Chunks, eg.last)
 	}
-	eg.last.Add(e)
+	eg.last.Add(em)
 	return len(eg.Chunks) - 1, eg.last.Size - 1
 }
 
-func (eg *ECGroup[[ .MaskName ]]) Get(addr entityrepo.EAddress) (entity.Entity, bool) {
-	if addr.ChunkIndex >= len(eg.Chunks) {
-		return entity.Entity{}, false
-	}
-
+func (eg *ECGroup[[ .MaskName ]]) Get(addr entityrepo.EAddress) entity.MaskedEntity {
 	chunk := eg.Chunks[addr.ChunkIndex]
 
-	if addr.Index >= chunk.Size {
-		return entity.Entity{}, false
-	}
-
-	return entity.Entity{
+	return Entity[[ .MaskName ]]{
 		Id: chunk.Ids[addr.Index],
-		Components: map[component.Key]component.Component{
-[[- range .Keys]]
-			[[ .FullStr ]]: &chunk.[[ .StrWithoutPrefix]][addr.Index],
-[[- end]]
-		},
-		CMask: component.NewMask([]component.Key{
-[[- range .Keys]]
-			[[ .FullStr ]],
-[[- end]]
-		}),
-	}, true
+        [[- range .Keys]]
+        [[ .StrWithoutPrefix ]]: chunk.[[ .StrWithoutPrefix]][addr.Index],
+        [[- end]]
+	}
 }

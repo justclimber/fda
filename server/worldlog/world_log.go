@@ -24,8 +24,8 @@ type Logs struct {
 }
 
 type TickComponent struct {
-	Tick       tick.Tick
-	Components map[component.Key]component.Component
+	Tick      tick.Tick
+	Component component.Component
 }
 
 type LogBatch struct {
@@ -47,10 +47,8 @@ func (l *LogBatch) Add(t tick.Tick, id entity.Id, c component.Component) {
 	l.EndTick = t
 	lastComponents, ok := l.LastComponents[id]
 	tc := TickComponent{
-		Tick: t,
-		Components: map[component.Key]component.Component{
-			c.Key(): c,
-		},
+		Tick:      t,
+		Component: c,
 	}
 	if !ok {
 		l.EntitiesLogs[id] = []TickComponent{tc}

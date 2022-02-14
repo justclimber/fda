@@ -113,16 +113,12 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
 					entityId: {
 						{
-							Tick: 23,
-							Components: map[component.Key]component.Component{
-								wpcomponent.KeyMoving: wpcomponent.Moving{D: fgeom.Point{}},
-							},
+							Tick:      23,
+							Component: wpcomponent.Moving{D: fgeom.Point{}},
 						},
 						{
-							Tick: 25,
-							Components: map[component.Key]component.Component{
-								wpcomponent.KeyMoving: wpcomponent.Moving{D: fgeom.Point{X: 0.5}},
-							},
+							Tick:      25,
+							Component: wpcomponent.Moving{D: fgeom.Point{X: 0.5}},
 						},
 					},
 				},

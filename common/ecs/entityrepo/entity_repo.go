@@ -39,10 +39,6 @@ type ECGroup interface {
 	Get(addr EAddress) entity.MaskedEntity
 }
 
-type Chunk interface {
-	Size() int
-}
-
 func (c *Chunked) GetECGroupsWithMask(mask component.Mask) []ECGroup {
 	var cgs []ECGroup
 	for m, cgroup := range c.ecgroups {

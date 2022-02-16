@@ -11,7 +11,6 @@ type WorldLogger interface {
 	LogTick(tick tick.Tick)
 	Logs() *Logs
 	Count() int
-	GetLastBatch() *Logs
 }
 
 type LogEntry struct {
@@ -65,8 +64,7 @@ func (l *LogBatch) Add(t tick.Tick, id entity.Id, c component.Component) {
 }
 
 type Logger struct {
-	logs              *Logs
-	lastBatchLogIndex int
+	logs *Logs
 }
 
 func NewLogger() *Logger {
@@ -90,13 +88,4 @@ func (l *Logger) Logs() *Logs {
 
 func (l *Logger) Count() int {
 	return len(l.logs.Entries)
-}
-
-func (l *Logger) GetLastBatch() *Logs {
-	if len(l.logs.Entries) == 0 {
-		return nil
-	}
-	i := l.lastBatchLogIndex
-	l.lastBatchLogIndex = len(l.logs.Entries) - 1
-	return &Logs{Entries: l.logs.Entries[i:]}
 }

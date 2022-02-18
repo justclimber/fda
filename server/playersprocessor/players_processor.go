@@ -12,17 +12,19 @@ import (
 )
 
 type PlayersProcessor struct {
-	players  map[int64]*player.Player
-	wpLink   *internalapi.PpWpLink
-	currTick tick.Tick
-	debugger *debugger.Nested
+	players           map[int64]*player.Player
+	wpLink            *internalapi.PpWpLink
+	currTick          tick.Tick
+	entitiesStateLogs *EntitiesLogs
+	debugger          *debugger.Nested
 }
 
 func NewPlayersProcessor(wpLink *internalapi.PpWpLink, debugger *debugger.Nested) *PlayersProcessor {
 	return &PlayersProcessor{
-		wpLink:   wpLink,
-		players:  make(map[int64]*player.Player),
-		debugger: debugger,
+		wpLink:            wpLink,
+		players:           make(map[int64]*player.Player),
+		entitiesStateLogs: NewEntitiesLogs(),
+		debugger:          debugger,
 	}
 }
 
@@ -39,9 +41,7 @@ func (p *PlayersProcessor) Run() error {
 			return nil
 		case logs := <-p.wpLink.LogsCh:
 			p.debugger.LogF("Run", "get logs")
-			if err := p.applyLogs(logs); err != nil {
-				return err
-			}
+			p.applyLogs(logs)
 			p.processPlayers()
 			p.debugger.LogF("Run", "send sync")
 			p.wpLink.SyncCh <- true
@@ -60,9 +60,9 @@ func (p *PlayersProcessor) processPlayers() {
 	}
 }
 
-func (p *PlayersProcessor) applyLogs(logs worldlog.LogBatch) error {
+func (p *PlayersProcessor) applyLogs(logs worldlog.LogBatch) {
 	p.currTick = logs.StartTick
-	return nil
+	p.entitiesStateLogs.ApplyLogBatch(logs)
 }
 
 func (p *PlayersProcessor) processPlayer(_ *player.Player) (command.Command, error) {

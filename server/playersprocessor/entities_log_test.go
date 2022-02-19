@@ -16,20 +16,18 @@ import (
 func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 	tests := []struct {
 		name     string
-		logs     worldlog.LogBatch
+		batch    worldlog.Batch
 		wantLogs map[tick.Tick]map[entity.Id][]component.Component
 	}{
 		{
 			name:     "empty",
-			logs:     worldlog.LogBatch{},
+			batch:    worldlog.Batch{},
 			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{},
 		},
 		{
 			name: "1_comp_1_tick",
-			logs: worldlog.LogBatch{
-				StartTick: 10,
-				EndTick:   10,
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+			batch: worldlog.Batch{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					10: {
 						{
 							TickFrom:  1,
@@ -47,10 +45,8 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 		},
 		{
 			name: "2_comp_1_tick",
-			logs: worldlog.LogBatch{
-				StartTick: 10,
-				EndTick:   10,
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+			batch: worldlog.Batch{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					10: {
 						{
 							TickFrom:  1,
@@ -76,10 +72,8 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 		},
 		{
 			name: "2_comp_2_tick",
-			logs: worldlog.LogBatch{
-				StartTick: 10,
-				EndTick:   10,
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+			batch: worldlog.Batch{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					10: {
 						{
 							TickFrom:  1,
@@ -101,10 +95,8 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 		},
 		{
 			name: "2_comp_2_tick_2_entities",
-			logs: worldlog.LogBatch{
-				StartTick: 10,
-				EndTick:   10,
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+			batch: worldlog.Batch{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					10: {
 						{
 							TickFrom:  1,
@@ -136,10 +128,8 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 		},
 		{
 			name: "1_comp_1-3_tick",
-			logs: worldlog.LogBatch{
-				StartTick: 1,
-				EndTick:   3,
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+			batch: worldlog.Batch{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					10: {
 						{
 							TickFrom:  1,
@@ -157,8 +147,8 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 		},
 		{
 			name: "mixed_1",
-			logs: worldlog.LogBatch{
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+			batch: worldlog.Batch{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					10: {
 						{
 							TickFrom:  1,
@@ -211,7 +201,7 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			el := NewEntitiesLogs()
-			el.ApplyLogBatch(tt.logs)
+			el.ApplyLogBatch(tt.batch)
 			assert.Equal(t, tt.wantLogs, el.Logs)
 		})
 	}

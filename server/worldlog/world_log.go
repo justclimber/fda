@@ -12,91 +12,89 @@ type WorldLogger interface {
 	Count() int
 }
 
-type LogEntry struct {
+type OneTime struct {
 	Tick tick.Tick
 }
 
 type Logs struct {
-	Entries []LogEntry
-	Batches []LogBatch
+	Batches []Batch
 }
 
-type TickComponent struct {
+type RepeatableComponent struct {
 	TickFrom  tick.Tick
 	TickTo    tick.Tick
 	Component component.Component
 }
 
-type LogBatch struct {
-	EntitiesLogs map[entity.Id][]TickComponent
+type Batch struct {
+	OneTime    []OneTime
+	Repeatable map[entity.Id][]RepeatableComponent
 }
 
-func NewLogBatch() LogBatch {
-	return LogBatch{EntitiesLogs: map[entity.Id][]TickComponent{}}
+func NewBatch() Batch {
+	return Batch{Repeatable: map[entity.Id][]RepeatableComponent{}}
 }
 
 type Logger struct {
-	logs           *Logs
-	curLogBatch    LogBatch
-	LastComponents map[entity.Id]map[component.Key]int
+	logs                     *Logs
+	curBatch                 Batch
+	LastRepeatableComponents map[entity.Id]map[component.Key]int
 }
 
 func NewLogger() *Logger {
 	return &Logger{
-		logs: &Logs{
-			Entries: []LogEntry{},
-			Batches: []LogBatch{},
-		},
-		curLogBatch:    NewLogBatch(),
-		LastComponents: map[entity.Id]map[component.Key]int{},
+		logs:                     &Logs{Batches: []Batch{}},
+		curBatch:                 NewBatch(),
+		LastRepeatableComponents: map[entity.Id]map[component.Key]int{},
 	}
 }
 
 func (l *Logger) LogTick(tick tick.Tick) {
-	l.logs.Entries = append(l.logs.Entries, LogEntry{Tick: tick})
+	l.curBatch.OneTime = append(l.curBatch.OneTime, OneTime{Tick: tick})
 }
 
-func (l *Logger) AddToCurLogBatch(t tick.Tick, id entity.Id, c component.Component) {
-	tc := TickComponent{
+func (l *Logger) AddToCurBatch(t tick.Tick, id entity.Id, c component.Component) {
+	tc := RepeatableComponent{
 		TickFrom:  t,
 		TickTo:    t,
 		Component: c,
 	}
 
-	_, ok := l.curLogBatch.EntitiesLogs[id]
+	_, ok := l.curBatch.Repeatable[id]
 	if !ok {
-		l.curLogBatch.EntitiesLogs[id] = []TickComponent{tc}
-		l.LastComponents[id] = map[component.Key]int{
+		l.curBatch.Repeatable[id] = []RepeatableComponent{tc}
+		l.LastRepeatableComponents[id] = map[component.Key]int{
 			c.Key(): 0,
 		}
 		return
 	}
 
-	lastComponents, ok := l.LastComponents[id]
+	lastComponents, ok := l.LastRepeatableComponents[id]
 	if !ok {
-		l.curLogBatch.EntitiesLogs[id] = append(l.curLogBatch.EntitiesLogs[id], tc)
-		l.LastComponents[id] = map[component.Key]int{
-			c.Key(): len(l.curLogBatch.EntitiesLogs[id]) - 1,
+		l.curBatch.Repeatable[id] = append(l.curBatch.Repeatable[id], tc)
+		l.LastRepeatableComponents[id] = map[component.Key]int{
+			c.Key(): len(l.curBatch.Repeatable[id]) - 1,
 		}
 		return
 	}
 
 	last, ok := lastComponents[c.Key()]
-	if !ok || c != l.curLogBatch.EntitiesLogs[id][last].Component {
-		l.curLogBatch.EntitiesLogs[id] = append(l.curLogBatch.EntitiesLogs[id], tc)
-		l.LastComponents[id][c.Key()] = len(l.curLogBatch.EntitiesLogs[id]) - 1
+	if !ok || c != l.curBatch.Repeatable[id][last].Component {
+		l.curBatch.Repeatable[id] = append(l.curBatch.Repeatable[id], tc)
+		l.LastRepeatableComponents[id][c.Key()] = len(l.curBatch.Repeatable[id]) - 1
 	} else {
-		tc = l.curLogBatch.EntitiesLogs[id][last]
+		tc = l.curBatch.Repeatable[id][last]
 		tc.TickTo = t
-		l.curLogBatch.EntitiesLogs[id][last] = tc
+		l.curBatch.Repeatable[id][last] = tc
 	}
 }
 
-func (l *Logger) RotateLogBatch() LogBatch {
-	batch := l.curLogBatch
+func (l *Logger) RotateBatch() Batch {
+	batch := l.curBatch
 	l.logs.Batches = append(l.logs.Batches, batch)
 
-	l.curLogBatch = NewLogBatch()
+	l.curBatch = NewBatch()
+	l.LastRepeatableComponents = map[entity.Id]map[component.Key]int{}
 	return batch
 }
 
@@ -104,6 +102,7 @@ func (l *Logger) Logs() *Logs {
 	return l.logs
 }
 
+// Count todo: remove in future
 func (l *Logger) Count() int {
-	return len(l.logs.Entries)
+	return len(l.logs.Batches[0].OneTime)
 }

@@ -18,7 +18,7 @@ type Log struct {
 	sendLogsDelay int
 	syncDelay     int
 	debugger      *debugger.Nested
-	LogBatch      worldlog.LogBatch
+	LogBatch      worldlog.Batch
 }
 
 func NewLog(
@@ -51,7 +51,7 @@ func (l *Log) DoTick(tick tick.Tick) bool {
 		p wpcomponent.Position,
 		m wpcomponent.Moving,
 	) (*wpcomponent.Position, *wpcomponent.Moving) {
-		l.logger.AddToCurLogBatch(tick, id, m)
+		l.logger.AddToCurBatch(tick, id, m)
 
 		return nil, nil
 	})
@@ -75,5 +75,5 @@ func (l *Log) sendLogAndSync(t tick.Tick) {
 
 func (l *Log) sendLog() {
 	l.debugger.LogF("DoTick", "send logs")
-	l.ppWpLink.LogsCh <- l.logger.RotateLogBatch()
+	l.ppWpLink.LogsCh <- l.logger.RotateBatch()
 }

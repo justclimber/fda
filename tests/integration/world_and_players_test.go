@@ -91,25 +91,23 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	}
 
 	expectedLogs := &worldlog.Logs{
-		Entries: []worldlog.LogEntry{
-			{Tick: 23},
-			{Tick: 24},
-			{Tick: 25},
-			{Tick: 26},
-			{Tick: 27},
-			{Tick: 28},
-		},
-		Batches: []worldlog.LogBatch{
-			{EntitiesLogs: map[entity.Id][]worldlog.TickComponent{}},
+		Batches: []worldlog.Batch{
+			{Repeatable: map[entity.Id][]worldlog.RepeatableComponent{}},
 			{
-				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
+				OneTime: []worldlog.OneTime{
+					{Tick: 23},
+					{Tick: 24},
+					{Tick: 25},
+					{Tick: 26},
+				},
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					entityId: {
-						worldlog.TickComponent{
+						worldlog.RepeatableComponent{
 							TickFrom:  23,
 							TickTo:    24,
 							Component: wpcomponent.Moving{D: fgeom.Point{}},
 						},
-						worldlog.TickComponent{
+						worldlog.RepeatableComponent{
 							TickFrom:  25,
 							TickTo:    26,
 							Component: wpcomponent.Moving{D: fgeom.Point{X: 0.5}},

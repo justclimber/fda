@@ -39,9 +39,9 @@ func (p *PlayersProcessor) Run() error {
 		select {
 		case <-p.wpLink.DoneCh:
 			return nil
-		case logs := <-p.wpLink.LogsCh:
+		case logBatch := <-p.wpLink.LogsCh:
 			p.debugger.LogF("Run", "get logs")
-			p.applyLogs(logs)
+			p.applyLogBatch(logBatch)
 			p.processPlayers()
 			p.debugger.LogF("Run", "send sync")
 			p.wpLink.SyncCh <- true
@@ -60,7 +60,7 @@ func (p *PlayersProcessor) processPlayers() {
 	}
 }
 
-func (p *PlayersProcessor) applyLogs(logs worldlog.LogBatch) {
+func (p *PlayersProcessor) applyLogBatch(logs worldlog.Batch) {
 	p.entitiesStateLogs.ApplyLogBatch(logs)
 }
 

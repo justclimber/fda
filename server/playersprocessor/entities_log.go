@@ -17,10 +17,10 @@ func NewEntitiesLogs() *EntitiesLogs {
 	}
 }
 
-func (el *EntitiesLogs) ApplyLogBatch(b worldlog.LogBatch) {
-	for eid, tickComponents := range b.EntitiesLogs {
-		for _, tickComponent := range tickComponents {
-			for t := tickComponent.TickFrom; t <= tickComponent.TickTo; t++ {
+func (el *EntitiesLogs) ApplyLogBatch(b worldlog.Batch) {
+	for eid, repeatableComponents := range b.Repeatable {
+		for _, rc := range repeatableComponents {
+			for t := rc.TickFrom; t <= rc.TickTo; t++ {
 				if el.Logs[t] == nil {
 					el.Logs[t] = map[entity.Id][]component.Component{}
 				}
@@ -28,7 +28,7 @@ func (el *EntitiesLogs) ApplyLogBatch(b worldlog.LogBatch) {
 					el.Logs[t][eid] = []component.Component{}
 
 				}
-				el.Logs[t][eid] = append(el.Logs[t][eid], tickComponent.Component)
+				el.Logs[t][eid] = append(el.Logs[t][eid], rc.Component)
 			}
 		}
 	}

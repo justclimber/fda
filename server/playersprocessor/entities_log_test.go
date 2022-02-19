@@ -13,16 +13,16 @@ import (
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
-func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
+func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 	tests := []struct {
 		name     string
 		batch    worldlog.Batch
-		wantLogs map[tick.Tick]map[entity.Id][]component.Component
+		wantLogs map[tick.Tick]map[entity.Id]map[component.Key]component.Component
 	}{
 		{
 			name:     "empty",
 			batch:    worldlog.Batch{},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{},
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{},
 		},
 		{
 			name: "1_comp_1_tick",
@@ -37,9 +37,11 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {
-					10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})},
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1}),
+					},
 				},
 			},
 		},
@@ -61,11 +63,11 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {
-					10: []component.Component{
-						wpcomponent.NewMoving(fgeom.Point{X: 1}),
-						wpcomponent.NewPosition(fgeom.Point{X: 2}),
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2}),
 					},
 				},
 			},
@@ -88,9 +90,9 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{
-				1: {10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})}},
-				2: {10: []component.Component{wpcomponent.NewPosition(fgeom.Point{X: 2})}},
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
+				2: {10: map[component.Key]component.Component{wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2})}},
 			},
 		},
 		{
@@ -118,11 +120,11 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{
-				1: {10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})}},
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				2: {
-					10: []component.Component{wpcomponent.NewPosition(fgeom.Point{X: 2})},
-					20: []component.Component{wpcomponent.NewPosition(fgeom.Point{X: 5})},
+					10: map[component.Key]component.Component{wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2})},
+					20: map[component.Key]component.Component{wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 5})},
 				},
 			},
 		},
@@ -139,10 +141,10 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{
-				1: {10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})}},
-				2: {10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})}},
-				3: {10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})}},
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
+				2: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
+				3: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 			},
 		},
 		{
@@ -170,29 +172,93 @@ func TestEntitiesLogs_ApplyLogBatch(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id][]component.Component{
-				1: {10: []component.Component{wpcomponent.NewMoving(fgeom.Point{X: 1})}},
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				2: {
-					10: []component.Component{
-						wpcomponent.NewMoving(fgeom.Point{X: 1}),
-						wpcomponent.NewPosition(fgeom.Point{X: 2}),
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2}),
 					},
-					20: []component.Component{
-						wpcomponent.NewMoving(fgeom.Point{X: 1}),
+					20: map[component.Key]component.Component{
+						wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1}),
 					},
 				},
 				3: {
-					10: []component.Component{
-						wpcomponent.NewMoving(fgeom.Point{X: 1}),
-						wpcomponent.NewPosition(fgeom.Point{X: 2}),
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2}),
 					},
-					20: []component.Component{
-						wpcomponent.NewMoving(fgeom.Point{X: 1}),
+					20: map[component.Key]component.Component{
+						wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1}),
 					},
 				},
 				4: {
-					10: []component.Component{
-						wpcomponent.NewPosition(fgeom.Point{X: 2}),
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2}),
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			el := NewEntitiesLogs()
+			el.ApplyLogBatch(tt.batch)
+			assert.Equal(t, tt.wantLogs, el.Logs)
+		})
+	}
+}
+
+func TestEntitiesLogs_ApplyLogBatchWithCalculated(t *testing.T) {
+	tests := []struct {
+		name     string
+		batch    worldlog.Batch
+		wantLogs map[tick.Tick]map[entity.Id]map[component.Key]component.Component
+	}{
+		{
+			name: "1",
+			batch: worldlog.Batch{
+				Calculated: map[entity.Id][]worldlog.CalculatedComponent{
+					10: {
+						{
+							TickFrom:  2,
+							Component: wpcomponent.Position{Pos: fgeom.Point{X: 10}},
+						},
+					},
+				},
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
+					10: {
+						{
+							TickFrom:  2,
+							TickTo:    5,
+							Component: wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						},
+					},
+				},
+			},
+			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+				2: {
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 10}),
+					},
+				},
+				3: {
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 11}),
+					},
+				},
+				4: {
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 12}),
+					},
+				},
+				5: {
+					10: map[component.Key]component.Component{
+						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
+						wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 13}),
 					},
 				},
 			},

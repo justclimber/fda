@@ -17,6 +17,11 @@ type SingleTickComponent struct {
 	EComps map[entity.Id]map[component.Key]component.Component
 }
 
+type CalculatedComponent struct {
+	TickFrom  tick.Tick
+	Component component.Component
+}
+
 type Logs struct {
 	Batches []Batch
 }
@@ -30,10 +35,14 @@ type RepeatableComponent struct {
 type Batch struct {
 	SingleTick []SingleTickComponent
 	Repeatable map[entity.Id][]RepeatableComponent
+	Calculated map[entity.Id][]CalculatedComponent
 }
 
 func NewBatch() Batch {
-	return Batch{Repeatable: map[entity.Id][]RepeatableComponent{}}
+	return Batch{
+		Repeatable: map[entity.Id][]RepeatableComponent{},
+		Calculated: map[entity.Id][]CalculatedComponent{},
+	}
 }
 
 type Logger struct {
@@ -48,6 +57,14 @@ func NewLogger() *Logger {
 		curBatch:                 NewBatch(),
 		LastRepeatableComponents: map[entity.Id]map[component.Key]int{},
 	}
+}
+
+func (l *Logger) LogCalculated(t tick.Tick, id entity.Id, c component.Component) {
+	cc := CalculatedComponent{
+		TickFrom:  t,
+		Component: c,
+	}
+	l.curBatch.Calculated[id] = append(l.curBatch.Calculated[id], cc)
 }
 
 func (l *Logger) LogTick(tick tick.Tick, eComps map[entity.Id]map[component.Key]component.Component) {

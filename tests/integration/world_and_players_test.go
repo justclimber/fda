@@ -10,7 +10,6 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/fgeom"
@@ -93,18 +92,24 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 
 	expectedLogs := &worldlog.Logs{
 		Batches: []worldlog.Batch{
-			{Repeatable: map[entity.Id][]worldlog.RepeatableComponent{}},
+			{
+				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{},
+				Calculated: map[entity.Id][]worldlog.CalculatedComponent{},
+			},
 			{
 				SingleTick: []worldlog.SingleTickComponent{
-					{
-						Tick: 23,
-						EComps: map[entity.Id]map[component.Key]component.Component{
-							entityId: {wpcomponent.KeyPosition: wpcomponent.Position{Pos: startPos}},
-						},
-					},
+					{Tick: 23},
 					{Tick: 24},
 					{Tick: 25},
 					{Tick: 26},
+				},
+				Calculated: map[entity.Id][]worldlog.CalculatedComponent{
+					entityId: {
+						{
+							TickFrom:  23,
+							Component: wpcomponent.Position{Pos: startPos},
+						},
+					},
 				},
 				Repeatable: map[entity.Id][]worldlog.RepeatableComponent{
 					entityId: {

@@ -2,7 +2,6 @@ package wpsystem
 
 import (
 	"github.com/justclimber/fda/common/debugger"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
@@ -47,12 +46,10 @@ func (l *Log) Init(_ tick.Tick) {
 
 func (l *Log) DoTick(tick tick.Tick) bool {
 	var needSend, needSync, needSnapshot bool
-	var eComps map[entity.Id]map[component.Key]component.Component
 
 	l.logsIndex++
 	if l.logsIndex == 1 {
 		needSnapshot = true
-		eComps = map[entity.Id]map[component.Key]component.Component{}
 	} else if l.logsIndex >= l.sendLogsDelay {
 		needSend = true
 	} else if l.logsIndex == l.syncDelay {
@@ -66,11 +63,11 @@ func (l *Log) DoTick(tick tick.Tick) bool {
 	) (*wpcomponent.Position, *wpcomponent.Moving) {
 		l.logger.AddToCurBatch(tick, id, m)
 		if needSnapshot {
-			eComps[id] = map[component.Key]component.Component{p.Key(): p}
+			l.logger.LogCalculated(tick, id, p)
 		}
 		return nil, nil
 	})
-	l.logger.LogTick(tick, eComps)
+	l.logger.LogTick(tick, nil)
 
 	if needSend {
 		l.sendLog()

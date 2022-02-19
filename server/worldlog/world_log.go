@@ -7,13 +7,14 @@ import (
 )
 
 type WorldLogger interface {
-	LogTick(tick tick.Tick)
+	LogTick(tick tick.Tick, eComps map[entity.Id]map[component.Key]component.Component)
 	Logs() *Logs
 	Count() int
 }
 
-type OneTime struct {
-	Tick tick.Tick
+type SingleTickComponent struct {
+	Tick   tick.Tick
+	EComps map[entity.Id]map[component.Key]component.Component
 }
 
 type Logs struct {
@@ -27,7 +28,7 @@ type RepeatableComponent struct {
 }
 
 type Batch struct {
-	OneTime    []OneTime
+	SingleTick []SingleTickComponent
 	Repeatable map[entity.Id][]RepeatableComponent
 }
 
@@ -49,8 +50,11 @@ func NewLogger() *Logger {
 	}
 }
 
-func (l *Logger) LogTick(tick tick.Tick) {
-	l.curBatch.OneTime = append(l.curBatch.OneTime, OneTime{Tick: tick})
+func (l *Logger) LogTick(tick tick.Tick, eComps map[entity.Id]map[component.Key]component.Component) {
+	l.curBatch.SingleTick = append(l.curBatch.SingleTick, SingleTickComponent{
+		Tick:   tick,
+		EComps: eComps,
+	})
 }
 
 func (l *Logger) AddToCurBatch(t tick.Tick, id entity.Id, c component.Component) {
@@ -104,5 +108,5 @@ func (l *Logger) Logs() *Logs {
 
 // Count todo: remove in future
 func (l *Logger) Count() int {
-	return len(l.logs.Batches[0].OneTime)
+	return len(l.logs.Batches[0].SingleTick)
 }

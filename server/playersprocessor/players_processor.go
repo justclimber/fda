@@ -61,7 +61,6 @@ func (p *PlayersProcessor) processPlayers() {
 }
 
 func (p *PlayersProcessor) applyLogs(logs worldlog.LogBatch) {
-	p.currTick = logs.StartTick
 	p.entitiesStateLogs.ApplyLogBatch(logs)
 }
 

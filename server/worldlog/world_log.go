@@ -4,7 +4,6 @@ import (
 	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/tick"
-	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
 type WorldLogger interface {
@@ -23,63 +22,82 @@ type Logs struct {
 }
 
 type TickComponent struct {
-	Tick      tick.Tick
+	TickFrom  tick.Tick
+	TickTo    tick.Tick
 	Component component.Component
 }
 
 type LogBatch struct {
-	StartTick      tick.Tick
-	EndTick        tick.Tick
-	EntitiesLogs   map[entity.Id][]TickComponent
-	LastComponents map[entity.Id]map[component.Key]component.Component
+	EntitiesLogs map[entity.Id][]TickComponent
 }
 
-func NewLogBatch(t tick.Tick) LogBatch {
-	return LogBatch{
-		StartTick:      t,
-		EntitiesLogs:   map[entity.Id][]TickComponent{},
-		LastComponents: map[entity.Id]map[component.Key]component.Component{},
-	}
-}
-
-func (l *LogBatch) Add(t tick.Tick, id entity.Id, c component.Component) {
-	l.EndTick = t
-	lastComponents, ok := l.LastComponents[id]
-	tc := TickComponent{
-		Tick:      t,
-		Component: c,
-	}
-	if !ok {
-		l.EntitiesLogs[id] = []TickComponent{tc}
-		l.LastComponents[id] = map[component.Key]component.Component{
-			wpcomponent.KeyMoving: c,
-		}
-		return
-	}
-	last, ok := lastComponents[wpcomponent.KeyMoving]
-	if !ok || c != last {
-		l.EntitiesLogs[id] = append(l.EntitiesLogs[id], tc)
-		lastComponents[wpcomponent.KeyMoving] = c
-	}
+func NewLogBatch() LogBatch {
+	return LogBatch{EntitiesLogs: map[entity.Id][]TickComponent{}}
 }
 
 type Logger struct {
-	logs *Logs
+	logs           *Logs
+	curLogBatch    LogBatch
+	LastComponents map[entity.Id]map[component.Key]int
 }
 
 func NewLogger() *Logger {
-	return &Logger{logs: &Logs{
-		Entries: []LogEntry{},
-		Batches: []LogBatch{},
-	}}
+	return &Logger{
+		logs: &Logs{
+			Entries: []LogEntry{},
+			Batches: []LogBatch{},
+		},
+		curLogBatch:    NewLogBatch(),
+		LastComponents: map[entity.Id]map[component.Key]int{},
+	}
 }
 
 func (l *Logger) LogTick(tick tick.Tick) {
 	l.logs.Entries = append(l.logs.Entries, LogEntry{Tick: tick})
 }
 
-func (l *Logger) LogBatch(b LogBatch) {
-	l.logs.Batches = append(l.logs.Batches, b)
+func (l *Logger) AddToCurLogBatch(t tick.Tick, id entity.Id, c component.Component) {
+	tc := TickComponent{
+		TickFrom:  t,
+		TickTo:    t,
+		Component: c,
+	}
+
+	_, ok := l.curLogBatch.EntitiesLogs[id]
+	if !ok {
+		l.curLogBatch.EntitiesLogs[id] = []TickComponent{tc}
+		l.LastComponents[id] = map[component.Key]int{
+			c.Key(): 0,
+		}
+		return
+	}
+
+	lastComponents, ok := l.LastComponents[id]
+	if !ok {
+		l.curLogBatch.EntitiesLogs[id] = append(l.curLogBatch.EntitiesLogs[id], tc)
+		l.LastComponents[id] = map[component.Key]int{
+			c.Key(): len(l.curLogBatch.EntitiesLogs[id]) - 1,
+		}
+		return
+	}
+
+	last, ok := lastComponents[c.Key()]
+	if !ok || c != l.curLogBatch.EntitiesLogs[id][last].Component {
+		l.curLogBatch.EntitiesLogs[id] = append(l.curLogBatch.EntitiesLogs[id], tc)
+		l.LastComponents[id][c.Key()] = len(l.curLogBatch.EntitiesLogs[id]) - 1
+	} else {
+		tc = l.curLogBatch.EntitiesLogs[id][last]
+		tc.TickTo = t
+		l.curLogBatch.EntitiesLogs[id][last] = tc
+	}
+}
+
+func (l *Logger) RotateLogBatch() LogBatch {
+	batch := l.curLogBatch
+	l.logs.Batches = append(l.logs.Batches, batch)
+
+	l.curLogBatch = NewLogBatch()
+	return batch
 }
 
 func (l *Logger) Logs() *Logs {

@@ -10,7 +10,6 @@ import (
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
 	"github.com/justclimber/fda/common/ecs"
-	"github.com/justclimber/fda/common/ecs/component"
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/fgeom"
@@ -101,29 +100,21 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 			{Tick: 28},
 		},
 		Batches: []worldlog.LogBatch{
+			{EntitiesLogs: map[entity.Id][]worldlog.TickComponent{}},
 			{
-				StartTick:      23,
-				EndTick:        23,
-				EntitiesLogs:   map[entity.Id][]worldlog.TickComponent{},
-				LastComponents: map[entity.Id]map[component.Key]component.Component{},
-			},
-			{
-				StartTick: 23,
-				EndTick:   26,
 				EntitiesLogs: map[entity.Id][]worldlog.TickComponent{
 					entityId: {
-						{
-							Tick:      23,
+						worldlog.TickComponent{
+							TickFrom:  23,
+							TickTo:    24,
 							Component: wpcomponent.Moving{D: fgeom.Point{}},
 						},
-						{
-							Tick:      25,
+						worldlog.TickComponent{
+							TickFrom:  25,
+							TickTo:    26,
 							Component: wpcomponent.Moving{D: fgeom.Point{X: 0.5}},
 						},
 					},
-				},
-				LastComponents: map[entity.Id]map[component.Key]component.Component{
-					entityId: {wpcomponent.KeyMoving: wpcomponent.Moving{D: fgeom.Point{X: 0.5}}},
 				},
 			},
 		},

@@ -42,9 +42,7 @@ func NewLog(
 func (l *Log) String() string { return "Log" }
 
 func (l *Log) Init(tick tick.Tick) {
-	l.LogBatch = worldlog.NewLogBatch(tick)
-	l.LogBatch.EndTick = tick
-	l.sendLog(tick - 1)
+	l.sendLog()
 }
 
 func (l *Log) DoTick(tick tick.Tick) bool {
@@ -53,7 +51,7 @@ func (l *Log) DoTick(tick tick.Tick) bool {
 		p wpcomponent.Position,
 		m wpcomponent.Moving,
 	) (*wpcomponent.Position, *wpcomponent.Moving) {
-		l.LogBatch.Add(tick, id, m)
+		l.logger.AddToCurLogBatch(tick, id, m)
 
 		return nil, nil
 	})
@@ -66,7 +64,7 @@ func (l *Log) DoTick(tick tick.Tick) bool {
 func (l *Log) sendLogAndSync(t tick.Tick) {
 	l.logsIndex++
 	if l.logsIndex >= l.sendLogsDelay {
-		l.sendLog(t)
+		l.sendLog()
 		l.logsIndex = 0
 	} else if l.logsIndex == l.syncDelay {
 		l.debugger.LogF("DoTick", "wait sync")
@@ -75,9 +73,7 @@ func (l *Log) sendLogAndSync(t tick.Tick) {
 	}
 }
 
-func (l *Log) sendLog(t tick.Tick) {
+func (l *Log) sendLog() {
 	l.debugger.LogF("DoTick", "send logs")
-	l.ppWpLink.LogsCh <- l.LogBatch
-	l.logger.LogBatch(l.LogBatch)
-	l.LogBatch = worldlog.NewLogBatch(t + 1)
+	l.ppWpLink.LogsCh <- l.logger.RotateLogBatch()
 }

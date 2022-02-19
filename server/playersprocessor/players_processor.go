@@ -8,23 +8,22 @@ import (
 	"github.com/justclimber/fda/server/command"
 	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/player"
-	"github.com/justclimber/fda/server/worldlog"
 )
 
 type PlayersProcessor struct {
-	players           map[int64]*player.Player
-	wpLink            *internalapi.PpWpLink
-	currTick          tick.Tick
-	entitiesStateLogs *EntitiesLogs
-	debugger          *debugger.Nested
+	players       map[int64]*player.Player
+	wpLink        *internalapi.PpWpLink
+	currTick      tick.Tick
+	entitiesState *EntitiesState
+	debugger      *debugger.Nested
 }
 
 func NewPlayersProcessor(wpLink *internalapi.PpWpLink, debugger *debugger.Nested) *PlayersProcessor {
 	return &PlayersProcessor{
-		wpLink:            wpLink,
-		players:           make(map[int64]*player.Player),
-		entitiesStateLogs: NewEntitiesLogs(),
-		debugger:          debugger,
+		wpLink:        wpLink,
+		players:       make(map[int64]*player.Player),
+		entitiesState: NewEntitiesState(),
+		debugger:      debugger,
 	}
 }
 
@@ -41,7 +40,7 @@ func (p *PlayersProcessor) Run() error {
 			return nil
 		case logBatch := <-p.wpLink.LogsCh:
 			p.debugger.LogF("Run", "get logs")
-			p.applyLogBatch(logBatch)
+			p.entitiesState.ApplyLogBatch(logBatch)
 			p.processPlayers()
 			p.debugger.LogF("Run", "send sync")
 			p.wpLink.SyncCh <- true
@@ -58,10 +57,6 @@ func (p *PlayersProcessor) processPlayers() {
 		p.debugger.LogF("Run", "Send command [tick: %d]", p.currTick)
 		pl.SendCommand(cmd)
 	}
-}
-
-func (p *PlayersProcessor) applyLogBatch(logs worldlog.Batch) {
-	p.entitiesStateLogs.ApplyLogBatch(logs)
 }
 
 func (p *PlayersProcessor) processPlayer(_ *player.Player) (command.Command, error) {

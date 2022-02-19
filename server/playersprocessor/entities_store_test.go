@@ -13,16 +13,16 @@ import (
 	"github.com/justclimber/fda/server/worldprocessor/ecs/wpcomponent"
 )
 
-func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
+func TestEntitiesState_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 	tests := []struct {
-		name     string
-		batch    worldlog.Batch
-		wantLogs map[tick.Tick]map[entity.Id]map[component.Key]component.Component
+		name      string
+		batch     worldlog.Batch
+		wantStore map[tick.Tick]map[entity.Id]map[component.Key]component.Component
 	}{
 		{
-			name:     "empty",
-			batch:    worldlog.Batch{},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{},
+			name:      "empty",
+			batch:     worldlog.Batch{},
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{},
 		},
 		{
 			name: "1_comp_1_tick",
@@ -37,7 +37,7 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {
 					10: map[component.Key]component.Component{
 						wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1}),
@@ -63,7 +63,7 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {
 					10: map[component.Key]component.Component{
 						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
@@ -90,7 +90,7 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				2: {10: map[component.Key]component.Component{wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2})}},
 			},
@@ -120,7 +120,7 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				2: {
 					10: map[component.Key]component.Component{wpcomponent.KeyPosition: wpcomponent.NewPosition(fgeom.Point{X: 2})},
@@ -141,7 +141,7 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				2: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				3: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
@@ -172,7 +172,7 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				1: {10: map[component.Key]component.Component{wpcomponent.KeyMoving: wpcomponent.NewMoving(fgeom.Point{X: 1})}},
 				2: {
 					10: map[component.Key]component.Component{
@@ -202,18 +202,18 @@ func TestEntitiesLogs_ApplyLogBatchOnlyWithRepeatable(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			el := NewEntitiesLogs()
+			el := NewEntitiesState()
 			el.ApplyLogBatch(tt.batch)
-			assert.Equal(t, tt.wantLogs, el.Logs)
+			assert.Equal(t, tt.wantStore, el.store)
 		})
 	}
 }
 
-func TestEntitiesLogs_ApplyLogBatchWithCalculated(t *testing.T) {
+func TestEntitiesState_ApplyLogBatchWithCalculated(t *testing.T) {
 	tests := []struct {
-		name     string
-		batch    worldlog.Batch
-		wantLogs map[tick.Tick]map[entity.Id]map[component.Key]component.Component
+		name      string
+		batch     worldlog.Batch
+		wantStore map[tick.Tick]map[entity.Id]map[component.Key]component.Component
 	}{
 		{
 			name: "1",
@@ -236,7 +236,7 @@ func TestEntitiesLogs_ApplyLogBatchWithCalculated(t *testing.T) {
 					},
 				},
 			},
-			wantLogs: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
+			wantStore: map[tick.Tick]map[entity.Id]map[component.Key]component.Component{
 				2: {
 					10: map[component.Key]component.Component{
 						wpcomponent.KeyMoving:   wpcomponent.NewMoving(fgeom.Point{X: 1}),
@@ -266,9 +266,9 @@ func TestEntitiesLogs_ApplyLogBatchWithCalculated(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			el := NewEntitiesLogs()
+			el := NewEntitiesState()
 			el.ApplyLogBatch(tt.batch)
-			assert.Equal(t, tt.wantLogs, el.Logs)
+			assert.Equal(t, tt.wantStore, el.store)
 		})
 	}
 }

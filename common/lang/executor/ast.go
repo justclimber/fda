@@ -13,10 +13,12 @@ const (
 	KeyStatementsBlock
 	KeyVoidedExpression
 	KeyExpressionList
+	KeyIfStatement
 	KeyAssignment
 	KeyIdentifier
 	KeyUnaryMinus
 	KeyNumInt
+	KeyBool
 )
 
 type Node interface {

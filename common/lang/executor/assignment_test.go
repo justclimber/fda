@@ -69,3 +69,13 @@ func testNext(t *testing.T, execQueue *ExecFnList, times int) {
 		require.NoError(t, err, "check error from fn exec")
 	}
 }
+
+func testNextAll(t *testing.T, execQueue *ExecFnList) {
+	t.Helper()
+	var err error
+	hasNext := true
+	for hasNext {
+		hasNext, err = execQueue.Next()
+		require.NoError(t, err, "check error from fn exec")
+	}
+}

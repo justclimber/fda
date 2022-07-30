@@ -6,6 +6,7 @@ import (
 
 func NewExpressionList(exprs []Expr) *ExpressionList {
 	return &ExpressionList{
+		key:   KeyExpressionList,
 		exprs: exprs,
 	}
 }

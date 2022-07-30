@@ -20,14 +20,14 @@ func TestNumInt_Exec(t *testing.T) {
 
 	err = execQueue.Current().fn()
 	require.NoError(t, err, "check error from fn exec")
-	testResultAsNumInt(t, res, expectedInt)
+	testResultAsNumInt(t, res, expectedInt, 0)
 }
 
-func testResultAsNumInt(t *testing.T, res *Result, expectedInt int64) {
+func testResultAsNumInt(t *testing.T, res *Result, expectedInt int64, index int) {
 	t.Helper()
-	require.NotEmpty(t, res.objectList, "check emptiness")
+	require.NotEmpty(t, res.objectList, "check result emptiness")
 
-	testObjectAsNumInt(t, res.objectList[0], expectedInt)
+	testObjectAsNumInt(t, res.objectList[index], expectedInt)
 }
 
 func testObjectAsNumInt(t *testing.T, obj fdalang.Object, expectedInt int64) {

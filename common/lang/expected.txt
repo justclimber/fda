@@ -1,0 +1,149 @@
+// : - assignment
+a: 3
+b: 5
+f1: 3.
+f2: 3.1
+s: "this is string"
+
+// multiple assignment
+a1, a2: 3, 10.
+
+// arrays
+arrInt: []int{1, 2, 3}
+arrFloat: []int{1., 2., 3.2}
+
+// foreach
+foreach i => value in arrInt {
+    if i > 10 {
+        exitFor // a-ka break
+    }
+    if i = 2 {
+        nextFor // a-ka continue
+    }
+    print("index: " + i + ", value: " + string(value))
+}
+
+// for
+for i: 0; i < 10; i++ {
+    print(arrInt[i])
+}
+
+// function. always named return
+sum: fn(arg1 int, arg2 int) => (sumRes int) {
+    sumRes: arg1 + arg2
+}
+sum1: sum(arg1: 2, arg2: 5)
+sum2: sum(arg1, arg2: 2, 5) // same as above but with multiple assignment
+
+// function voided
+f22: fn(arg1 int, arg2 int) {
+    print(2)
+}
+
+// function with multiple return
+f33: fn(arg1 int) => (res1 int, res2 int) {
+    if art > 10 {
+        // exit from function a-ka return
+        exitFn
+    }
+    res1: arg1
+    res2: 10
+}
+r1, r2: f33(10)
+
+
+// if statement
+// assignment as an expression
+if a: min(a, b) > 4 {
+    c: a - (-3) * 4
+} else {
+    c: 4
+}
+
+// enums
+enum Colors {red, green, blue}
+cl: Colors:red
+
+// try-catch block
+try {
+    // assignment as result of expression
+    // single = - equals
+    if newCl: shiftColorRight(color: cl) = Colors:red {
+        saveColor(newCl)
+    } else {
+        throw error("incorrect color")
+    }
+} catch (e Error) {
+    print(e.Message())
+}
+
+// ? - empty type, zero valued
+eInt: int?
+eArr: []float?
+
+// empty biltin function
+if empty(eInt) {
+    print("empty")
+}
+
+// structs
+struct point {
+   x float
+   y float
+}
+p1 = point{x: 1.1, y: 1.2}
+p2 = point{
+    x: 1.1
+    y: 1.2
+}
+
+// structs with multiple assignment
+p3 = point{x, y: 1.1, 1.2}
+
+// functions with struct
+pXMultiplyBy10 = fn(p point) => (res float) {
+   res: p.x * 10.
+}
+
+p10 = pXMultiplyBy10(p: p1)
+
+
+// array of structs
+arrPoints: []point{point{x: 1., y: 2.}, p1, p2}
+
+// nested structs
+struct mech {
+    p point
+}
+
+m: mech{p: point{x: 1., y: 2.}
+
+// switch with param
+r: int?
+switch a {
+case > 20.
+   r: 1
+case > 10.
+   r: 2
+case 0., -1.
+   r: 3
+default
+   r: 5
+}
+
+// switch without param
+switch {
+case a < 20.
+   r: 1
+case b == 0.
+   r: 3
+default
+   r: 5
+}
+
+// switchRes as an expression
+sw: switchRes a {
+    case > 20.: 1
+    case > 10.: 2
+    default: 5
+}

@@ -2,8 +2,9 @@ package executor
 
 func NewPackage(mainFunction *Function) *Package {
 	return &Package{
-		key:          KeyPackage,
-		mainFunction: mainFunction,
+		key:               KeyPackage,
+		mainFunction:      mainFunction,
+		structDefinitions: make(map[string]*StructDefinition),
 	}
 }
 

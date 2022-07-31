@@ -1,8 +1,9 @@
 package executor
 
-func NewStruct(fields *Assignment) *Struct {
+func NewStruct(name string, fields *Assignment) *Struct {
 	return &Struct{
 		key:    KeyStruct,
+		name:   name,
 		fields: fields,
 	}
 }
@@ -21,18 +22,24 @@ func (s *Struct) Exec(env *Environment, result *Result, executor execManager) er
 	definition, _ := executor.MainPackage().StructDefinition(s.name)
 	fields := make(map[string]Object)
 	newResult := NewResult()
-	err := s.fields.Exec(env, newResult, executor)
-	if err != nil {
-		return err
+	executor.AddNextExec(s.fields, func() error {
+		return s.fields.Exec(env, newResult, executor)
+	})
+
+	for i := range definition.fields {
+		ii := i
+		executor.AddNextExec(s.fields.left[ii], func() error {
+			fields[s.fields.left[ii].value] = newResult.objectList[ii]
+			return nil
+		})
 	}
 
-	for i := range newResult.objectList {
-		ii := i
-		fields[s.fields.left[ii].value] = newResult.objectList[ii]
-	}
-	result.Add(&ObjStruct{
-		Definition: definition,
-		Fields:     fields,
+	executor.AddNextExec(s, func() error {
+		result.Add(&ObjStruct{
+			Definition: definition,
+			Fields:     fields,
+		})
+		return nil
 	})
 	return nil
 }

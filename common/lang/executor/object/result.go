@@ -19,6 +19,16 @@ func (r *Result) Add(object Object) {
 	r.ObjectList = append(r.ObjectList, object)
 }
 
+func NewNamedResult() *NamedResult {
+	return &NamedResult{
+		ObjectList: make(map[string]Object),
+	}
+}
+
+type NamedResult struct {
+	ObjectList map[string]Object
+}
+
 func ToReservedBoolObj(value bool) *ObjBoolean {
 	if value == true {
 		return ReservedObjTrue

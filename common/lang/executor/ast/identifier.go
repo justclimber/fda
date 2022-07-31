@@ -32,7 +32,7 @@ func (i *Identifier) NodeKey() NodeKey { return i.key }
 
 func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _ execManager) error {
 	if val, ok := env.Get(i.value); ok {
-		result.ObjectList[0] = val
+		result.Add(val)
 		return nil
 	}
 

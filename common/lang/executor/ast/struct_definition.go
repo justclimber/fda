@@ -1,9 +1,9 @@
 package ast
 
-func NewStructDefinition(name string, fields []*VarAndType) *StructDefinition {
+func NewStructDefinition(name string, fields map[string]*VarAndType) *StructDefinition {
 	return &StructDefinition{
 		key:    KeyStructDefinition,
-		name:   name,
+		Name:   name,
 		Fields: fields,
 	}
 }
@@ -11,8 +11,8 @@ func NewStructDefinition(name string, fields []*VarAndType) *StructDefinition {
 type StructDefinition struct {
 	id     int64
 	key    NodeKey
-	name   string
-	Fields []*VarAndType
+	Name   string
+	Fields map[string]*VarAndType
 }
 
 func (sd *StructDefinition) ID() int64        { return sd.id }

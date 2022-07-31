@@ -14,6 +14,7 @@ const (
 	KeyStatementsBlock
 	KeyVoidedExpression
 	KeyExpressionList
+	KeyNamedExpressionList
 	KeyIfStatement
 	KeyAssignment
 	KeyIdentifier
@@ -21,6 +22,8 @@ const (
 	KeyVarAndType
 	KeyStructDefinition
 	KeyStruct
+	KeyStructFieldCall
+	KeyStructFieldAssignment
 	KeyNumInt
 	KeyBool
 )

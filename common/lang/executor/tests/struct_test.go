@@ -14,19 +14,16 @@ import (
 func TestStruct_Exec(t *testing.T) {
 	expectedInt1, expectedInt2 := int64(44), int64(55)
 	varName1, varName2 := "a", "b"
-	fields := ast.NewAssignment(
-		ast.NewIdentifierList([]string{varName1, varName2}),
-		ast.NewExpressionList([]ast.Expr{
-			ast.NewNumInt(expectedInt1),
-			ast.NewNumInt(expectedInt2),
-		}),
-	)
+	fields := ast.NewNamedExpressionList(map[string]ast.Expr{
+		varName1: ast.NewNumInt(expectedInt1),
+		varName2: ast.NewNumInt(expectedInt2),
+	})
 	testStructName := "abc"
 	astStruct := ast.NewStruct(testStructName, fields)
 
-	structDefinitionFields := []*ast.VarAndType{
-		ast.NewVarAndType(varName1, "int"),
-		ast.NewVarAndType(varName2, "int"),
+	structDefinitionFields := map[string]*ast.VarAndType{
+		varName1: ast.NewVarAndType(varName1, "int"),
+		varName2: ast.NewVarAndType(varName2, "int"),
 	}
 	structDefinition := ast.NewStructDefinition(testStructName, structDefinitionFields)
 	packageAst := ast.NewPackage(nil)

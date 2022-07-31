@@ -3,9 +3,11 @@ package tests
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/common/lang/executor"
+	"github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
@@ -39,5 +41,24 @@ func testObjectAsNumInt(t *testing.T, obj object.Object, expectedInt int64) {
 	objInt, ok := obj.(*object.ObjInteger)
 	require.True(t, ok, "check obj type")
 
-	require.Equal(t, expectedInt, objInt.Value)
+	assert.Equal(t, expectedInt, objInt.Value)
+}
+
+func getTestStruct(t *testing.T, testStructName string) (*ast.Struct, *ast.StructDefinition) {
+	t.Helper()
+	expectedInt1, expectedInt2 := int64(44), int64(55)
+	varName1, varName2 := "a", "b"
+	fields := ast.NewNamedExpressionList(map[string]ast.Expr{
+		varName1: ast.NewNumInt(expectedInt1),
+		varName2: ast.NewNumInt(expectedInt2),
+	})
+	astStruct := ast.NewStruct(testStructName, fields)
+
+	structDefinitionFields := map[string]*ast.VarAndType{
+		varName1: ast.NewVarAndType(varName1, "int"),
+		varName2: ast.NewVarAndType(varName2, "int"),
+	}
+	structDefinition := ast.NewStructDefinition(testStructName, structDefinitionFields)
+
+	return astStruct, structDefinition
 }

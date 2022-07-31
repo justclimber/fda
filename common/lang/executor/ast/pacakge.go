@@ -19,7 +19,7 @@ func (p *Package) ID() int64        { return p.id }
 func (p *Package) NodeKey() NodeKey { return p.key }
 
 func (p *Package) RegisterStructDefinition(s *StructDefinition) {
-	p.structDefinitions[s.name] = s
+	p.structDefinitions[s.Name] = s
 }
 
 func (p *Package) StructDefinition(name string) (*StructDefinition, bool) {

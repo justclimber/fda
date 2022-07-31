@@ -1,29 +1,25 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 var (
-	ReservedObjTrue  = &fdalang.ObjBoolean{Value: true}
-	ReservedObjFalse = &fdalang.ObjBoolean{Value: false}
+	ReservedObjTrue  = &ObjBoolean{Value: true}
+	ReservedObjFalse = &ObjBoolean{Value: false}
 )
 
 func NewResult() *Result {
 	return &Result{
-		objectList: make([]fdalang.Object, 0),
+		objectList: make([]Object, 0),
 	}
 }
 
 type Result struct {
-	objectList []fdalang.Object
+	objectList []Object
 }
 
-func (r *Result) Add(object fdalang.Object) {
+func (r *Result) Add(object Object) {
 	r.objectList = append(r.objectList, object)
 }
 
-func toReservedBoolObj(value bool) *fdalang.ObjBoolean {
+func toReservedBoolObj(value bool) *ObjBoolean {
 	if value == true {
 		return ReservedObjTrue
 	}

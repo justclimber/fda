@@ -1,32 +1,26 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 type Executor struct {
-	mainPackage *Package
-	env         *fdalang.Environment
-	execQueue   *ExecFnList
+	packagist *Packagist
+	execQueue *ExecFnList
 }
 
-func NewExecutor(env *fdalang.Environment, mainPackage *Package) *Executor {
+func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
 	return &Executor{
-		mainPackage: mainPackage,
-		env:         env,
-		execQueue:   NewExecFnList(),
+		packagist: packagist,
+		execQueue: execQueue,
 	}
 }
 
-func (e *Executor) Exec() error {
-	err := e.mainPackage.Exec(e.env, e.execQueue)
+func (e *Executor) Exec(env *Environment, function *Function) error {
+	err := function.Exec(env, NewResult(), e)
 	if err != nil {
 		return err
 	}
 
 	hasNext := false
 	for {
-		hasNext, err = e.Next()
+		hasNext, err = e.ExecNext()
 		if err != nil {
 			return err
 		}
@@ -37,16 +31,20 @@ func (e *Executor) Exec() error {
 	return nil
 }
 
-func (e *Executor) Next() (bool, error) {
-	hasNext, err := e.execQueue.Next()
+func (e *Executor) ExecNext() (bool, error) {
+	hasNext, err := e.execQueue.ExecNext()
 	if err != nil {
 		return false, err
 	}
 	return hasNext, nil
 }
 
-func (e *Executor) DebugPrint() {
-	e.env.Print()
+func (e *Executor) AddNextExec(node Node, fn func() error) {
+	e.execQueue.AddNext(node, fn)
+}
+
+func (e *Executor) MainPackage() *Package {
+	return e.packagist.Main()
 }
 
 func NewExecFnList() *ExecFnList {
@@ -56,6 +54,7 @@ func NewExecFnList() *ExecFnList {
 type ExecFnList struct {
 	head *ExecFn
 	curr *ExecFn
+	next *ExecFn
 }
 
 type ExecFn struct {
@@ -64,10 +63,11 @@ type ExecFn struct {
 	node Node
 }
 
-func (el *ExecFnList) Next() (bool, error) {
+func (el *ExecFnList) ExecNext() (bool, error) {
 	if el.curr == nil {
 		return false, nil
 	}
+	el.next = el.curr
 	err := el.curr.fn()
 	if err != nil {
 		return false, err
@@ -79,28 +79,18 @@ func (el *ExecFnList) Next() (bool, error) {
 	return true, nil
 }
 
-func (el *ExecFnList) AddAfterCurrent(node Node, fn func() error) *ExecFn {
-	execFn := &ExecFn{fn: fn, node: node}
-	if el.head == nil {
-		el.head = execFn
-		el.curr = execFn
-		return execFn
-	}
-	afterCurr := el.curr.next
-	execFn.next = afterCurr
-	el.curr.next = execFn
-	return execFn
-}
-
-func (el *ExecFnList) Current() *ExecFn {
-	return el.curr
-}
-
-func (el *ExecFnList) AddAfter(execFn *ExecFn, node Node, fn func() error) *ExecFn {
+func (el *ExecFnList) AddNext(node Node, fn func() error) {
 	newExecFn := &ExecFn{fn: fn, node: node}
 
-	afterCurr := execFn.next
-	newExecFn.next = afterCurr
-	execFn.next = newExecFn
-	return newExecFn
+	if el.head == nil {
+		el.head = newExecFn
+		el.curr = newExecFn
+		el.next = newExecFn
+		return
+	}
+
+	afterNext := el.next.next
+	newExecFn.next = afterNext
+	el.next.next = newExecFn
+	el.next = newExecFn
 }

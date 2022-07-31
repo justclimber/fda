@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/justclimber/fda/common/lang/fdalang"
 )
 
 func TestAssignment_Exec(t *testing.T) {
@@ -16,10 +14,12 @@ func TestAssignment_Exec(t *testing.T) {
 		NewNumInt(expectedInt),
 	)
 
-	env := fdalang.NewEnvironment()
+	env := NewEnvironment()
 	res := NewResult()
+	packagist := NewPackagist(nil)
 	execQueue := NewExecFnList()
-	err := ast.Exec(env, res, execQueue)
+	ex := NewExecutor(packagist, execQueue)
+	err := ast.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 
 	testNext(t, execQueue, 2)
@@ -42,10 +42,12 @@ func TestAssignment_Exec_Multiple(t *testing.T) {
 		}),
 	)
 
-	env := fdalang.NewEnvironment()
+	env := NewEnvironment()
 	res := NewResult()
+	packagist := NewPackagist(nil)
 	execQueue := NewExecFnList()
-	err := ast.Exec(env, res, execQueue)
+	ex := NewExecutor(packagist, execQueue)
+	err := ast.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 
 	testNext(t, execQueue, 7)
@@ -65,7 +67,7 @@ func TestAssignment_Exec_Multiple(t *testing.T) {
 func testNext(t *testing.T, execQueue *ExecFnList, times int) {
 	t.Helper()
 	for i := 0; i < times; i++ {
-		_, err := execQueue.Next()
+		_, err := execQueue.ExecNext()
 		require.NoError(t, err, "check error from fn exec")
 	}
 }
@@ -75,7 +77,7 @@ func testNextAll(t *testing.T, execQueue *ExecFnList) {
 	var err error
 	hasNext := true
 	for hasNext {
-		hasNext, err = execQueue.Next()
+		hasNext, err = execQueue.ExecNext()
 		require.NoError(t, err, "check error from fn exec")
 	}
 }

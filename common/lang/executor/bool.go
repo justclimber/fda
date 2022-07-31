@@ -1,9 +1,5 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 func NewBool(value bool) *Bool {
 	return &Bool{
 		key:   KeyBool,
@@ -20,8 +16,8 @@ type Bool struct {
 func (b *Bool) NodeKey() NodeKey { return b.key }
 func (b *Bool) ID() int64        { return b.id }
 
-func (b *Bool) Exec(env *fdalang.Environment, result *Result, execQueue *ExecFnList) error {
-	execQueue.AddAfterCurrent(b, func() error {
+func (b *Bool) Exec(env *Environment, result *Result, executor execManager) error {
+	executor.AddNextExec(b, func() error {
 		result.Add(toReservedBoolObj(b.value))
 		return nil
 	})

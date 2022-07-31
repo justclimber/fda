@@ -1,9 +1,5 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 func NewPackage(mainFunction *Function) *Package {
 	return &Package{
 		key:          KeyPackage,
@@ -12,14 +8,20 @@ func NewPackage(mainFunction *Function) *Package {
 }
 
 type Package struct {
-	id           int64
-	key          NodeKey
-	mainFunction *Function
+	id                int64
+	key               NodeKey
+	mainFunction      *Function
+	structDefinitions map[string]*StructDefinition
 }
 
 func (p *Package) ID() int64        { return p.id }
 func (p *Package) NodeKey() NodeKey { return p.key }
 
-func (p *Package) Exec(env *fdalang.Environment, execQueue *ExecFnList) error {
-	return p.mainFunction.Exec(env, NewResult(), execQueue)
+func (p *Package) RegisterStructDefinition(s *StructDefinition) {
+	p.structDefinitions[s.name] = s
+}
+
+func (p *Package) StructDefinition(name string) (*StructDefinition, bool) {
+	s, ok := p.structDefinitions[name]
+	return s, ok
 }

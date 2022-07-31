@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/justclimber/fda/common/lang/fdalang"
 )
 
 func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
@@ -41,9 +39,11 @@ func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
 				}),
 				nil,
 			)
-			env := fdalang.NewEnvironment()
+			env := NewEnvironment()
+			packagist := NewPackagist(nil)
 			execQueue := NewExecFnList()
-			err := ast.Exec(env, execQueue)
+			ex := NewExecutor(packagist, execQueue)
+			err := ast.Exec(env, ex)
 			require.NoError(t, err, "check error from exec")
 
 			testNextAll(t, execQueue)

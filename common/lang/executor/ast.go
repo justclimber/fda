@@ -1,9 +1,5 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 type NodeKey int32
 
 const (
@@ -17,6 +13,9 @@ const (
 	KeyAssignment
 	KeyIdentifier
 	KeyUnaryMinus
+	KeyVarAndType
+	KeyStructDefinition
+	KeyStruct
 	KeyNumInt
 	KeyBool
 )
@@ -26,12 +25,17 @@ type Node interface {
 	NodeKey() NodeKey
 }
 
+type execManager interface {
+	AddNextExec(node Node, fn func() error)
+	MainPackage() *Package
+}
+
 type Stmt interface {
 	Node
-	Exec(env *fdalang.Environment, execQueue *ExecFnList) error
+	Exec(env *Environment, executor execManager) error
 }
 
 type Expr interface {
 	Node
-	Exec(env *fdalang.Environment, result *Result, execQueue *ExecFnList) error
+	Exec(env *Environment, result *Result, executor execManager) error
 }

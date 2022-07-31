@@ -1,9 +1,5 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 func NewAssignment(left []*Identifier, value Expr) *Assignment {
 	return &Assignment{
 		key:   KeyAssignment,
@@ -22,13 +18,13 @@ type Assignment struct {
 func (a *Assignment) NodeKey() NodeKey { return a.key }
 func (a *Assignment) ID() int64        { return a.id }
 
-func (a *Assignment) Exec(env *fdalang.Environment, result *Result, execQueue *ExecFnList) error {
-	fn := execQueue.AddAfterCurrent(a.value, func() error {
-		return a.value.Exec(env, result, execQueue)
+func (a *Assignment) Exec(env *Environment, result *Result, executor execManager) error {
+	executor.AddNextExec(a.value, func() error {
+		return a.value.Exec(env, result, executor)
 	})
 	for i := range a.left {
 		ii := i
-		fn = execQueue.AddAfter(fn, a.left[ii], func() error {
+		executor.AddNextExec(a.left[ii], func() error {
 			varName := a.left[ii].value
 			env.Set(varName, result.objectList[ii])
 			return nil

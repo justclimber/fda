@@ -1,9 +1,5 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 func NewIfStatement(condition Expr, trueBranch, falseBranch *StatementsBlock) *IfStatement {
 	return &IfStatement{
 		key:         KeyIfStatement,
@@ -24,20 +20,20 @@ type IfStatement struct {
 func (is *IfStatement) NodeKey() NodeKey { return is.key }
 func (is *IfStatement) ID() int64        { return is.id }
 
-func (is *IfStatement) Exec(env *fdalang.Environment, execQueue *ExecFnList) error {
+func (is *IfStatement) Exec(env *Environment, executor execManager) error {
 	result := NewResult()
-	fn := execQueue.AddAfterCurrent(is.condition, func() error {
-		return is.condition.Exec(env, result, execQueue)
+	executor.AddNextExec(is.condition, func() error {
+		return is.condition.Exec(env, result, executor)
 	})
-	execQueue.AddAfter(fn, is.condition, func() error {
-		r := result.objectList[0].(*fdalang.ObjBoolean).Value
+	executor.AddNextExec(is.condition, func() error {
+		r := result.objectList[0].(*ObjBoolean).Value
 		if r {
-			err := is.trueBranch.Exec(env, execQueue)
+			err := is.trueBranch.Exec(env, executor)
 			if err != nil {
 				return err
 			}
 		} else if is.falseBranch != nil {
-			err := is.falseBranch.Exec(env, execQueue)
+			err := is.falseBranch.Exec(env, executor)
 			if err != nil {
 				return err
 			}

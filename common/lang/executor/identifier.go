@@ -1,9 +1,5 @@
 package executor
 
-import (
-	"github.com/justclimber/fda/common/lang/fdalang"
-)
-
 func NewIdentifierList(values []string) []*Identifier {
 	result := make([]*Identifier, 0, len(values))
 	for _, value := range values {
@@ -29,7 +25,7 @@ type Identifier struct {
 func (i *Identifier) ID() int64        { return i.id }
 func (i *Identifier) NodeKey() NodeKey { return i.key }
 
-func (i *Identifier) Exec(env *fdalang.Environment, result *Result, execQueue *ExecFnList) error {
+func (i *Identifier) Exec(env *Environment, result *Result, executor execManager) error {
 	if val, ok := env.Get(i.value); ok {
 		result.objectList[0] = val
 		return nil

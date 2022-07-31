@@ -1,4 +1,9 @@
-package executor
+package ast
+
+import (
+	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
+)
 
 func NewIdentifierList(values []string) []*Identifier {
 	result := make([]*Identifier, 0, len(values))
@@ -25,9 +30,9 @@ type Identifier struct {
 func (i *Identifier) ID() int64        { return i.id }
 func (i *Identifier) NodeKey() NodeKey { return i.key }
 
-func (i *Identifier) Exec(env *Environment, result *Result, _ execManager) error {
+func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _ execManager) error {
 	if val, ok := env.Get(i.value); ok {
-		result.objectList[0] = val
+		result.ObjectList[0] = val
 		return nil
 	}
 

@@ -1,4 +1,9 @@
-package executor
+package ast
+
+import (
+	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
+)
 
 func NewIfStatement(condition Expr, trueBranch, falseBranch *StatementsBlock) *IfStatement {
 	return &IfStatement{
@@ -20,20 +25,20 @@ type IfStatement struct {
 func (is *IfStatement) NodeKey() NodeKey { return is.key }
 func (is *IfStatement) ID() int64        { return is.id }
 
-func (is *IfStatement) Exec(env *Environment, executor execManager) error {
-	result := NewResult()
-	executor.AddNextExec(is.condition, func() error {
-		return is.condition.Exec(env, result, executor)
+func (is *IfStatement) Exec(env *environment.Environment, execMngr execManager) error {
+	result := object.NewResult()
+	execMngr.AddNextExec(is.condition, func() error {
+		return is.condition.Exec(env, result, execMngr)
 	})
-	executor.AddNextExec(is.condition, func() error {
-		r := result.objectList[0].(*ObjBoolean).Value
+	execMngr.AddNextExec(is.condition, func() error {
+		r := result.ObjectList[0].(*object.ObjBoolean).Value
 		if r {
-			err := is.trueBranch.Exec(env, executor)
+			err := is.trueBranch.Exec(env, execMngr)
 			if err != nil {
 				return err
 			}
 		} else if is.falseBranch != nil {
-			err := is.falseBranch.Exec(env, executor)
+			err := is.falseBranch.Exec(env, execMngr)
 			if err != nil {
 				return err
 			}

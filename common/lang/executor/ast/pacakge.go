@@ -1,4 +1,4 @@
-package executor
+package ast
 
 func NewPackage(mainFunction *Function) *Package {
 	return &Package{

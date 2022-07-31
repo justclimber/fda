@@ -1,25 +1,29 @@
-package executor
+package tests
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/justclimber/fda/common/lang/executor"
+	"github.com/justclimber/fda/common/lang/executor/ast"
+	"github.com/justclimber/fda/common/lang/executor/environment"
 )
 
 func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
 	tests := []struct {
 		name          string
-		conditionExpr Expr
+		conditionExpr ast.Expr
 		checkVar      bool
 	}{
 		{
 			name:          "check_true_branch",
-			conditionExpr: NewBool(true),
+			conditionExpr: ast.NewBool(true),
 			checkVar:      true,
 		},
 		{
 			name:          "false_branch",
-			conditionExpr: NewBool(false),
+			conditionExpr: ast.NewBool(false),
 			checkVar:      false,
 		},
 	}
@@ -27,22 +31,22 @@ func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
 	varName := "a"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ast := NewIfStatement(
+			ast := ast.NewIfStatement(
 				tt.conditionExpr,
-				NewStatementsBlock([]Stmt{
-					NewVoidedExpression(
-						NewAssignment(
-							NewIdentifierList([]string{varName}),
-							NewNumInt(expectedInt),
+				ast.NewStatementsBlock([]ast.Stmt{
+					ast.NewVoidedExpression(
+						ast.NewAssignment(
+							ast.NewIdentifierList([]string{varName}),
+							ast.NewNumInt(expectedInt),
 						),
 					),
 				}),
 				nil,
 			)
-			env := NewEnvironment()
-			packagist := NewPackagist(nil)
-			execQueue := NewExecFnList()
-			ex := NewExecutor(packagist, execQueue)
+			env := environment.NewEnvironment()
+			packagist := executor.NewPackagist(nil)
+			execQueue := executor.NewExecFnList()
+			ex := executor.NewExecutor(packagist, execQueue)
 			err := ast.Exec(env, ex)
 			require.NoError(t, err, "check error from exec")
 

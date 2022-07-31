@@ -1,4 +1,4 @@
-package executor
+package object
 
 var (
 	ReservedObjTrue  = &ObjBoolean{Value: true}
@@ -7,19 +7,19 @@ var (
 
 func NewResult() *Result {
 	return &Result{
-		objectList: make([]Object, 0),
+		ObjectList: make([]Object, 0),
 	}
 }
 
 type Result struct {
-	objectList []Object
+	ObjectList []Object
 }
 
 func (r *Result) Add(object Object) {
-	r.objectList = append(r.objectList, object)
+	r.ObjectList = append(r.ObjectList, object)
 }
 
-func toReservedBoolObj(value bool) *ObjBoolean {
+func ToReservedBoolObj(value bool) *ObjBoolean {
 	if value == true {
 		return ReservedObjTrue
 	}

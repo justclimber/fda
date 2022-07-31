@@ -1,4 +1,4 @@
-package executor
+package object
 
 import (
 	"bytes"
@@ -79,24 +79,21 @@ func (rv *ObjReturnValue) Type() ObjectType { return TypeReturnValue }
 func (rv *ObjReturnValue) Inspect() string  { return rv.Value.Inspect() }
 
 type ObjFunction struct {
-	Arguments  []*VarAndType
-	Statements *StatementsBlock
-	ReturnType string
-	Env        *Environment
+	Name string
 }
 
 func (f *ObjFunction) Type() ObjectType { return TypeFunction }
 func (f *ObjFunction) Inspect() string {
-	return "function"
+	return fmt.Sprintf("fn %s", f.Name)
 }
 
 type ObjStruct struct {
 	Emptier
-	Definition *StructDefinition
-	Fields     map[string]Object
+	Name   string
+	Fields map[string]Object
 }
 
-func (s *ObjStruct) Type() ObjectType { return ObjectType(s.Definition.name) }
+func (s *ObjStruct) Type() ObjectType { return ObjectType(s.Name) }
 func (s *ObjStruct) Inspect() string {
 	var out bytes.Buffer
 
@@ -105,7 +102,7 @@ func (s *ObjStruct) Inspect() string {
 		elements = append(elements, fmt.Sprintf("%s: %s", k, v.Inspect()))
 	}
 
-	out.WriteString(s.Definition.name)
+	out.WriteString(s.Name)
 	out.WriteString("{")
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("}")
@@ -113,19 +110,7 @@ func (s *ObjStruct) Inspect() string {
 	return out.String()
 }
 
-type BuiltinFunction func(env *Environment, args []Object) (Object, error)
-
 type ArgTypes []string
-
-type ObjBuiltin struct {
-	Name       string
-	ArgTypes   ArgTypes
-	Fn         BuiltinFunction
-	ReturnType string
-}
-
-func (b *ObjBuiltin) Type() ObjectType { return TypeBuiltinFn }
-func (b *ObjBuiltin) Inspect() string  { return "builtin function" }
 
 type ObjVoid struct{}
 

@@ -1,17 +1,21 @@
 package executor
 
+import (
+	"github.com/justclimber/fda/common/lang/executor/ast"
+)
+
 type Packagist struct {
-	mainPackage *Package
-	packages    map[string]*Package
+	mainPackage *ast.Package
+	packages    map[string]*ast.Package
 }
 
-func NewPackagist(mainPackage *Package) *Packagist {
+func NewPackagist(mainPackage *ast.Package) *Packagist {
 	return &Packagist{
 		mainPackage: mainPackage,
-		packages:    make(map[string]*Package),
+		packages:    make(map[string]*ast.Package),
 	}
 }
 
-func (p *Packagist) Main() *Package {
+func (p *Packagist) Main() *ast.Package {
 	return p.mainPackage
 }

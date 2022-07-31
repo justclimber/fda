@@ -1,5 +1,11 @@
 package executor
 
+import (
+	"github.com/justclimber/fda/common/lang/executor/ast"
+	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
+)
+
 type Executor struct {
 	packagist *Packagist
 	execQueue *ExecFnList
@@ -12,8 +18,8 @@ func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
 	}
 }
 
-func (e *Executor) Exec(env *Environment, function *Function) error {
-	err := function.Exec(env, NewResult(), e)
+func (e *Executor) Exec(env *environment.Environment, function *ast.Function) error {
+	err := function.Exec(env, object.NewResult(), e)
 	if err != nil {
 		return err
 	}
@@ -39,11 +45,11 @@ func (e *Executor) ExecNext() (bool, error) {
 	return hasNext, nil
 }
 
-func (e *Executor) AddNextExec(node Node, fn func() error) {
+func (e *Executor) AddNextExec(node ast.Node, fn func() error) {
 	e.execQueue.AddNext(node, fn)
 }
 
-func (e *Executor) MainPackage() *Package {
+func (e *Executor) MainPackage() *ast.Package {
 	return e.packagist.Main()
 }
 
@@ -60,7 +66,7 @@ type ExecFnList struct {
 type ExecFn struct {
 	fn   func() error
 	next *ExecFn
-	node Node
+	node ast.Node
 }
 
 func (el *ExecFnList) ExecNext() (bool, error) {
@@ -79,7 +85,7 @@ func (el *ExecFnList) ExecNext() (bool, error) {
 	return true, nil
 }
 
-func (el *ExecFnList) AddNext(node Node, fn func() error) {
+func (el *ExecFnList) AddNext(node ast.Node, fn func() error) {
 	newExecFn := &ExecFn{fn: fn, node: node}
 
 	if el.head == nil {

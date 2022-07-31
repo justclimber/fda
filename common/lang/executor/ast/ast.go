@@ -1,4 +1,9 @@
-package executor
+package ast
+
+import (
+	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
+)
 
 type NodeKey int32
 
@@ -32,10 +37,10 @@ type execManager interface {
 
 type Stmt interface {
 	Node
-	Exec(env *Environment, executor execManager) error
+	Exec(env *environment.Environment, execMngr execManager) error
 }
 
 type Expr interface {
 	Node
-	Exec(env *Environment, result *Result, executor execManager) error
+	Exec(env *environment.Environment, result *object.Result, execMngr execManager) error
 }

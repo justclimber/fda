@@ -1,4 +1,9 @@
-package executor
+package ast
+
+import (
+	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
+)
 
 func NewFunction(stmtsBlock *StatementsBlock) *Function {
 	return &Function{
@@ -16,6 +21,6 @@ type Function struct {
 func (f *Function) ID() int64        { return f.id }
 func (f *Function) NodeKey() NodeKey { return f.key }
 
-func (f *Function) Exec(env *Environment, _ *Result, executor execManager) error {
-	return f.statementsBlock.Exec(env, executor)
+func (f *Function) Exec(env *environment.Environment, _ *object.Result, execMngr execManager) error {
+	return f.statementsBlock.Exec(env, execMngr)
 }

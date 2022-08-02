@@ -22,6 +22,7 @@ const (
 	KeyVarAndType
 	KeyStructDefinition
 	KeyStruct
+	KeyStructFieldIdentifier
 	KeyStructFieldCall
 	KeyStructFieldAssignment
 	KeyNumInt

@@ -8,11 +8,11 @@ import (
 	"github.com/justclimber/fda/common/lang/executor"
 	"github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func TestStructFieldCall_Exec(t *testing.T) {
+func TestStructFieldAssignment(t *testing.T) {
 	structVarName := "s"
-	testVarName := "q"
 	structName := "abc"
 	int1, int2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
@@ -31,6 +31,7 @@ func TestStructFieldCall_Exec(t *testing.T) {
 			},
 		},
 	})
+	testInt := int64(123)
 
 	astCode := ast.NewStatementsBlock([]ast.Stmt{
 		ast.NewVoidedExpression(
@@ -40,12 +41,14 @@ func TestStructFieldCall_Exec(t *testing.T) {
 			),
 		),
 		ast.NewVoidedExpression(
-			ast.NewAssignment(
-				ast.NewIdentifierList([]string{testVarName}),
-				ast.NewStructFieldCall(
-					fieldName1,
-					ast.NewIdentifier(structVarName),
-				),
+			ast.NewStructFieldAssignment(
+				[]*ast.StructFieldIdentifier{
+					ast.NewStructFieldIdentifier(
+						fieldName1,
+						ast.NewIdentifier(structVarName),
+					),
+				},
+				ast.NewNumInt(testInt),
 			),
 		),
 	})
@@ -60,7 +63,12 @@ func TestStructFieldCall_Exec(t *testing.T) {
 
 	testNextAll(t, execQueue)
 
-	obj, ok := env.Get(testVarName)
+	obj, ok := env.Get(structVarName)
 	require.True(t, ok, "check existence var in env")
-	testObjectAsNumInt(t, obj, int1)
+
+	structObj, ok := obj.(*object.ObjStruct)
+	require.True(t, ok, "check obj type")
+
+	require.NotEmpty(t, structObj.Fields, "check struct fields emptiness")
+	testObjectAsNumInt(t, structObj.Fields[fieldName1], testInt)
 }

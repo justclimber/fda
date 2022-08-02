@@ -44,21 +44,31 @@ func testObjectAsNumInt(t *testing.T, obj object.Object, expectedInt int64) {
 	assert.Equal(t, expectedInt, objInt.Value)
 }
 
-func getTestStruct(t *testing.T, testStructName string) (*ast.Struct, *ast.StructDefinition) {
-	t.Helper()
-	expectedInt1, expectedInt2 := int64(44), int64(55)
-	varName1, varName2 := "a", "b"
-	fields := ast.NewNamedExpressionList(map[string]ast.Expr{
-		varName1: ast.NewNumInt(expectedInt1),
-		varName2: ast.NewNumInt(expectedInt2),
-	})
-	astStruct := ast.NewStruct(testStructName, fields)
+type testStruct struct {
+	name   string
+	fields []testStructField
+}
 
-	structDefinitionFields := map[string]*ast.VarAndType{
-		varName1: ast.NewVarAndType(varName1, "int"),
-		varName2: ast.NewVarAndType(varName2, "int"),
+type testStructField struct {
+	name      string
+	fieldType string
+	intValue  int64
+}
+
+func getTestStruct(t *testing.T, testStruct testStruct) (*ast.Struct, *ast.StructDefinition) {
+	t.Helper()
+
+	f := map[string]ast.Expr{}
+	for _, field := range testStruct.fields {
+		f[field.name] = ast.NewNumInt(field.intValue)
 	}
-	structDefinition := ast.NewStructDefinition(testStructName, structDefinitionFields)
+	astStruct := ast.NewStruct(testStruct.name, ast.NewNamedExpressionList(f))
+
+	structDefinitionFields := map[string]*ast.VarAndType{}
+	for _, field := range testStruct.fields {
+		structDefinitionFields[field.name] = ast.NewVarAndType(field.name, "int")
+	}
+	structDefinition := ast.NewStructDefinition(testStruct.name, structDefinitionFields)
 
 	return astStruct, structDefinition
 }

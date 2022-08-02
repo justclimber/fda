@@ -49,7 +49,7 @@ func TestStructFieldCall_Exec(t *testing.T) {
 			),
 		),
 	})
-	packageAst := ast.NewPackage(nil)
+	packageAst := ast.NewPackage()
 	packageAst.RegisterStructDefinition(structDefinition)
 	packagist := executor.NewPackagist(packageAst)
 	execQueue := executor.NewExecFnList()

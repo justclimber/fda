@@ -18,7 +18,7 @@ func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
 	}
 }
 
-func (e *Executor) Exec(env *environment.Environment, function *ast.Function) error {
+func (e *Executor) Exec(env *environment.Environment, function *ast.FunctionCall) error {
 	err := function.Exec(env, object.NewResult(), e)
 	if err != nil {
 		return err

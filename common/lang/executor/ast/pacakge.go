@@ -1,18 +1,18 @@
 package ast
 
-func NewPackage(mainFunction *Function) *Package {
+func NewPackage() *Package {
 	return &Package{
-		key:               KeyPackage,
-		mainFunction:      mainFunction,
-		structDefinitions: make(map[string]*StructDefinition),
+		key:                 KeyPackage,
+		structDefinitions:   make(map[string]*StructDefinition),
+		functionDefinitions: make(map[string]*FunctionDefinition),
 	}
 }
 
 type Package struct {
-	id                int64
-	key               NodeKey
-	mainFunction      *Function
-	structDefinitions map[string]*StructDefinition
+	id                  int64
+	key                 NodeKey
+	structDefinitions   map[string]*StructDefinition
+	functionDefinitions map[string]*FunctionDefinition
 }
 
 func (p *Package) ID() int64        { return p.id }
@@ -25,4 +25,13 @@ func (p *Package) RegisterStructDefinition(s *StructDefinition) {
 func (p *Package) StructDefinition(name string) (*StructDefinition, bool) {
 	s, ok := p.structDefinitions[name]
 	return s, ok
+}
+
+func (p *Package) RegisterFunctionDefinition(f *FunctionDefinition) {
+	p.functionDefinitions[f.Name] = f
+}
+
+func (p *Package) FunctionDefinition(name string) (*FunctionDefinition, bool) {
+	f, ok := p.functionDefinitions[name]
+	return f, ok
 }

@@ -9,7 +9,8 @@ type NodeKey int32
 
 const (
 	KeyIllegal NodeKey = iota
-	KeyFunction
+	KeyFunctionDefinition
+	KeyFunctionCall
 	KeyPackage
 	KeyStatementsBlock
 	KeyVoidedExpression

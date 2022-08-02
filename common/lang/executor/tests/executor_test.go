@@ -11,7 +11,9 @@ import (
 )
 
 func TestExecutor(t *testing.T) {
-	function := ast.NewFunction(
+	functionName := "main"
+	function := ast.NewFunctionDefinition(
+		functionName,
 		ast.NewStatementsBlock([]ast.Stmt{
 			ast.NewVoidedExpression(
 				ast.NewAssignment(
@@ -31,13 +33,18 @@ func TestExecutor(t *testing.T) {
 				),
 			),
 		}),
+		nil,
+		nil,
 	)
-	packageAst := ast.NewPackage(function)
+	packageAst := ast.NewPackage()
+	packageAst.RegisterFunctionDefinition(function)
 	packagist := executor.NewPackagist(packageAst)
 	env := environment.NewEnvironment()
 	execQueue := executor.NewExecFnList()
 	ex := executor.NewExecutor(packagist, execQueue)
-	err := ex.Exec(env, function)
+
+	functionCall := ast.NewFunctionCall(functionName)
+	err := ex.Exec(env, functionCall)
 	require.NoError(t, err)
 	env.Print()
 }

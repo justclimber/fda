@@ -26,7 +26,7 @@ func TestStruct_Exec(t *testing.T) {
 		varName2: ast.NewVarAndType(varName2, "int"),
 	}
 	structDefinition := ast.NewStructDefinition(testStructName, structDefinitionFields)
-	packageAst := ast.NewPackage(nil)
+	packageAst := ast.NewPackage()
 	packageAst.RegisterStructDefinition(structDefinition)
 	packagist := executor.NewPackagist(packageAst)
 	execQueue := executor.NewExecFnList()

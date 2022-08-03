@@ -27,6 +27,7 @@ const (
 	KeyStructFieldCall
 	KeyStructFieldAssignment
 	KeyNumInt
+	KeyNumFloat
 	KeyBool
 )
 

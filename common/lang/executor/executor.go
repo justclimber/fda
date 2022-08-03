@@ -18,23 +18,24 @@ func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
 	}
 }
 
-func (e *Executor) Exec(env *environment.Environment, function *ast.FunctionCall) error {
-	err := function.Exec(env, object.NewResult(), e)
+func (e *Executor) Exec(env *environment.Environment, function *ast.FunctionCall) (*object.Result, error) {
+	result := object.NewResult()
+	err := function.Exec(env, result, e)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	hasNext := false
 	for {
 		hasNext, err = e.ExecNext()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if !hasNext {
 			break
 		}
 	}
-	return nil
+	return result, nil
 }
 
 func (e *Executor) ExecNext() (bool, error) {

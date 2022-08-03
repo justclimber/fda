@@ -1,6 +1,10 @@
 package ast
 
-func NewVarAndType(varName, varType string) *VarAndType {
+import (
+	"github.com/justclimber/fda/common/lang/executor/object"
+)
+
+func NewVarAndType(varName string, varType object.ObjectType) *VarAndType {
 	return &VarAndType{
 		key:     KeyVarAndType,
 		varName: varName,
@@ -11,8 +15,8 @@ func NewVarAndType(varName, varType string) *VarAndType {
 type VarAndType struct {
 	id      int64
 	key     NodeKey
-	varType string
 	varName string
+	varType object.ObjectType
 }
 
 func (vt *VarAndType) NodeKey() NodeKey { return vt.key }

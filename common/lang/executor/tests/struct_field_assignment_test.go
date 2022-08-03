@@ -16,18 +16,18 @@ func TestStructFieldAssignment(t *testing.T) {
 	structName := "abc"
 	int1, int2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
-	astStruct, structDefinition := getTestStruct(t, testStruct{
+	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
 		name: structName,
 		fields: []testStructField{
 			{
 				name:      fieldName1,
-				fieldType: "int",
-				intValue:  int1,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(int1),
 			},
 			{
 				name:      fieldName2,
-				fieldType: "int",
-				intValue:  int2,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(int2),
 			},
 		},
 	})

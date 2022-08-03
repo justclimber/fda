@@ -8,33 +8,37 @@ import (
 	"github.com/justclimber/fda/common/lang/executor"
 	"github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func TestExecutor(t *testing.T) {
-	functionName := "main"
+func TestFunction(t *testing.T) {
+	functionName := "testFunc"
+	varName1, varName2 := "a", "b"
+	testInt1, testInt2 := int64(3), int64(10)
 	function := ast.NewFunctionDefinition(
 		functionName,
 		ast.NewStatementsBlock([]ast.Stmt{
 			ast.NewVoidedExpression(
 				ast.NewAssignment(
-					ast.NewIdentifierList([]string{"a"}),
-					ast.NewUnaryMinus(
-						ast.NewNumInt(3),
-					),
+					ast.NewIdentifierList([]string{varName1}),
+					ast.NewNumInt(testInt1),
 				),
 			),
 			ast.NewVoidedExpression(
 				ast.NewAssignment(
-					ast.NewIdentifierList([]string{"b", "c"}),
+					ast.NewIdentifierList([]string{varName2, "c"}),
 					ast.NewExpressionList([]ast.Expr{
-						ast.NewNumInt(10),
+						ast.NewNumInt(testInt2),
 						ast.NewNumInt(20),
 					}),
 				),
 			),
 		}),
 		nil,
-		nil,
+		[]*ast.VarAndType{
+			ast.NewVarAndType(varName1, object.TypeInt),
+			ast.NewVarAndType(varName2, object.TypeInt),
+		},
 	)
 	packageAst := ast.NewPackage()
 	packageAst.RegisterFunctionDefinition(function)
@@ -44,7 +48,10 @@ func TestExecutor(t *testing.T) {
 	ex := executor.NewExecutor(packagist, execQueue)
 
 	functionCall := ast.NewFunctionCall(functionName)
-	_, err := ex.Exec(env, functionCall)
+	res, err := ex.Exec(env, functionCall)
 	require.NoError(t, err)
-	env.Print()
+	require.NotEmpty(t, res.ObjectList)
+
+	testObjectAsNumInt(t, res.ObjectList[0], testInt1)
+	testObjectAsNumInt(t, res.ObjectList[1], testInt2)
 }

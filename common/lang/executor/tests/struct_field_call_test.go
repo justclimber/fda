@@ -8,6 +8,7 @@ import (
 	"github.com/justclimber/fda/common/lang/executor"
 	"github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
 func TestStructFieldCall_Exec(t *testing.T) {
@@ -16,18 +17,18 @@ func TestStructFieldCall_Exec(t *testing.T) {
 	structName := "abc"
 	int1, int2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
-	astStruct, structDefinition := getTestStruct(t, testStruct{
+	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
 		name: structName,
 		fields: []testStructField{
 			{
 				name:      fieldName1,
-				fieldType: "int",
-				intValue:  int1,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(int1),
 			},
 			{
 				name:      fieldName2,
-				fieldType: "int",
-				intValue:  int2,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(int2),
 			},
 		},
 	})

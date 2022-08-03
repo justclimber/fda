@@ -51,22 +51,22 @@ type testStruct struct {
 
 type testStructField struct {
 	name      string
-	fieldType string
-	intValue  int64
+	fieldType object.ObjectType
+	value     ast.Expr
 }
 
-func getTestStruct(t *testing.T, testStruct testStruct) (*ast.Struct, *ast.StructDefinition) {
+func getTestStructAstAndDefinition(t *testing.T, testStruct testStruct) (*ast.Struct, *ast.StructDefinition) {
 	t.Helper()
 
 	f := map[string]ast.Expr{}
 	for _, field := range testStruct.fields {
-		f[field.name] = ast.NewNumInt(field.intValue)
+		f[field.name] = field.value
 	}
 	astStruct := ast.NewStruct(testStruct.name, ast.NewNamedExpressionList(f))
 
 	structDefinitionFields := map[string]*ast.VarAndType{}
 	for _, field := range testStruct.fields {
-		structDefinitionFields[field.name] = ast.NewVarAndType(field.name, "int")
+		structDefinitionFields[field.name] = ast.NewVarAndType(field.name, field.fieldType)
 	}
 	structDefinition := ast.NewStructDefinition(testStruct.name, structDefinitionFields)
 

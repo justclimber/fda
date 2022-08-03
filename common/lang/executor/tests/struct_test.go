@@ -13,19 +13,24 @@ import (
 
 func TestStruct_Exec(t *testing.T) {
 	expectedInt1, expectedInt2 := int64(44), int64(55)
-	varName1, varName2 := "a", "b"
-	fields := ast.NewNamedExpressionList(map[string]ast.Expr{
-		varName1: ast.NewNumInt(expectedInt1),
-		varName2: ast.NewNumInt(expectedInt2),
-	})
+	fieldName1, fieldName2 := "a", "b"
 	testStructName := "abc"
-	astStruct := ast.NewStruct(testStructName, fields)
+	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
+		name: testStructName,
+		fields: []testStructField{
+			{
+				name:      fieldName1,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(expectedInt1),
+			},
+			{
+				name:      fieldName2,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(expectedInt2),
+			},
+		},
+	})
 
-	structDefinitionFields := map[string]*ast.VarAndType{
-		varName1: ast.NewVarAndType(varName1, "int"),
-		varName2: ast.NewVarAndType(varName2, "int"),
-	}
-	structDefinition := ast.NewStructDefinition(testStructName, structDefinitionFields)
 	packageAst := ast.NewPackage()
 	packageAst.RegisterStructDefinition(structDefinition)
 	packagist := executor.NewPackagist(packageAst)
@@ -43,6 +48,6 @@ func TestStruct_Exec(t *testing.T) {
 	require.True(t, ok, "check obj type")
 
 	require.NotEmpty(t, structObj.Fields, "check struct fields emptiness")
-	testObjectAsNumInt(t, structObj.Fields[varName1], expectedInt1)
-	testObjectAsNumInt(t, structObj.Fields[varName2], expectedInt2)
+	testObjectAsNumInt(t, structObj.Fields[fieldName1], expectedInt1)
+	testObjectAsNumInt(t, structObj.Fields[fieldName2], expectedInt2)
 }

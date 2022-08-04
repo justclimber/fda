@@ -19,6 +19,7 @@ const (
 	KeyIfStatement
 	KeyAssignment
 	KeyIdentifier
+	KeyArithmeticOperation
 	KeyUnaryMinus
 	KeyVarAndType
 	KeyStructDefinition

@@ -6,12 +6,22 @@ var (
 )
 
 type ArithmeticOperator int8
+type ComparisonOperator int8
 
 const (
 	OperatorAddition ArithmeticOperator = iota
 	OperatorSubtraction
 	OperatorMultiplication
 	OperatorDivision
+)
+
+const (
+	OperatorEqual ComparisonOperator = iota
+	OperatorNotEqual
+	OperatorGraterThan
+	OperatorGraterOrEqualThan
+	OperatorLessThan
+	OperatorLessOrEqualThan
 )
 
 func NewResult() *Result {
@@ -68,6 +78,70 @@ func (r *Result) DoDivision() Object {
 	return nil
 }
 
+func (r *Result) DoEqual() Object {
+	switch v := r.ObjectList[0].(type) {
+	case *ObjInteger:
+		return ToReservedBoolObj(v.Value == r.ObjectList[1].(*ObjInteger).Value)
+	case *ObjFloat:
+		return ToReservedBoolObj(v.Value == r.ObjectList[1].(*ObjFloat).Value)
+	case *ObjBoolean:
+		return ToReservedBoolObj(v == r.ObjectList[1])
+	}
+	return nil
+}
+
+func (r *Result) DoNotEqual() Object {
+	switch v := r.ObjectList[0].(type) {
+	case *ObjInteger:
+		return ToReservedBoolObj(v.Value != r.ObjectList[1].(*ObjInteger).Value)
+	case *ObjFloat:
+		return ToReservedBoolObj(v.Value != r.ObjectList[1].(*ObjFloat).Value)
+	case *ObjBoolean:
+		return ToReservedBoolObj(v != r.ObjectList[1])
+	}
+	return nil
+}
+
+func (r *Result) DoGraterThan() Object {
+	switch v := r.ObjectList[0].(type) {
+	case *ObjInteger:
+		return ToReservedBoolObj(v.Value > r.ObjectList[1].(*ObjInteger).Value)
+	case *ObjFloat:
+		return ToReservedBoolObj(v.Value > r.ObjectList[1].(*ObjFloat).Value)
+	}
+	return nil
+}
+
+func (r *Result) DoLessThan() Object {
+	switch v := r.ObjectList[0].(type) {
+	case *ObjInteger:
+		return ToReservedBoolObj(v.Value < r.ObjectList[1].(*ObjInteger).Value)
+	case *ObjFloat:
+		return ToReservedBoolObj(v.Value < r.ObjectList[1].(*ObjFloat).Value)
+	}
+	return nil
+}
+
+func (r *Result) DoGraterThanOrEqual() Object {
+	switch v := r.ObjectList[0].(type) {
+	case *ObjInteger:
+		return ToReservedBoolObj(v.Value >= r.ObjectList[1].(*ObjInteger).Value)
+	case *ObjFloat:
+		return ToReservedBoolObj(v.Value >= r.ObjectList[1].(*ObjFloat).Value)
+	}
+	return nil
+}
+
+func (r *Result) DoLessThanOrEqual() Object {
+	switch v := r.ObjectList[0].(type) {
+	case *ObjInteger:
+		return ToReservedBoolObj(v.Value <= r.ObjectList[1].(*ObjInteger).Value)
+	case *ObjFloat:
+		return ToReservedBoolObj(v.Value <= r.ObjectList[1].(*ObjFloat).Value)
+	}
+	return nil
+}
+
 func NewNamedResult() *NamedResult {
 	return &NamedResult{
 		ObjectList: make(map[string]Object),
@@ -79,7 +153,7 @@ type NamedResult struct {
 }
 
 func ToReservedBoolObj(value bool) *ObjBoolean {
-	if value == true {
+	if value {
 		return ReservedObjTrue
 	}
 	return ReservedObjFalse

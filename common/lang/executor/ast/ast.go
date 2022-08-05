@@ -20,6 +20,7 @@ const (
 	KeyAssignment
 	KeyIdentifier
 	KeyArithmeticOperation
+	KeyComparisonOperation
 	KeyUnaryMinus
 	KeyVarAndType
 	KeyStructDefinition

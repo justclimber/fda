@@ -14,14 +14,21 @@ import (
 func TestFunction(t *testing.T) {
 	functionName := "testFunc"
 	varName1, varName2 := "a", "b"
-	testInt1, testInt2 := int64(3), int64(10)
+	inputVarName1, inputVarName2 := "inA", "inB"
+	testInt1, testInt2, testInt3 := int64(3), int64(10), int64(2)
 	function := ast.NewFunctionDefinition(
 		functionName,
 		ast.NewStatementsBlock([]ast.Stmt{
 			ast.NewVoidedExpression(
 				ast.NewAssignment(
+					// a =
 					ast.NewIdentifierList([]string{varName1}),
-					ast.NewNumInt(testInt1),
+					// inA + 3
+					ast.NewArithmeticOperation(
+						ast.NewIdentifier(inputVarName1),
+						ast.NewNumInt(testInt1),
+						object.OperatorAddition,
+					),
 				),
 			),
 			ast.NewVoidedExpression(
@@ -34,12 +41,23 @@ func TestFunction(t *testing.T) {
 				),
 			),
 		}),
-		nil,
+		[]*ast.VarAndType{
+			ast.NewVarAndType(inputVarName1, object.TypeInt),
+			ast.NewVarAndType(inputVarName2, object.TypeInt),
+		},
 		[]*ast.VarAndType{
 			ast.NewVarAndType(varName1, object.TypeInt),
 			ast.NewVarAndType(varName2, object.TypeInt),
 		},
 	)
+	functionCall := ast.NewFunctionCall(
+		functionName,
+		ast.NewNamedExpressionList(map[string]ast.Expr{
+			inputVarName1: ast.NewNumInt(testInt3), // inA = 2
+			inputVarName2: ast.NewNumInt(testInt3),
+		}),
+	)
+
 	packageAst := ast.NewPackage()
 	packageAst.RegisterFunctionDefinition(function)
 	packagist := executor.NewPackagist(packageAst)
@@ -47,11 +65,10 @@ func TestFunction(t *testing.T) {
 	execQueue := executor.NewExecFnList()
 	ex := executor.NewExecutor(packagist, execQueue)
 
-	functionCall := ast.NewFunctionCall(functionName)
 	res, err := ex.Exec(env, functionCall)
 	require.NoError(t, err)
 	require.NotEmpty(t, res.ObjectList)
 
-	testObjectAsNumInt(t, res.ObjectList[0], testInt1)
+	testObjectAsNumInt(t, res.ObjectList[0], testInt1+testInt3)
 	testObjectAsNumInt(t, res.ObjectList[1], testInt2)
 }

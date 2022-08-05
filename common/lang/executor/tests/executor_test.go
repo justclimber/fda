@@ -43,7 +43,7 @@ func TestExecutor(t *testing.T) {
 	execQueue := executor.NewExecFnList()
 	ex := executor.NewExecutor(packagist, execQueue)
 
-	functionCall := ast.NewFunctionCall(functionName)
+	functionCall := ast.NewFunctionCall(functionName, nil)
 	_, err := ex.Exec(env, functionCall)
 	require.NoError(t, err)
 	env.Print()

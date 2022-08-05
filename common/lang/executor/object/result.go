@@ -152,6 +152,10 @@ type NamedResult struct {
 	ObjectList map[string]Object
 }
 
+func (nm *NamedResult) Get(name string) Object {
+	return nm.ObjectList[name]
+}
+
 func ToReservedBoolObj(value bool) *ObjBoolean {
 	if value {
 		return ReservedObjTrue

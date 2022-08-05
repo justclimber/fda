@@ -5,30 +5,38 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewFunctionCall(name string) *FunctionCall {
+func NewFunctionCall(name string, args *NamedExpressionList) *FunctionCall {
 	return &FunctionCall{
 		name: name,
+		args: args,
 	}
 }
 
 type FunctionCall struct {
 	id   int64
 	name string
+	args *NamedExpressionList
 }
 
 func (fc *FunctionCall) ID() int64        { return fc.id }
 func (fc *FunctionCall) NodeKey() NodeKey { return KeyFunctionCall }
 
 func (fc *FunctionCall) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
-	// todo compile time check?
 	definition, _ := execMngr.MainPackage().FunctionDefinition(fc.name)
 	functionEnv := environment.NewEnclosedEnvironment(env)
 	if definition.args != nil {
-		for _, arg := range definition.args {
-			// todo compile time check?
-			inputArg, _ := env.Get(arg.varName)
-			functionEnv.Set(arg.varName, inputArg)
-		}
+		namedResult := object.NewNamedResult()
+		execMngr.AddNextExec(fc.args, func() error {
+			return fc.args.Exec(functionEnv, namedResult, execMngr)
+		})
+		execMngr.AddNextExec(fc.args, func() error {
+			for _, arg := range definition.args {
+				// todo compile time check?
+				inputArg := namedResult.Get(arg.varName)
+				functionEnv.Set(arg.varName, inputArg)
+			}
+			return nil
+		})
 	}
 	execMngr.AddNextExec(definition.statementsBlock, func() error {
 		return definition.statementsBlock.Exec(functionEnv, execMngr)

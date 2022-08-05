@@ -7,7 +7,6 @@ func NewFunctionDefinition(
 	returns []*VarAndType,
 ) *FunctionDefinition {
 	return &FunctionDefinition{
-		key:             KeyFunctionDefinition,
 		Name:            name,
 		statementsBlock: statementsBlock,
 		args:            args,
@@ -17,7 +16,6 @@ func NewFunctionDefinition(
 
 type FunctionDefinition struct {
 	id              int64
-	key             NodeKey
 	Name            string
 	statementsBlock *StatementsBlock
 	args            []*VarAndType
@@ -25,4 +23,4 @@ type FunctionDefinition struct {
 }
 
 func (fd *FunctionDefinition) ID() int64        { return fd.id }
-func (fd *FunctionDefinition) NodeKey() NodeKey { return fd.key }
+func (fd *FunctionDefinition) NodeKey() NodeKey { return KeyFunctionDefinition }

@@ -6,7 +6,6 @@ import (
 
 func NewVarAndType(varName string, varType object.ObjectType) *VarAndType {
 	return &VarAndType{
-		key:     KeyVarAndType,
 		varName: varName,
 		varType: varType,
 	}
@@ -14,10 +13,9 @@ func NewVarAndType(varName string, varType object.ObjectType) *VarAndType {
 
 type VarAndType struct {
 	id      int64
-	key     NodeKey
 	varName string
 	varType object.ObjectType
 }
 
-func (vt *VarAndType) NodeKey() NodeKey { return vt.key }
 func (vt *VarAndType) ID() int64        { return vt.id }
+func (vt *VarAndType) NodeKey() NodeKey { return KeyVarAndType }

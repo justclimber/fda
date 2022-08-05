@@ -7,19 +7,17 @@ import (
 
 func NewFunctionCall(name string) *FunctionCall {
 	return &FunctionCall{
-		key:  KeyFunctionCall,
 		name: name,
 	}
 }
 
 type FunctionCall struct {
 	id   int64
-	key  NodeKey
 	name string
 }
 
 func (fc *FunctionCall) ID() int64        { return fc.id }
-func (fc *FunctionCall) NodeKey() NodeKey { return fc.key }
+func (fc *FunctionCall) NodeKey() NodeKey { return KeyFunctionCall }
 
 func (fc *FunctionCall) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	// todo compile time check?

@@ -7,7 +7,6 @@ import (
 
 func NewStructFieldAssignment(left []*StructFieldIdentifier, value Expr) *StructFieldAssignment {
 	return &StructFieldAssignment{
-		key:   KeyStructFieldAssignment,
 		left:  left,
 		value: value,
 	}
@@ -15,13 +14,12 @@ func NewStructFieldAssignment(left []*StructFieldIdentifier, value Expr) *Struct
 
 type StructFieldAssignment struct {
 	id    int64
-	key   NodeKey
 	left  []*StructFieldIdentifier
 	value Expr
 }
 
-func (sf *StructFieldAssignment) NodeKey() NodeKey { return sf.key }
 func (sf *StructFieldAssignment) ID() int64        { return sf.id }
+func (sf *StructFieldAssignment) NodeKey() NodeKey { return KeyStructFieldAssignment }
 
 func (sf *StructFieldAssignment) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	execMngr.AddNextExec(sf.value, func() error {

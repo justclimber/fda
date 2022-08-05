@@ -7,7 +7,6 @@ import (
 
 func NewIfStatement(condition Expr, trueBranch, falseBranch *StatementsBlock) *IfStatement {
 	return &IfStatement{
-		key:         KeyIfStatement,
 		condition:   condition,
 		trueBranch:  trueBranch,
 		falseBranch: falseBranch,
@@ -16,14 +15,13 @@ func NewIfStatement(condition Expr, trueBranch, falseBranch *StatementsBlock) *I
 
 type IfStatement struct {
 	id          int64
-	key         NodeKey
 	condition   Expr
 	trueBranch  *StatementsBlock
 	falseBranch *StatementsBlock
 }
 
-func (is *IfStatement) NodeKey() NodeKey { return is.key }
 func (is *IfStatement) ID() int64        { return is.id }
+func (is *IfStatement) NodeKey() NodeKey { return KeyIfStatement }
 
 func (is *IfStatement) Exec(env *environment.Environment, execMngr execManager) error {
 	result := object.NewResult()

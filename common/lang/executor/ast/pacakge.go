@@ -2,7 +2,6 @@ package ast
 
 func NewPackage() *Package {
 	return &Package{
-		key:                 KeyPackage,
 		structDefinitions:   make(map[string]*StructDefinition),
 		functionDefinitions: make(map[string]*FunctionDefinition),
 	}
@@ -10,13 +9,12 @@ func NewPackage() *Package {
 
 type Package struct {
 	id                  int64
-	key                 NodeKey
 	structDefinitions   map[string]*StructDefinition
 	functionDefinitions map[string]*FunctionDefinition
 }
 
 func (p *Package) ID() int64        { return p.id }
-func (p *Package) NodeKey() NodeKey { return p.key }
+func (p *Package) NodeKey() NodeKey { return KeyPackage }
 
 func (p *Package) RegisterStructDefinition(s *StructDefinition) {
 	p.structDefinitions[s.Name] = s

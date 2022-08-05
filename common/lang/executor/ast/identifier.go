@@ -16,19 +16,17 @@ func NewIdentifierList(values []string) []*Identifier {
 
 func NewIdentifier(value string) *Identifier {
 	return &Identifier{
-		key:   KeyIdentifier,
 		value: value,
 	}
 }
 
 type Identifier struct {
 	id    int64
-	key   NodeKey
 	value string
 }
 
 func (i *Identifier) ID() int64        { return i.id }
-func (i *Identifier) NodeKey() NodeKey { return i.key }
+func (i *Identifier) NodeKey() NodeKey { return KeyIdentifier }
 
 func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _ execManager) error {
 	if val, ok := env.Get(i.value); ok {

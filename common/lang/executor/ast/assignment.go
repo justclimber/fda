@@ -7,7 +7,6 @@ import (
 
 func NewAssignment(left []*Identifier, value Expr) *Assignment {
 	return &Assignment{
-		key:   KeyAssignment,
 		left:  left,
 		value: value,
 	}
@@ -15,13 +14,12 @@ func NewAssignment(left []*Identifier, value Expr) *Assignment {
 
 type Assignment struct {
 	id    int64
-	key   NodeKey
 	left  []*Identifier
 	value Expr
 }
 
-func (a *Assignment) NodeKey() NodeKey { return a.key }
 func (a *Assignment) ID() int64        { return a.id }
+func (a *Assignment) NodeKey() NodeKey { return KeyAssignment }
 
 func (a *Assignment) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	execMngr.AddNextExec(a.value, func() error {

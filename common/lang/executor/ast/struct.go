@@ -7,7 +7,6 @@ import (
 
 func NewStruct(name string, fields *NamedExpressionList) *Struct {
 	return &Struct{
-		key:    KeyStruct,
 		name:   name,
 		fields: fields,
 	}
@@ -15,13 +14,12 @@ func NewStruct(name string, fields *NamedExpressionList) *Struct {
 
 type Struct struct {
 	id     int64
-	key    NodeKey
 	name   string
 	fields *NamedExpressionList
 }
 
 func (s *Struct) ID() int64        { return s.id }
-func (s *Struct) NodeKey() NodeKey { return s.key }
+func (s *Struct) NodeKey() NodeKey { return KeyStruct }
 
 func (s *Struct) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	definition, _ := execMngr.MainPackage().StructDefinition(s.name)

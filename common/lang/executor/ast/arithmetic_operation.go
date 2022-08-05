@@ -7,7 +7,6 @@ import (
 
 func NewArithmeticOperation(left, right Expr, operator object.ArithmeticOperator) *ArithmeticOperation {
 	return &ArithmeticOperation{
-		key:      KeyArithmeticOperation,
 		left:     left,
 		right:    right,
 		operator: operator,
@@ -16,14 +15,13 @@ func NewArithmeticOperation(left, right Expr, operator object.ArithmeticOperator
 
 type ArithmeticOperation struct {
 	id       int64
-	key      NodeKey
 	left     Expr
 	right    Expr
 	operator object.ArithmeticOperator
 }
 
 func (ao *ArithmeticOperation) ID() int64        { return ao.id }
-func (ao *ArithmeticOperation) NodeKey() NodeKey { return ao.key }
+func (ao *ArithmeticOperation) NodeKey() NodeKey { return KeyArithmeticOperation }
 
 func (ao *ArithmeticOperation) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	res := object.NewResult()

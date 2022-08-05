@@ -7,7 +7,6 @@ import (
 
 func NewComparisonOperation(left, right Expr, operator object.ComparisonOperator) *ComparisonOperation {
 	return &ComparisonOperation{
-		key:      KeyComparisonOperation,
 		left:     left,
 		right:    right,
 		operator: operator,
@@ -16,14 +15,13 @@ func NewComparisonOperation(left, right Expr, operator object.ComparisonOperator
 
 type ComparisonOperation struct {
 	id       int64
-	key      NodeKey
 	left     Expr
 	right    Expr
 	operator object.ComparisonOperator
 }
 
 func (ao *ComparisonOperation) ID() int64        { return ao.id }
-func (ao *ComparisonOperation) NodeKey() NodeKey { return ao.key }
+func (ao *ComparisonOperation) NodeKey() NodeKey { return KeyComparisonOperation }
 
 func (ao *ComparisonOperation) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	res := object.NewResult()

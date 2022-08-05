@@ -7,7 +7,6 @@ import (
 
 func NewStructFieldCall(fieldName string, structExpr Expr) *StructFieldCall {
 	return &StructFieldCall{
-		key:        KeyStructFieldCall,
 		fieldName:  fieldName,
 		structExpr: structExpr,
 	}
@@ -15,13 +14,12 @@ func NewStructFieldCall(fieldName string, structExpr Expr) *StructFieldCall {
 
 type StructFieldCall struct {
 	id         int64
-	key        NodeKey
 	fieldName  string
 	structExpr Expr
 }
 
 func (sf *StructFieldCall) ID() int64        { return sf.id }
-func (sf *StructFieldCall) NodeKey() NodeKey { return sf.key }
+func (sf *StructFieldCall) NodeKey() NodeKey { return KeyStructFieldCall }
 
 func (sf *StructFieldCall) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	res := object.NewResult()

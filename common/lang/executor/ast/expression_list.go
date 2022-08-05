@@ -7,19 +7,17 @@ import (
 
 func NewExpressionList(exprs []Expr) *ExpressionList {
 	return &ExpressionList{
-		key:   KeyExpressionList,
 		exprs: exprs,
 	}
 }
 
 type ExpressionList struct {
 	id    int64
-	key   NodeKey
 	exprs []Expr
 }
 
-func (el *ExpressionList) NodeKey() NodeKey { return el.key }
 func (el *ExpressionList) ID() int64        { return el.id }
+func (el *ExpressionList) NodeKey() NodeKey { return KeyExpressionList }
 
 func (el *ExpressionList) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	results := make([]*object.Result, len(el.exprs))

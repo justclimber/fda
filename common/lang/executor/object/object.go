@@ -9,13 +9,11 @@ import (
 type ObjectType string
 
 const (
-	TypeInt         ObjectType = "int"
-	TypeFloat       ObjectType = "float"
-	TypeBool        ObjectType = "bool"
-	TypeReturnValue ObjectType = "return_value"
-	TypeFunction    ObjectType = "function_obj"
-	TypeBuiltinFn   ObjectType = "builtin_fn_obj"
-	TypeVoid        ObjectType = "void"
+	TypeInt       ObjectType = "int"
+	TypeFloat     ObjectType = "float"
+	TypeBool      ObjectType = "bool"
+	TypeFunction  ObjectType = "function_obj"
+	TypeBuiltinFn ObjectType = "builtin_fn_obj"
 )
 
 type Object interface {
@@ -71,13 +69,6 @@ func (a *ObjArray) Inspect() string {
 	return fmt.Sprintf("[]%s{%s}", a.ElementsType, strings.Join(elements, ", "))
 }
 
-type ObjReturnValue struct {
-	Value Object
-}
-
-func (rv *ObjReturnValue) Type() ObjectType { return TypeReturnValue }
-func (rv *ObjReturnValue) Inspect() string  { return rv.Value.Inspect() }
-
 type ObjFunction struct {
 	Name string
 }
@@ -109,10 +100,3 @@ func (s *ObjStruct) Inspect() string {
 
 	return out.String()
 }
-
-type ArgTypes []string
-
-type ObjVoid struct{}
-
-func (v *ObjVoid) Type() ObjectType { return TypeVoid }
-func (v *ObjVoid) Inspect() string  { return "void" }

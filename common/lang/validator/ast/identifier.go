@@ -23,11 +23,15 @@ type Identifier struct {
 func (i *Identifier) ID() int64            { return i.id }
 func (i *Identifier) NodeKey() ast.NodeKey { return ast.KeyIdentifier }
 
-func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _ validationManager) (execAst.Expr, error) {
+func (i *Identifier) Check(
+	env *environment.Environment,
+	_ validationManager,
+) (*object.Result, execAst.Expr, error) {
 	if val, ok := env.Get(i.value); ok {
+		result := object.NewResult()
 		result.Add(val)
-		return execAst.NewIdentifier(i.id, i.value), nil
+		return result, execAst.NewIdentifier(i.id, i.value), nil
 	}
 
-	return nil, errors.NewValidationError(i, errors.ErrorTypeIdentifierNotFound)
+	return nil, nil, errors.NewValidationError(i, errors.ErrorTypeIdentifierNotFound)
 }

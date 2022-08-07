@@ -22,11 +22,11 @@ type ExpressionList struct {
 func (el *ExpressionList) ID() int64            { return el.id }
 func (el *ExpressionList) NodeKey() ast.NodeKey { return ast.KeyExpressionList }
 
-func (el *ExpressionList) Exec(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
+func (el *ExpressionList) Check(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
 	result := object.NewResult()
 	exprListAst := make([]execAst.Expr, 0, len(el.exprs))
 	for i := range el.exprs {
-		r, exprAst, err := el.exprs[i].Exec(env, validMngr)
+		r, exprAst, err := el.exprs[i].Check(env, validMngr)
 		if err != nil {
 			return nil, nil, err
 		}

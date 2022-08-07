@@ -9,7 +9,7 @@ import (
 
 func NewNumInt(id int64, value int64) *NumInt {
 	return &NumInt{
-		id:    value,
+		id:    id,
 		value: value,
 	}
 }
@@ -22,7 +22,7 @@ type NumInt struct {
 func (n *NumInt) ID() int64            { return n.id }
 func (n *NumInt) NodeKey() ast.NodeKey { return ast.KeyNumInt }
 
-func (n *NumInt) Exec(_ *environment.Environment, _ validationManager) (*object.Result, execAst.Expr, error) {
+func (n *NumInt) Check(_ *environment.Environment, _ validationManager) (*object.Result, execAst.Expr, error) {
 	r := object.NewResult()
 	r.Add(&object.ObjInteger{Value: n.value})
 	return r, execAst.NewNumInt(n.id, n.value), nil

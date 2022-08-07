@@ -11,10 +11,10 @@ type validationManager interface{}
 
 type Stmt interface {
 	ast.Node
-	Exec(env *environment.Environment, validMngr validationManager) (execAst.Stmt, error)
+	Check(env *environment.Environment, validMngr validationManager) (execAst.Stmt, error)
 }
 
 type Expr interface {
 	ast.Node
-	Exec(env *environment.Environment, execMngr validationManager) (*object.Result, execAst.Expr, error)
+	Check(env *environment.Environment, execMngr validationManager) (*object.Result, execAst.Expr, error)
 }

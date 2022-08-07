@@ -25,7 +25,7 @@ type FunctionCall struct {
 func (fc *FunctionCall) ID() int64            { return fc.id }
 func (fc *FunctionCall) NodeKey() ast.NodeKey { return ast.KeyFunctionCall }
 
-func (fc *FunctionCall) Exec(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
+func (fc *FunctionCall) Check(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
 	result := object.NewResult()
 	functionEnv := environment.NewEnclosedEnvironment(env)
 	var namedExpressionListAst *execAst.NamedExpressionList
@@ -34,7 +34,7 @@ func (fc *FunctionCall) Exec(env *environment.Environment, validMngr validationM
 
 	if fc.function.definition.Args != nil || fc.args != nil {
 		// todo check count actual args and count args in definition
-		namedResult, namedExpressionListAst, err = fc.args.Exec(env, validMngr)
+		namedResult, namedExpressionListAst, err = fc.args.Check(env, validMngr)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -50,7 +50,7 @@ func (fc *FunctionCall) Exec(env *environment.Environment, validMngr validationM
 			return nil, nil, validationErrorSet
 		}
 	}
-	bodyAst, err := fc.function.body.Exec(functionEnv, validMngr)
+	bodyAst, err := fc.function.body.Check(functionEnv, validMngr)
 	if err != nil {
 		return nil, nil, err
 	}

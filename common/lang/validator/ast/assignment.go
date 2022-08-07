@@ -23,8 +23,8 @@ type Assignment struct {
 func (a *Assignment) ID() int64            { return a.id }
 func (a *Assignment) NodeKey() ast.NodeKey { return ast.KeyAssignment }
 
-func (a *Assignment) Exec(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
-	value, exprAst, err := a.value.Exec(env, validMngr)
+func (a *Assignment) Check(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
+	value, exprAst, err := a.value.Check(env, validMngr)
 	if err != nil {
 		return nil, nil, err
 	}

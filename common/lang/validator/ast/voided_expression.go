@@ -21,7 +21,7 @@ type VoidedExpression struct {
 func (v *VoidedExpression) ID() int64            { return v.id }
 func (v *VoidedExpression) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
-func (v *VoidedExpression) Exec(env *environment.Environment, validMngr validationManager) (execAst.Stmt, error) {
-	_, exprAst, err := v.expr.Exec(env, validMngr)
+func (v *VoidedExpression) Check(env *environment.Environment, validMngr validationManager) (execAst.Stmt, error) {
+	_, exprAst, err := v.expr.Check(env, validMngr)
 	return execAst.NewVoidedExpression(v.id, exprAst), err
 }

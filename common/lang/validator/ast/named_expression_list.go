@@ -22,14 +22,14 @@ type NamedExpressionList struct {
 func (el *NamedExpressionList) ID() int64            { return el.id }
 func (el *NamedExpressionList) NodeKey() ast.NodeKey { return ast.KeyNamedExpressionList }
 
-func (el *NamedExpressionList) Exec(
+func (el *NamedExpressionList) Check(
 	env *environment.Environment,
 	validMngr validationManager,
 ) (*object.NamedResult, *execAst.NamedExpressionList, error) {
 	res := object.NewNamedResult()
 	exprAstMap := map[string]execAst.Expr{}
 	for name, expr := range el.exprs {
-		exprRes, exprAst, err := expr.Exec(env, validMngr)
+		exprRes, exprAst, err := expr.Check(env, validMngr)
 		if err != nil {
 			return nil, nil, err
 		}

@@ -21,10 +21,10 @@ type StatementsBlock struct {
 func (sb *StatementsBlock) ID() int64            { return sb.id }
 func (sb *StatementsBlock) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
-func (sb *StatementsBlock) Exec(env *environment.Environment, validMngr validationManager) (*execAst.StatementsBlock, error) {
+func (sb *StatementsBlock) Check(env *environment.Environment, validMngr validationManager) (*execAst.StatementsBlock, error) {
 	statementsAst := make([]execAst.Stmt, 0, len(sb.statements))
 	for _, statement := range sb.statements {
-		stmtAst, err := statement.Exec(env, validMngr)
+		stmtAst, err := statement.Check(env, validMngr)
 		if err != nil {
 			return nil, err
 		}

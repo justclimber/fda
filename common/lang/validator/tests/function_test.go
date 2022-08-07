@@ -51,7 +51,7 @@ func TestFunction(t *testing.T) {
 	}))
 
 	env := environment.NewEnvironment()
-	_, resAst, err := functionCall.Exec(env, struct{}{})
+	_, resAst, err := functionCall.Check(env, struct{}{})
 	require.NoError(t, err, "check error after ast validation")
 
 	functionCalForExec, ok := resAst.(*execAst.FunctionCall)

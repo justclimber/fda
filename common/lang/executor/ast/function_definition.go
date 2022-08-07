@@ -1,5 +1,9 @@
 package ast
 
+import (
+	"github.com/justclimber/fda/common/lang/ast"
+)
+
 func NewFunctionDefinition(
 	name string,
 	statementsBlock *StatementsBlock,
@@ -22,5 +26,5 @@ type FunctionDefinition struct {
 	returns         []*VarAndType
 }
 
-func (fd *FunctionDefinition) ID() int64        { return fd.id }
-func (fd *FunctionDefinition) NodeKey() NodeKey { return KeyFunctionDefinition }
+func (fd *FunctionDefinition) ID() int64            { return fd.id }
+func (fd *FunctionDefinition) NodeKey() ast.NodeKey { return ast.KeyFunctionDefinition }

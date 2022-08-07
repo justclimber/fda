@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -18,8 +19,8 @@ type Struct struct {
 	fields *NamedExpressionList
 }
 
-func (s *Struct) ID() int64        { return s.id }
-func (s *Struct) NodeKey() NodeKey { return KeyStruct }
+func (s *Struct) ID() int64            { return s.id }
+func (s *Struct) NodeKey() ast.NodeKey { return ast.KeyStruct }
 
 func (s *Struct) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	definition, _ := execMngr.MainPackage().StructDefinition(s.name)

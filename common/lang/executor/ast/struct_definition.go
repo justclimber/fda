@@ -1,5 +1,9 @@
 package ast
 
+import (
+	"github.com/justclimber/fda/common/lang/ast"
+)
+
 func NewStructDefinition(name string, fields map[string]*VarAndType) *StructDefinition {
 	return &StructDefinition{
 		Name:   name,
@@ -13,5 +17,5 @@ type StructDefinition struct {
 	Fields map[string]*VarAndType
 }
 
-func (sd *StructDefinition) ID() int64        { return sd.id }
-func (sd *StructDefinition) NodeKey() NodeKey { return KeyStructDefinition }
+func (sd *StructDefinition) ID() int64            { return sd.id }
+func (sd *StructDefinition) NodeKey() ast.NodeKey { return ast.KeyStructDefinition }

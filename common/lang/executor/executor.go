@@ -1,7 +1,8 @@
 package executor
 
 import (
-	"github.com/justclimber/fda/common/lang/executor/ast"
+	"github.com/justclimber/fda/common/lang/ast"
+	execAst "github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -18,7 +19,7 @@ func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
 	}
 }
 
-func (e *Executor) Exec(env *environment.Environment, function *ast.FunctionCall) (*object.Result, error) {
+func (e *Executor) Exec(env *environment.Environment, function *execAst.FunctionCall) (*object.Result, error) {
 	result := object.NewResult()
 	err := function.Exec(env, result, e)
 	if err != nil {
@@ -50,7 +51,7 @@ func (e *Executor) AddNextExec(node ast.Node, fn func() error) {
 	e.execQueue.AddNext(node, fn)
 }
 
-func (e *Executor) MainPackage() *ast.Package {
+func (e *Executor) MainPackage() *execAst.Package {
 	return e.packagist.Main()
 }
 

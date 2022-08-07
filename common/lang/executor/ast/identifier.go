@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
+	"github.com/justclimber/fda/common/lang/errors"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -17,8 +19,8 @@ type Identifier struct {
 	value string
 }
 
-func (i *Identifier) ID() int64        { return i.id }
-func (i *Identifier) NodeKey() NodeKey { return KeyIdentifier }
+func (i *Identifier) ID() int64            { return i.id }
+func (i *Identifier) NodeKey() ast.NodeKey { return ast.KeyIdentifier }
 
 func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _ execManager) error {
 	if val, ok := env.Get(i.value); ok {
@@ -26,5 +28,5 @@ func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _
 		return nil
 	}
 
-	return NewRuntimeError(i, ErrorTypeIdentifierNotFound)
+	return errors.NewRuntimeError(i, errors.ErrorTypeIdentifierNotFound)
 }

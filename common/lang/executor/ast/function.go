@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
@@ -18,5 +19,5 @@ type Function struct {
 	body       *StatementsBlock
 }
 
-func (f *Function) ID() int64        { return f.id }
-func (f *Function) NodeKey() NodeKey { return KeyFunction }
+func (f *Function) ID() int64            { return f.id }
+func (f *Function) NodeKey() ast.NodeKey { return ast.KeyFunction }

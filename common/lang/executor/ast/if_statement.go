@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -20,8 +21,8 @@ type IfStatement struct {
 	falseBranch *StatementsBlock
 }
 
-func (is *IfStatement) ID() int64        { return is.id }
-func (is *IfStatement) NodeKey() NodeKey { return KeyIfStatement }
+func (is *IfStatement) ID() int64            { return is.id }
+func (is *IfStatement) NodeKey() ast.NodeKey { return ast.KeyIfStatement }
 
 func (is *IfStatement) Exec(env *environment.Environment, execMngr execManager) error {
 	result := object.NewResult()

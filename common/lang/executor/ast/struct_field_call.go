@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -18,8 +19,8 @@ type StructFieldCall struct {
 	structExpr Expr
 }
 
-func (sf *StructFieldCall) ID() int64        { return sf.id }
-func (sf *StructFieldCall) NodeKey() NodeKey { return KeyStructFieldCall }
+func (sf *StructFieldCall) ID() int64            { return sf.id }
+func (sf *StructFieldCall) NodeKey() ast.NodeKey { return ast.KeyStructFieldCall }
 
 func (sf *StructFieldCall) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	res := object.NewResult()

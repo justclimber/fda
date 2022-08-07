@@ -1,55 +1,22 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-type NodeKey int32
-
-const (
-	KeyIllegal NodeKey = iota
-	KeyFunctionDefinition
-	KeyFunctionCall
-	KeyFunction
-	KeyPackage
-	KeyStatementsBlock
-	KeyVoidedExpression
-	KeyExpressionList
-	KeyNamedExpressionList
-	KeyIfStatement
-	KeyAssignment
-	KeyIdentifier
-	KeyArithmeticOperation
-	KeyComparisonOperation
-	KeyUnaryMinus
-	KeyVarAndType
-	KeyStructDefinition
-	KeyStruct
-	KeyStructFieldIdentifier
-	KeyStructFieldCall
-	KeyStructFieldAssignment
-	KeyNumInt
-	KeyNumFloat
-	KeyBool
-)
-
-type Node interface {
-	ID() int64
-	NodeKey() NodeKey
-}
-
 type execManager interface {
-	AddNextExec(node Node, fn func() error)
+	AddNextExec(node ast.Node, fn func() error)
 	MainPackage() *Package
 }
 
 type Stmt interface {
-	Node
+	ast.Node
 	Exec(env *environment.Environment, execMngr execManager) error
 }
 
 type Expr interface {
-	Node
+	ast.Node
 	Exec(env *environment.Environment, result *object.Result, execMngr execManager) error
 }

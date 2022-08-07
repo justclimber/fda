@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
@@ -17,8 +18,8 @@ type Package struct {
 	functionDefinitions map[string]*object.FunctionDefinition
 }
 
-func (p *Package) ID() int64        { return p.id }
-func (p *Package) NodeKey() NodeKey { return KeyPackage }
+func (p *Package) ID() int64            { return p.id }
+func (p *Package) NodeKey() ast.NodeKey { return ast.KeyPackage }
 
 func (p *Package) RegisterStructDefinition(s *StructDefinition) {
 	p.structDefinitions[s.Name] = s

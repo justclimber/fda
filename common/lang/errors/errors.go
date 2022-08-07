@@ -65,3 +65,19 @@ func (vs *ValidationErrorSet) Error() string {
 	}
 	return strings.Join(s, "\n")
 }
+
+type RuntimeError struct {
+	node    ast.Node
+	errType ErrorType
+}
+
+func NewRuntimeError(node ast.Node, errType ErrorType) *RuntimeError {
+	return &RuntimeError{
+		errType: errType,
+		node:    node,
+	}
+}
+
+func (r *RuntimeError) Error() string {
+	return fmt.Sprintf("%s\n", r.errType.String())
+}

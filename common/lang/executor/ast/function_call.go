@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -19,8 +20,8 @@ type FunctionCall struct {
 	args     *NamedExpressionList
 }
 
-func (fc *FunctionCall) ID() int64        { return fc.id }
-func (fc *FunctionCall) NodeKey() NodeKey { return KeyFunctionCall }
+func (fc *FunctionCall) ID() int64            { return fc.id }
+func (fc *FunctionCall) NodeKey() ast.NodeKey { return ast.KeyFunctionCall }
 
 func (fc *FunctionCall) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	functionEnv := environment.NewEnclosedEnvironment(env)

@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 )
 
@@ -16,8 +17,8 @@ type StatementsBlock struct {
 	statements []Stmt
 }
 
-func (sb *StatementsBlock) ID() int64        { return sb.id }
-func (sb *StatementsBlock) NodeKey() NodeKey { return KeyStatementsBlock }
+func (sb *StatementsBlock) ID() int64            { return sb.id }
+func (sb *StatementsBlock) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
 func (sb *StatementsBlock) Exec(env *environment.Environment, execMngr execManager) error {
 	for _, statement := range sb.statements {

@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -20,8 +21,8 @@ type ArithmeticOperation struct {
 	operator object.ArithmeticOperator
 }
 
-func (ao *ArithmeticOperation) ID() int64        { return ao.id }
-func (ao *ArithmeticOperation) NodeKey() NodeKey { return KeyArithmeticOperation }
+func (ao *ArithmeticOperation) ID() int64            { return ao.id }
+func (ao *ArithmeticOperation) NodeKey() ast.NodeKey { return ast.KeyExpressionList }
 
 func (ao *ArithmeticOperation) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	res := object.NewResult()

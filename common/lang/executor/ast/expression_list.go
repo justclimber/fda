@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -17,8 +18,8 @@ type ExpressionList struct {
 	exprs []Expr
 }
 
-func (el *ExpressionList) ID() int64        { return el.id }
-func (el *ExpressionList) NodeKey() NodeKey { return KeyExpressionList }
+func (el *ExpressionList) ID() int64            { return el.id }
+func (el *ExpressionList) NodeKey() ast.NodeKey { return ast.KeyExpressionList }
 
 func (el *ExpressionList) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	results := make([]*object.Result, len(el.exprs))

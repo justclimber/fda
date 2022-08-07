@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
@@ -18,8 +19,8 @@ type StructFieldAssignment struct {
 	value Expr
 }
 
-func (sf *StructFieldAssignment) ID() int64        { return sf.id }
-func (sf *StructFieldAssignment) NodeKey() NodeKey { return KeyStructFieldAssignment }
+func (sf *StructFieldAssignment) ID() int64            { return sf.id }
+func (sf *StructFieldAssignment) NodeKey() ast.NodeKey { return ast.KeyStructFieldAssignment }
 
 func (sf *StructFieldAssignment) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	execMngr.AddNextExec(sf.value, func() error {

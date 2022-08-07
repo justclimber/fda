@@ -5,8 +5,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewExpressionList(exprs []Expr) *ExpressionList {
+func NewExpressionList(id int64, exprs []Expr) *ExpressionList {
 	return &ExpressionList{
+		id:    id,
 		exprs: exprs,
 	}
 }

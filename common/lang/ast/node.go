@@ -1,30 +1,35 @@
 package ast
 
-type Key int32
+type NodeKey int32
 
 const (
-	KeyIllegal Key = iota
+	KeyIllegal NodeKey = iota
+	KeyFunctionDefinition
+	KeyFunction
+	KeyFunctionCall
+	KeyPackage
+	KeyStatementsBlock
+	KeyVoidedExpression
+	KeyExpressionList
+	KeyNamedExpressionList
+	KeyIfStatement
 	KeyAssignment
 	KeyIdentifier
+	KeyArithmeticOperation
+	KeyComparisonOperation
+	KeyUnaryMinus
+	KeyVarAndType
+	KeyStructDefinition
+	KeyStruct
+	KeyStructFieldIdentifier
+	KeyStructFieldCall
+	KeyStructFieldAssignment
+	KeyNumInt
+	KeyNumFloat
+	KeyBool
 )
 
 type Node interface {
-	Key() Key
+	ID() int64
+	NodeKey() NodeKey
 }
-
-type Stmt interface{ StmtMixin() }
-type Expr interface{ ExprMixin() }
-
-type Identifier struct{}
-
-type Assignment struct {
-	Left  Identifier
-	Value Expr
-}
-
-func (a Assignment) Key() Key { return KeyAssignment }
-func (i Identifier) Key() Key { return KeyIdentifier }
-
-func (a Assignment) StmtMixin() {}
-
-func (i Identifier) ExprMixin() {}

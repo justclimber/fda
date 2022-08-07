@@ -21,12 +21,12 @@ func TestStruct_Exec(t *testing.T) {
 			{
 				name:      fieldName1,
 				fieldType: object.TypeInt,
-				value:     ast.NewNumInt(expectedInt1),
+				value:     ast.NewNumInt(0, expectedInt1),
 			},
 			{
 				name:      fieldName2,
 				fieldType: object.TypeInt,
-				value:     ast.NewNumInt(expectedInt2),
+				value:     ast.NewNumInt(0, expectedInt2),
 			},
 		},
 	})

@@ -23,32 +23,22 @@ func TestStructFieldCall_Exec(t *testing.T) {
 			{
 				name:      fieldName1,
 				fieldType: object.TypeInt,
-				value:     ast.NewNumInt(int1),
+				value:     ast.NewNumInt(0, int1),
 			},
 			{
 				name:      fieldName2,
 				fieldType: object.TypeInt,
-				value:     ast.NewNumInt(int2),
+				value:     ast.NewNumInt(0, int2),
 			},
 		},
 	})
 
-	astCode := ast.NewStatementsBlock([]ast.Stmt{
-		ast.NewVoidedExpression(
-			ast.NewAssignment(
-				ast.NewIdentifierList([]string{structVarName}),
-				astStruct,
-			),
-		),
-		ast.NewVoidedExpression(
-			ast.NewAssignment(
-				ast.NewIdentifierList([]string{testVarName}),
-				ast.NewStructFieldCall(
-					fieldName1,
-					ast.NewIdentifier(structVarName),
-				),
-			),
-		),
+	astCode := ast.NewStatementsBlock(0, []ast.Stmt{
+		ast.NewVoidedExpression(0, ast.NewAssignment(0, []*ast.Identifier{ast.NewIdentifier(0, structVarName)}, astStruct)),
+		ast.NewVoidedExpression(0, ast.NewAssignment(0, []*ast.Identifier{ast.NewIdentifier(0, testVarName)}, ast.NewStructFieldCall(
+			fieldName1,
+			ast.NewIdentifier(0, structVarName),
+		))),
 	})
 	packageAst := ast.NewPackage()
 	packageAst.RegisterStructDefinition(structDefinition)

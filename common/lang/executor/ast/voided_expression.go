@@ -5,8 +5,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewVoidedExpression(expr Expr) *VoidedExpression {
+func NewVoidedExpression(id int64, expr Expr) *VoidedExpression {
 	return &VoidedExpression{
+		id:   id,
 		expr: expr,
 	}
 }

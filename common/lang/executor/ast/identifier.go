@@ -5,17 +5,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewIdentifierList(values []string) []*Identifier {
-	result := make([]*Identifier, 0, len(values))
-	for _, value := range values {
-		result = append(result, NewIdentifier(value))
-	}
-
-	return result
-}
-
-func NewIdentifier(value string) *Identifier {
+func NewIdentifier(id int64, value string) *Identifier {
 	return &Identifier{
+		id:    id,
 		value: value,
 	}
 }

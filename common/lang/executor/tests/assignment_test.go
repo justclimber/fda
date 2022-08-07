@@ -15,8 +15,9 @@ func TestAssignment_Exec(t *testing.T) {
 	expectedInt := int64(44)
 	varName := "a"
 	assignment := ast.NewAssignment(
-		ast.NewIdentifierList([]string{varName}),
-		ast.NewNumInt(expectedInt),
+		0,
+		[]*ast.Identifier{ast.NewIdentifier(0, varName)},
+		ast.NewNumInt(0, expectedInt),
 	)
 
 	env := environment.NewEnvironment()
@@ -27,9 +28,8 @@ func TestAssignment_Exec(t *testing.T) {
 	err := assignment.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 
-	testNext(t, execQueue, 2)
+	testNextAll(t, execQueue)
 	testResultAsNumInt(t, res, expectedInt, 0)
-	testNext(t, execQueue, 1)
 
 	obj, ok := env.Get(varName)
 	require.True(t, ok, "check existence var in env")
@@ -40,10 +40,11 @@ func TestAssignment_Exec_Multiple(t *testing.T) {
 	expectedInt1, expectedInt2 := int64(44), int64(55)
 	varName1, varName2 := "a", "b"
 	assignment := ast.NewAssignment(
-		ast.NewIdentifierList([]string{varName1, varName2}),
-		ast.NewExpressionList([]ast.Expr{
-			ast.NewNumInt(expectedInt1),
-			ast.NewNumInt(expectedInt2),
+		0,
+		[]*ast.Identifier{ast.NewIdentifier(0, varName1), ast.NewIdentifier(0, varName2)},
+		ast.NewExpressionList(0, []ast.Expr{
+			ast.NewNumInt(0, expectedInt1),
+			ast.NewNumInt(0, expectedInt2),
 		}),
 	)
 
@@ -55,16 +56,15 @@ func TestAssignment_Exec_Multiple(t *testing.T) {
 	err := assignment.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 
-	testNext(t, execQueue, 7)
+	testNextAll(t, execQueue)
 	testResultAsNumInt(t, res, expectedInt1, 0)
 	testResultAsNumInt(t, res, expectedInt2, 1)
-	testNext(t, execQueue, 2)
 
 	obj1, ok := env.Get(varName1)
 	require.True(t, ok, "check existence var1 in env")
 	testObjectAsNumInt(t, obj1, expectedInt1)
 
-	obj2, ok := env.Get(varName1)
+	obj2, ok := env.Get(varName2)
 	require.True(t, ok, "check existence var2 in env")
-	testObjectAsNumInt(t, obj2, expectedInt1)
+	testObjectAsNumInt(t, obj2, expectedInt2)
 }

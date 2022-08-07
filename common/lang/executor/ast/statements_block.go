@@ -4,8 +4,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/environment"
 )
 
-func NewStatementsBlock(stmts []Stmt) *StatementsBlock {
+func NewStatementsBlock(id int64, stmts []Stmt) *StatementsBlock {
 	return &StatementsBlock{
+		id:         id,
 		statements: stmts,
 	}
 }

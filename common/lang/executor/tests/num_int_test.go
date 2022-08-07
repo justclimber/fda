@@ -13,7 +13,7 @@ import (
 
 func TestNumInt_Exec(t *testing.T) {
 	expectedInt := int64(4)
-	numInt := ast.NewNumInt(expectedInt)
+	numInt := ast.NewNumInt(0, expectedInt)
 
 	env := environment.NewEnvironment()
 	res := object.NewResult()

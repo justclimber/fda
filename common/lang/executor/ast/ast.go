@@ -11,6 +11,7 @@ const (
 	KeyIllegal NodeKey = iota
 	KeyFunctionDefinition
 	KeyFunctionCall
+	KeyFunction
 	KeyPackage
 	KeyStatementsBlock
 	KeyVoidedExpression

@@ -6,9 +6,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/common/lang/executor"
-	"github.com/justclimber/fda/common/lang/executor/ast"
+	execAst "github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
+	"github.com/justclimber/fda/common/lang/validator/ast"
 )
 
 func TestFunction(t *testing.T) {
@@ -28,19 +29,14 @@ func TestFunction(t *testing.T) {
 		},
 	)
 	function := ast.NewFunction(
-		0,
 		definition,
 		ast.NewStatementsBlock(0, []ast.Stmt{
-			ast.NewVoidedExpression(
-				0,
-				ast.NewAssignment(0, []*ast.Identifier{ast.NewIdentifier(0, varName1)}, ast.NewArithmeticOperation(
-					ast.NewIdentifier(0, inputVarName1),
-					ast.NewNumInt(0, testInt1),
-					object.OperatorAddition,
-				)),
-			),
 			ast.NewVoidedExpression(0, ast.NewAssignment(
-				0,
+				// a =
+				[]*ast.Identifier{ast.NewIdentifier(0, varName1)},
+				ast.NewNumInt(0, testInt1),
+			)),
+			ast.NewVoidedExpression(0, ast.NewAssignment(
 				[]*ast.Identifier{ast.NewIdentifier(0, varName2), ast.NewIdentifier(0, "c")},
 				ast.NewExpressionList(0, []ast.Expr{
 					ast.NewNumInt(0, testInt2),
@@ -50,21 +46,28 @@ func TestFunction(t *testing.T) {
 		}),
 	)
 	functionCall := ast.NewFunctionCall(0, function, ast.NewNamedExpressionList(0, map[string]ast.Expr{
-		inputVarName1: ast.NewNumInt(0, testInt3), // inA = 2
+		inputVarName1: ast.NewNumInt(0, testInt3),
 		inputVarName2: ast.NewNumInt(0, testInt3),
 	}))
 
-	packageAst := ast.NewPackage()
-	packageAst.RegisterFunctionDefinition(definition)
-	packagist := executor.NewPackagist(packageAst)
 	env := environment.NewEnvironment()
+	_, resAst, err := functionCall.Exec(env, struct{}{})
+	require.NoError(t, err, "check error after ast validation")
+
+	functionCalForExec, ok := resAst.(*execAst.FunctionCall)
+	require.True(t, ok, "check type is *FunctionCall")
+
+	packageAst := execAst.NewPackage()
+	//packageAst.RegisterFunctionDefinition(definition)
+	packagist := executor.NewPackagist(packageAst)
+
 	execQueue := executor.NewExecFnList()
 	ex := executor.NewExecutor(packagist, execQueue)
 
-	res, err := ex.Exec(env, functionCall)
+	res, err := ex.Exec(env, functionCalForExec)
 	require.NoError(t, err)
 	require.NotEmpty(t, res.ObjectList)
 
-	testObjectAsNumInt(t, res.ObjectList[0], testInt1+testInt3)
+	testObjectAsNumInt(t, res.ObjectList[0], testInt1)
 	testObjectAsNumInt(t, res.ObjectList[1], testInt2)
 }

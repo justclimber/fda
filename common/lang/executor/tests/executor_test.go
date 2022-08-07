@@ -8,42 +8,43 @@ import (
 	"github.com/justclimber/fda/common/lang/executor"
 	"github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
 func TestExecutor(t *testing.T) {
 	functionName := "main"
-	function := ast.NewFunctionDefinition(
-		functionName,
-		ast.NewStatementsBlock([]ast.Stmt{
+	definition := object.NewFunctionDefinition(functionName, nil, nil)
+	function := ast.NewFunction(
+		0,
+		definition,
+		ast.NewStatementsBlock(0, []ast.Stmt{
 			ast.NewVoidedExpression(
-				ast.NewAssignment(
-					ast.NewIdentifierList([]string{"a"}),
-					ast.NewUnaryMinus(
-						ast.NewNumInt(3),
-					),
-				),
+				0,
+				ast.NewAssignment(0, []*ast.Identifier{ast.NewIdentifier(0, "a")}, ast.NewUnaryMinus(
+					ast.NewNumInt(3, 0),
+				)),
 			),
 			ast.NewVoidedExpression(
+				0,
 				ast.NewAssignment(
-					ast.NewIdentifierList([]string{"b", "c"}),
-					ast.NewExpressionList([]ast.Expr{
-						ast.NewNumInt(10),
-						ast.NewNumInt(20),
+					0,
+					[]*ast.Identifier{ast.NewIdentifier(0, "b"), ast.NewIdentifier(0, "c")},
+					ast.NewExpressionList(0, []ast.Expr{
+						ast.NewNumInt(10, 0),
+						ast.NewNumInt(20, 0),
 					}),
 				),
 			),
 		}),
-		nil,
-		nil,
 	)
 	packageAst := ast.NewPackage()
-	packageAst.RegisterFunctionDefinition(function)
+	packageAst.RegisterFunctionDefinition(definition)
 	packagist := executor.NewPackagist(packageAst)
 	env := environment.NewEnvironment()
 	execQueue := executor.NewExecFnList()
 	ex := executor.NewExecutor(packagist, execQueue)
 
-	functionCall := ast.NewFunctionCall(functionName, nil)
+	functionCall := ast.NewFunctionCall(0, function, nil)
 	_, err := ex.Exec(env, functionCall)
 	require.NoError(t, err)
 	env.Print()

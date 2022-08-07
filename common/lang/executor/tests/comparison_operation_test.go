@@ -22,15 +22,15 @@ func TestComparisonOperation(t *testing.T) {
 		// equal
 		{
 			name:             "int_equal_false",
-			left:             ast.NewNumInt(3),
-			right:            ast.NewNumInt(7),
+			left:             ast.NewNumInt(0, 3),
+			right:            ast.NewNumInt(0, 7),
 			operator:         object.OperatorEqual,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjFalse) },
 		},
 		{
 			name:             "int_equal_true",
-			left:             ast.NewNumInt(7),
-			right:            ast.NewNumInt(7),
+			left:             ast.NewNumInt(0, 7),
+			right:            ast.NewNumInt(0, 7),
 			operator:         object.OperatorEqual,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjTrue) },
 		},
@@ -65,15 +65,15 @@ func TestComparisonOperation(t *testing.T) {
 		// not equal
 		{
 			name:             "int_not_equal_true",
-			left:             ast.NewNumInt(3),
-			right:            ast.NewNumInt(7),
+			left:             ast.NewNumInt(0, 3),
+			right:            ast.NewNumInt(0, 7),
 			operator:         object.OperatorNotEqual,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjTrue) },
 		},
 		{
 			name:             "int_not_equal_false",
-			left:             ast.NewNumInt(7),
-			right:            ast.NewNumInt(7),
+			left:             ast.NewNumInt(0, 7),
+			right:            ast.NewNumInt(0, 7),
 			operator:         object.OperatorNotEqual,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjFalse) },
 		},
@@ -108,22 +108,22 @@ func TestComparisonOperation(t *testing.T) {
 		// grater than
 		{
 			name:             "int_grater_than_false",
-			left:             ast.NewNumInt(3),
-			right:            ast.NewNumInt(7),
+			left:             ast.NewNumInt(0, 3),
+			right:            ast.NewNumInt(0, 7),
 			operator:         object.OperatorGraterThan,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjFalse) },
 		},
 		{
 			name:             "int_grater_than_false_equal",
-			left:             ast.NewNumInt(7),
-			right:            ast.NewNumInt(7),
+			left:             ast.NewNumInt(0, 7),
+			right:            ast.NewNumInt(0, 7),
 			operator:         object.OperatorGraterThan,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjFalse) },
 		},
 		{
 			name:             "int_grater_than_true",
-			left:             ast.NewNumInt(7),
-			right:            ast.NewNumInt(3),
+			left:             ast.NewNumInt(0, 7),
+			right:            ast.NewNumInt(0, 3),
 			operator:         object.OperatorGraterThan,
 			expectedResultFn: func(r *object.Result) { r.Add(object.ReservedObjTrue) },
 		},

@@ -5,8 +5,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewAssignment(left []*Identifier, value Expr) *Assignment {
+func NewAssignment(id int64, left []*Identifier, value Expr) *Assignment {
 	return &Assignment{
+		id:    id,
 		left:  left,
 		value: value,
 	}
@@ -14,7 +15,7 @@ func NewAssignment(left []*Identifier, value Expr) *Assignment {
 
 type Assignment struct {
 	id    int64
-	left  []*Identifier
+	left  []*Identifier // todo move to just string?
 	value Expr
 }
 

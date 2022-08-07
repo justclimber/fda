@@ -5,8 +5,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewNumInt(value int64) *NumInt {
+func NewNumInt(id, value int64) *NumInt {
 	return &NumInt{
+		id:    id,
 		value: value,
 	}
 }

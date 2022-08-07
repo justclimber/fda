@@ -31,15 +31,14 @@ func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
 	varName := "a"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ast := ast.NewIfStatement(
+			ifStmtAst := ast.NewIfStatement(
 				tt.conditionExpr,
-				ast.NewStatementsBlock([]ast.Stmt{
-					ast.NewVoidedExpression(
-						ast.NewAssignment(
-							ast.NewIdentifierList([]string{varName}),
-							ast.NewNumInt(expectedInt),
-						),
-					),
+				ast.NewStatementsBlock(0, []ast.Stmt{
+					ast.NewVoidedExpression(0, ast.NewAssignment(
+						0,
+						[]*ast.Identifier{ast.NewIdentifier(0, varName)},
+						ast.NewNumInt(0, expectedInt),
+					)),
 				}),
 				nil,
 			)
@@ -47,7 +46,7 @@ func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
 			packagist := executor.NewPackagist(nil)
 			execQueue := executor.NewExecFnList()
 			ex := executor.NewExecutor(packagist, execQueue)
-			err := ast.Exec(env, ex)
+			err := ifStmtAst.Exec(env, ex)
 			require.NoError(t, err, "check error from exec")
 
 			testNextAll(t, execQueue)

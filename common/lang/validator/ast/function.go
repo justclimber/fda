@@ -5,8 +5,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewFunction(definition *object.FunctionDefinition, body *StatementsBlock) *Function {
+func NewFunction(id int64, definition *object.FunctionDefinition, body *StatementsBlock) *Function {
 	return &Function{
+		id:         id,
 		definition: definition,
 		body:       body,
 	}

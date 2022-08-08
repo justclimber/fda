@@ -29,6 +29,7 @@ func TestFunction(t *testing.T) {
 		},
 	)
 	function := ast.NewFunction(
+		0,
 		definition,
 		ast.NewStatementsBlock(0, []ast.Stmt{
 			ast.NewVoidedExpression(0, ast.NewAssignment(

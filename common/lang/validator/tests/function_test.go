@@ -51,8 +51,8 @@ func TestFunction(t *testing.T) {
 		inputVarName2: ast.NewNumInt(0, testInt3),
 	}))
 
-	env := environment.NewEnvironment()
-	_, resAst, err := functionCall.Check(env, struct{}{})
+	envForValidation := environment.NewEnvironment()
+	_, resAst, err := functionCall.Check(envForValidation, struct{}{})
 	require.NoError(t, err, "check error after ast validation")
 
 	functionCalForExec, ok := resAst.(*execAst.FunctionCall)
@@ -65,7 +65,8 @@ func TestFunction(t *testing.T) {
 	execQueue := executor.NewExecFnList()
 	ex := executor.NewExecutor(packagist, execQueue)
 
-	res, err := ex.Exec(env, functionCalForExec)
+	envForExec := environment.NewEnvironment()
+	res, err := ex.Exec(envForExec, functionCalForExec)
 	require.NoError(t, err)
 	require.NotEmpty(t, res.ObjectList)
 

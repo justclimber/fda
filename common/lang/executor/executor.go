@@ -19,7 +19,7 @@ func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
 	}
 }
 
-func (e *Executor) Exec(env *environment.Environment, function *execAst.FunctionCall) (*object.Result, error) {
+func (e *Executor) ExecAll(env *environment.Environment, function *execAst.FunctionCall) (*object.Result, error) {
 	result := object.NewResult()
 	err := function.Exec(env, result, e)
 	if err != nil {
@@ -40,11 +40,7 @@ func (e *Executor) Exec(env *environment.Environment, function *execAst.Function
 }
 
 func (e *Executor) ExecNext() (bool, error) {
-	hasNext, err := e.execQueue.ExecNext()
-	if err != nil {
-		return false, err
-	}
-	return hasNext, nil
+	return e.execQueue.ExecNext()
 }
 
 func (e *Executor) AddNextExec(node ast.Node, fn func() error) {

@@ -33,11 +33,13 @@ func TestFunction(t *testing.T) {
 		definition,
 		ast.NewStatementsBlock(0, []ast.Stmt{
 			ast.NewVoidedExpression(0, ast.NewAssignment(
+				0,
 				// a =
 				[]*ast.Identifier{ast.NewIdentifier(0, varName1)},
 				ast.NewNumInt(0, testInt1),
 			)),
 			ast.NewVoidedExpression(0, ast.NewAssignment(
+				0,
 				[]*ast.Identifier{ast.NewIdentifier(0, varName2), ast.NewIdentifier(0, "c")},
 				ast.NewExpressionList(0, []ast.Expr{
 					ast.NewNumInt(0, testInt2),
@@ -66,7 +68,7 @@ func TestFunction(t *testing.T) {
 	ex := executor.NewExecutor(packagist, execQueue)
 
 	envForExec := environment.NewEnvironment()
-	res, err := ex.Exec(envForExec, functionCalForExec)
+	res, err := ex.ExecAll(envForExec, functionCalForExec)
 	require.NoError(t, err)
 	require.NotEmpty(t, res.ObjectList)
 

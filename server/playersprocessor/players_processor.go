@@ -59,6 +59,6 @@ func (p *PlayersProcessor) processPlayers() {
 	}
 }
 
-func (p *PlayersProcessor) processPlayer(_ *player.Player) (command.Command, error) {
-	return command.Command{Move: 0.5}, nil
+func (p *PlayersProcessor) processPlayer(pl *player.Player) (command.Command, error) {
+	return pl.Computer.Run()
 }

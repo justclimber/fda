@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/justclimber/fda/common/computer"
 	"github.com/justclimber/fda/common/configloader"
 	"github.com/justclimber/fda/common/debugger"
 	"github.com/justclimber/fda/common/debugger/templates"
@@ -13,6 +14,10 @@ import (
 	"github.com/justclimber/fda/common/ecs/entity"
 	"github.com/justclimber/fda/common/ecs/entityrepo"
 	"github.com/justclimber/fda/common/fgeom"
+	"github.com/justclimber/fda/common/lang/executor"
+	"github.com/justclimber/fda/common/lang/executor/ast"
+	"github.com/justclimber/fda/common/lang/executor/environment"
+	"github.com/justclimber/fda/common/lang/executor/object"
 	"github.com/justclimber/fda/common/tick"
 	"github.com/justclimber/fda/server/internalapi"
 	"github.com/justclimber/fda/server/player"
@@ -49,7 +54,12 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 
 	ppWpLink := internalapi.NewPpWpLink()
 
-	pl, plComp := player.NewPlayerWithComponent(delay)
+	execFnList := executor.NewExecFnList()
+	exec := executor.NewExecutor(nil, execFnList)
+	env := environment.NewEnvironment()
+	comp := computer.NewComputer(exec, env)
+	comp.SetCode(getCode())
+	pl, plComp := player.NewPlayerWithComponent(delay, comp)
 	e := wprepo.EntityMask7{
 		Id:       entityId,
 		Position: wpcomponent.NewPosition(startPos),
@@ -129,4 +139,29 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 		},
 	}
 	require.Equal(t, expectedLogs, l.Logs(), "check result logs")
+}
+
+func getCode() *ast.FunctionCall {
+	cmdVarName := "move"
+	definition := object.NewFunctionDefinition(
+		"main",
+		nil,
+		[]*object.VarAndType{
+			object.NewVarAndType(cmdVarName, object.TypeFloat),
+		},
+	)
+	function := ast.NewFunction(
+		0,
+		definition,
+		ast.NewStatementsBlock(0, []ast.Stmt{
+			ast.NewVoidedExpression(0, ast.NewAssignment(
+				0,
+				[]*ast.Identifier{ast.NewIdentifier(0, cmdVarName)},
+				ast.NewNumFloat(0.5),
+			)),
+		}),
+	)
+	functionCall := ast.NewFunctionCall(0, function, nil)
+
+	return functionCall
 }

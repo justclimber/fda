@@ -18,6 +18,7 @@ func TestFunctionReturnStruct(t *testing.T) {
 	testInt1, testInt2, testInt3 := int64(3), int64(10), int64(2)
 	definition := object.NewFunctionDefinition(
 		functionName,
+		"test",
 		[]*object.VarAndType{
 			object.NewVarAndType(inputVarName1, object.TypeInt),
 			object.NewVarAndType(inputVarName2, object.TypeInt),

@@ -67,7 +67,7 @@ func getTestStructAstAndDefinition(t *testing.T, testStruct testStruct) (*ast.St
 	for _, field := range testStruct.fields {
 		structDefinitionFields[field.name] = object.NewVarAndType(field.name, field.fieldType)
 	}
-	structDefinition := object.NewStructDefinition(testStruct.name, structDefinitionFields)
+	structDefinition := object.NewStructDefinition(testStruct.name, "test", structDefinitionFields)
 
 	astStruct := ast.NewStruct(0, structDefinition, ast.NewNamedExpressionList(0, f))
 

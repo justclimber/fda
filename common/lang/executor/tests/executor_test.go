@@ -13,7 +13,7 @@ import (
 
 func TestExecutor(t *testing.T) {
 	functionName := "main"
-	definition := object.NewFunctionDefinition(functionName, nil, nil)
+	definition := object.NewFunctionDefinition(functionName, "test", nil, nil)
 	function := ast.NewFunction(
 		0,
 		definition,

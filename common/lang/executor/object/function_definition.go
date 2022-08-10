@@ -6,13 +6,10 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 )
 
-func NewFunctionDefinition(
-	name string,
-	args []*VarAndType,
-	returns []*VarAndType,
-) *FunctionDefinition {
+func NewFunctionDefinition(name string, packageName string, args []*VarAndType, returns []*VarAndType) *FunctionDefinition {
 	return &FunctionDefinition{
 		Name:    name,
+		Package: packageName,
 		Args:    args,
 		Returns: returns,
 	}

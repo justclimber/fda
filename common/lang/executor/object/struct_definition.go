@@ -6,10 +6,11 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 )
 
-func NewStructDefinition(name string, fields map[string]*VarAndType) *StructDefinition {
+func NewStructDefinition(name string, packageName string, fields map[string]*VarAndType) *StructDefinition {
 	return &StructDefinition{
-		Name:   name,
-		Fields: fields,
+		Package: packageName,
+		Name:    name,
+		Fields:  fields,
 	}
 }
 

@@ -145,6 +145,7 @@ func getCode() *ast.FunctionCall {
 	cmdVarName := "move"
 	definition := object.NewFunctionDefinition(
 		"main",
+		"test",
 		nil,
 		[]*object.VarAndType{
 			object.NewVarAndType(cmdVarName, object.TypeFloat),

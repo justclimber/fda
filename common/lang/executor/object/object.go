@@ -8,12 +8,14 @@ import (
 
 type ObjectType string
 
+func (o ObjectType) String() string {
+	return string(o)
+}
+
 const (
-	TypeInt       ObjectType = "int"
-	TypeFloat     ObjectType = "float"
-	TypeBool      ObjectType = "bool"
-	TypeFunction  ObjectType = "function_obj"
-	TypeBuiltinFn ObjectType = "builtin_fn_obj"
+	TypeInt   ObjectType = "std#int"
+	TypeFloat ObjectType = "std#float"
+	TypeBool  ObjectType = "std#bool"
 )
 
 type Object interface {
@@ -52,7 +54,7 @@ func (b *ObjBoolean) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
 
 type ObjArray struct {
 	Emptier
-	ElementsType string
+	ElementsType ObjectType
 	Elements     []Object
 }
 
@@ -70,21 +72,21 @@ func (a *ObjArray) Inspect() string {
 }
 
 type ObjFunction struct {
-	Name string
+	Definition *FunctionDefinition
 }
 
-func (f *ObjFunction) Type() ObjectType { return TypeFunction }
+func (f *ObjFunction) Type() ObjectType { return f.Definition.Type() }
 func (f *ObjFunction) Inspect() string {
-	return fmt.Sprintf("fn %s", f.Name)
+	return fmt.Sprintf("fn %s", f.Definition.Type())
 }
 
 type ObjStruct struct {
 	Emptier
-	Name   string
-	Fields map[string]Object
+	Definition *StructDefinition
+	Fields     map[string]Object
 }
 
-func (s *ObjStruct) Type() ObjectType { return ObjectType(s.Name) }
+func (s *ObjStruct) Type() ObjectType { return s.Definition.Type() }
 func (s *ObjStruct) Inspect() string {
 	var out bytes.Buffer
 
@@ -93,7 +95,7 @@ func (s *ObjStruct) Inspect() string {
 		elements = append(elements, fmt.Sprintf("%s: %s", k, v.Inspect()))
 	}
 
-	out.WriteString(s.Name)
+	out.WriteString(s.Definition.Type().String())
 	out.WriteString("{")
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("}")

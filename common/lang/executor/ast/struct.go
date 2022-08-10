@@ -40,8 +40,8 @@ func (s *Struct) Exec(env *environment.Environment, result *object.Result, execM
 
 	execMngr.AddNextExec(s, func() error {
 		result.Add(&object.ObjStruct{
-			Name:   s.definition.Name,
-			Fields: fields,
+			Definition: s.definition,
+			Fields:     fields,
 		})
 		return nil
 	})

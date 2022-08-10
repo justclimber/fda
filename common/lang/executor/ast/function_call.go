@@ -55,7 +55,7 @@ func (fc *FunctionCall) Exec(env *environment.Environment, result *object.Result
 }
 
 // todo move to object helpers?
-func getEmptyObjectByType(varType object.ObjectType) object.Object {
+func getEmptyObjectByType(varType object.Type) object.Object {
 	switch varType {
 	case object.TypeInt:
 		return &object.ObjInteger{

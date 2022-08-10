@@ -24,6 +24,6 @@ type StructDefinition struct {
 func (sd *StructDefinition) ID() int64            { return sd.id }
 func (sd *StructDefinition) NodeKey() ast.NodeKey { return ast.KeyStructDefinition }
 
-func (sd *StructDefinition) Type() ObjectType {
-	return ObjectType(fmt.Sprintf("%s#%s", sd.Package, sd.Name))
+func (sd *StructDefinition) Type() Type {
+	return Type(fmt.Sprintf("%s#%s", sd.Package, sd.Name))
 }

@@ -41,7 +41,7 @@ func (fc *FunctionCall) Check(env *environment.Environment, validMngr validation
 		validationErrorSet := errors.NewValidationErrorSet()
 		for _, arg := range fc.function.definition.Args {
 			inputArg := namedResult.Get(arg.VarName)
-			if inputArg.Type() != arg.VarType {
+			if inputArg.GetType() != arg.VarType {
 				validationErrorSet.Add(errors.NewValidationError(arg, errors.ErrorTypeMismatch))
 			}
 			functionEnv.Set(arg.VarName, inputArg)
@@ -68,7 +68,7 @@ func (fc *FunctionCall) Check(env *environment.Environment, validMngr validation
 }
 
 // todo move to object helpers?
-func getEmptyObjectByType(varType object.ObjectType) object.Object {
+func getEmptyObjectByType(varType object.Type) object.Object {
 	switch varType {
 	case object.TypeInt:
 		return &object.ObjInteger{

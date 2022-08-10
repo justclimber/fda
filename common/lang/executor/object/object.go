@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-type ObjectType string
+type Type string
 
-func (o ObjectType) String() string {
-	return string(o)
+func (t Type) String() string {
+	return string(t)
 }
 
 const (
-	TypeInt   ObjectType = "std#int"
-	TypeFloat ObjectType = "std#float"
-	TypeBool  ObjectType = "std#bool"
+	TypeInt   Type = "std#int"
+	TypeFloat Type = "std#float"
+	TypeBool  Type = "std#bool"
 )
 
 type Object interface {
-	Type() ObjectType
+	GetType() Type
 	Inspect() string
 }
 
@@ -34,33 +34,32 @@ type ObjInteger struct {
 	Value int64
 }
 
-func (i *ObjInteger) Type() ObjectType { return TypeInt }
-func (i *ObjInteger) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
+func (i *ObjInteger) GetType() Type   { return TypeInt }
+func (i *ObjInteger) Inspect() string { return fmt.Sprintf("%d", i.Value) }
 
 type ObjFloat struct {
 	Emptier
 	Value float64
 }
 
-func (f *ObjFloat) Type() ObjectType { return TypeFloat }
-func (f *ObjFloat) Inspect() string  { return fmt.Sprintf("%.2f", f.Value) }
+func (f *ObjFloat) GetType() Type   { return TypeFloat }
+func (f *ObjFloat) Inspect() string { return fmt.Sprintf("%.2f", f.Value) }
 
 type ObjBoolean struct {
 	Value bool
 }
 
-func (b *ObjBoolean) Type() ObjectType { return TypeBool }
-func (b *ObjBoolean) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
+func (b *ObjBoolean) GetType() Type   { return TypeBool }
+func (b *ObjBoolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
 
 type ObjArray struct {
 	Emptier
-	ElementsType ObjectType
+	ElementsType Type
 	Elements     []Object
 }
 
-func (a *ObjArray) Type() ObjectType {
-	varType := fmt.Sprintf("[]%s", a.ElementsType)
-	return ObjectType(varType)
+func (a *ObjArray) GetType() Type {
+	return Type(fmt.Sprintf("[]%s", a.ElementsType))
 }
 func (a *ObjArray) Inspect() string {
 	var elements []string
@@ -75,7 +74,7 @@ type ObjFunction struct {
 	Definition *FunctionDefinition
 }
 
-func (f *ObjFunction) Type() ObjectType { return f.Definition.Type() }
+func (f *ObjFunction) GetType() Type { return f.Definition.Type() }
 func (f *ObjFunction) Inspect() string {
 	return fmt.Sprintf("fn %s", f.Definition.Type())
 }
@@ -86,7 +85,7 @@ type ObjStruct struct {
 	Fields     map[string]Object
 }
 
-func (s *ObjStruct) Type() ObjectType { return s.Definition.Type() }
+func (s *ObjStruct) GetType() Type { return s.Definition.Type() }
 func (s *ObjStruct) Inspect() string {
 	var out bytes.Buffer
 

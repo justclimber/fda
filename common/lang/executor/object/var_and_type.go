@@ -4,7 +4,7 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 )
 
-func NewVarAndType(varName string, varType ObjectType) *VarAndType {
+func NewVarAndType(varName string, varType Type) *VarAndType {
 	return &VarAndType{
 		VarName: varName,
 		VarType: varType,
@@ -14,7 +14,7 @@ func NewVarAndType(varName string, varType ObjectType) *VarAndType {
 type VarAndType struct {
 	id      int64
 	VarName string
-	VarType ObjectType
+	VarType Type
 }
 
 func (vt *VarAndType) ID() int64            { return vt.id }

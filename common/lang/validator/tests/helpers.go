@@ -51,7 +51,7 @@ type testStruct struct {
 
 type testStructField struct {
 	name      string
-	fieldType object.ObjectType
+	fieldType object.Type
 	value     ast.Expr
 }
 

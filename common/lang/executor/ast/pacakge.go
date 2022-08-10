@@ -7,25 +7,25 @@ import (
 
 func NewPackage() *Package {
 	return &Package{
-		structDefinitions:   make(map[string]*StructDefinition),
+		structDefinitions:   make(map[string]*object.StructDefinition),
 		functionDefinitions: make(map[string]*object.FunctionDefinition),
 	}
 }
 
 type Package struct {
 	id                  int64
-	structDefinitions   map[string]*StructDefinition
+	structDefinitions   map[string]*object.StructDefinition
 	functionDefinitions map[string]*object.FunctionDefinition
 }
 
 func (p *Package) ID() int64            { return p.id }
 func (p *Package) NodeKey() ast.NodeKey { return ast.KeyPackage }
 
-func (p *Package) RegisterStructDefinition(s *StructDefinition) {
+func (p *Package) RegisterStructDefinition(s *object.StructDefinition) {
 	p.structDefinitions[s.Name] = s
 }
 
-func (p *Package) StructDefinition(name string) (*StructDefinition, bool) {
+func (p *Package) StructDefinition(name string) (*object.StructDefinition, bool) {
 	s, ok := p.structDefinitions[name]
 	return s, ok
 }

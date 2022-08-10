@@ -55,20 +55,21 @@ type testStructField struct {
 	value     ast.Expr
 }
 
-func getTestStructAstAndDefinition(t *testing.T, testStruct testStruct) (*ast.Struct, *ast.StructDefinition) {
+func getTestStructAstAndDefinition(t *testing.T, testStruct testStruct) (*ast.Struct, *object.StructDefinition) {
 	t.Helper()
 
 	f := map[string]ast.Expr{}
 	for _, field := range testStruct.fields {
 		f[field.name] = field.value
 	}
-	astStruct := ast.NewStruct(testStruct.name, ast.NewNamedExpressionList(0, f))
 
 	structDefinitionFields := map[string]*object.VarAndType{}
 	for _, field := range testStruct.fields {
 		structDefinitionFields[field.name] = object.NewVarAndType(field.name, field.fieldType)
 	}
-	structDefinition := ast.NewStructDefinition(testStruct.name, structDefinitionFields)
+	structDefinition := object.NewStructDefinition(testStruct.name, structDefinitionFields)
+
+	astStruct := ast.NewStruct(0, structDefinition, ast.NewNamedExpressionList(0, f))
 
 	return astStruct, structDefinition
 }

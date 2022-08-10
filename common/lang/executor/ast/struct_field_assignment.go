@@ -6,8 +6,9 @@ import (
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
-func NewStructFieldAssignment(left []*StructFieldIdentifier, value Expr) *StructFieldAssignment {
+func NewStructFieldAssignment(id int64, left []*StructFieldIdentifier, value Expr) *StructFieldAssignment {
 	return &StructFieldAssignment{
+		id:    id,
 		left:  left,
 		value: value,
 	}

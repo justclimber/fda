@@ -40,8 +40,10 @@ func TestStructFieldAssignment(t *testing.T) {
 			astStruct,
 		)),
 		ast.NewVoidedExpression(0, ast.NewStructFieldAssignment(
+			0,
 			[]*ast.StructFieldIdentifier{
 				ast.NewStructFieldIdentifier(
+					0,
 					fieldName1,
 					ast.NewIdentifier(0, structVarName),
 				),

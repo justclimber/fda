@@ -4,8 +4,9 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 )
 
-func NewStructFieldIdentifier(fieldName string, structIdentifier *Identifier) *StructFieldIdentifier {
+func NewStructFieldIdentifier(id int64, fieldName string, structIdentifier *Identifier) *StructFieldIdentifier {
 	return &StructFieldIdentifier{
+		id:               id,
 		fieldName:        fieldName,
 		structIdentifier: structIdentifier,
 	}

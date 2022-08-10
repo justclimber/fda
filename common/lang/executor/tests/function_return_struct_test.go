@@ -13,19 +13,27 @@ import (
 
 func TestFunctionReturnStruct(t *testing.T) {
 	functionName := "testFunc"
-	varName1, varName2 := "a", "b"
-	inputVarName1, inputVarName2 := "inA", "inB"
-	testInt1, testInt2, testInt3 := int64(3), int64(10), int64(2)
+	structName := "testStruct"
+	varName1 := "a"
+	testInt1 := int64(3)
+	fieldName := "x"
+
+	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
+		name: structName,
+		fields: []testStructField{
+			{
+				name:      fieldName,
+				fieldType: object.TypeInt,
+				value:     ast.NewNumInt(0, testInt1),
+			},
+		},
+	})
 	definition := object.NewFunctionDefinition(
 		functionName,
 		"test",
+		nil,
 		[]*object.VarAndType{
-			object.NewVarAndType(inputVarName1, object.TypeInt),
-			object.NewVarAndType(inputVarName2, object.TypeInt),
-		},
-		[]*object.VarAndType{
-			object.NewVarAndType(varName1, object.TypeInt),
-			object.NewVarAndType(varName2, object.TypeInt),
+			object.NewVarAndType(varName1, structDefinition.Type()),
 		},
 	)
 	function := ast.NewFunction(
@@ -34,26 +42,11 @@ func TestFunctionReturnStruct(t *testing.T) {
 		ast.NewStatementsBlock(0, []ast.Stmt{
 			ast.NewVoidedExpression(
 				0,
-				ast.NewAssignment(0, []*ast.Identifier{ast.NewIdentifier(0, varName1)}, ast.NewArithmeticOperation(
-					ast.NewIdentifier(0, inputVarName1),
-					ast.NewNumInt(0, testInt1),
-					object.OperatorAddition,
-				)),
+				ast.NewAssignment(0, []*ast.Identifier{ast.NewIdentifier(0, varName1)}, astStruct),
 			),
-			ast.NewVoidedExpression(0, ast.NewAssignment(
-				0,
-				[]*ast.Identifier{ast.NewIdentifier(0, varName2), ast.NewIdentifier(0, "c")},
-				ast.NewExpressionList(0, []ast.Expr{
-					ast.NewNumInt(0, testInt2),
-					ast.NewNumInt(0, 20),
-				}),
-			)),
 		}),
 	)
-	functionCall := ast.NewFunctionCall(0, function, ast.NewNamedExpressionList(0, map[string]ast.Expr{
-		inputVarName1: ast.NewNumInt(0, testInt3), // inA = 2
-		inputVarName2: ast.NewNumInt(0, testInt3),
-	}))
+	functionCall := ast.NewFunctionCall(0, function, nil)
 
 	packageAst := ast.NewPackage()
 	packageAst.RegisterFunctionDefinition(definition)
@@ -66,6 +59,9 @@ func TestFunctionReturnStruct(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, res.ObjectList)
 
-	testObjectAsNumInt(t, res.ObjectList[0], testInt1+testInt3)
-	testObjectAsNumInt(t, res.ObjectList[1], testInt2)
+	objStruct, ok := res.ObjectList[0].(*object.ObjStruct)
+	require.True(t, ok, "check object is *object.ObjStruct")
+	require.NotEmpty(t, objStruct.Fields, "check emptiness of struct fields")
+
+	testObjectAsNumInt(t, objStruct.Fields[fieldName], testInt1)
 }

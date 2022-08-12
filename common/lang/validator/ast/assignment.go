@@ -30,7 +30,7 @@ func (a *Assignment) Check(env ValidatorEnv, validMngr validationManager) (*resu
 	}
 	identAst := make([]*execAst.Identifier, len(a.left))
 	for i := range a.left {
-		varName := a.left[i].value
+		varName := a.left[i].name
 		env.Set(varName, value.GetByIndex(i))
 		identAst[i] = execAst.NewIdentifier(a.left[i].id, varName)
 	}

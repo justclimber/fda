@@ -30,7 +30,7 @@ func (a *Assignment) Exec(env *environment.Environment, result *object.Result, e
 	for i := range a.left {
 		ii := i
 		execMngr.AddNextExec(a.left[ii], func() error {
-			varName := a.left[ii].value
+			varName := a.left[ii].name
 			env.Set(varName, result.ObjectList[ii])
 			return nil
 		})

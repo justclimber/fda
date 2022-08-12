@@ -61,12 +61,8 @@ func TestFunction(t *testing.T) {
 	functionCalForExec, ok := resAst.(*execAst.FunctionCall)
 	require.True(t, ok, "check type is *FunctionCall")
 
-	packageAst := execAst.NewPackage()
-	//packageAst.RegisterFunctionDefinition(definition)
-	packagist := executor.NewPackagist(packageAst)
-
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 
 	envForExec := environment.NewEnvironment()
 	res, err := ex.ExecAll(envForExec, functionCalForExec)

@@ -8,13 +8,11 @@ import (
 )
 
 type Executor struct {
-	packagist *Packagist
 	execQueue *ExecFnList
 }
 
-func NewExecutor(packagist *Packagist, execQueue *ExecFnList) *Executor {
+func NewExecutor(execQueue *ExecFnList) *Executor {
 	return &Executor{
-		packagist: packagist,
 		execQueue: execQueue,
 	}
 }
@@ -45,10 +43,6 @@ func (e *Executor) ExecNext() (bool, error) {
 
 func (e *Executor) AddNextExec(node ast.Node, fn func() error) {
 	e.execQueue.AddNext(node, fn)
-}
-
-func (e *Executor) MainPackage() *execAst.Package {
-	return e.packagist.Main()
 }
 
 func NewExecFnList() *ExecFnList {

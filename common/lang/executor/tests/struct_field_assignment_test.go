@@ -16,7 +16,7 @@ func TestStructFieldAssignment(t *testing.T) {
 	structName := "abc"
 	int1, int2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
-	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
+	astStruct := getTestStructAst(t, testStruct{
 		name: structName,
 		fields: []testStructField{
 			{
@@ -51,11 +51,8 @@ func TestStructFieldAssignment(t *testing.T) {
 			ast.NewNumInt(0, testInt),
 		)),
 	})
-	packageAst := ast.NewPackage()
-	packageAst.RegisterStructDefinition(structDefinition)
-	packagist := executor.NewPackagist(packageAst)
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 	env := environment.NewEnvironment()
 	err := astCode.Exec(env, ex)
 	require.NoError(t, err, "check error from exec")

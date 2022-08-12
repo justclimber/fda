@@ -18,7 +18,7 @@ func TestFunctionReturnStruct(t *testing.T) {
 	testInt1 := int64(3)
 	fieldName := "x"
 
-	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
+	astStruct, structDefinition := getTestStructAst(t, testStruct{
 		name: structName,
 		fields: []testStructField{
 			{
@@ -48,12 +48,9 @@ func TestFunctionReturnStruct(t *testing.T) {
 	)
 	functionCall := ast.NewFunctionCall(0, function, nil)
 
-	packageAst := ast.NewPackage()
-	packageAst.RegisterFunctionDefinition(definition)
-	packagist := executor.NewPackagist(packageAst)
 	env := environment.NewEnvironment()
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 
 	res, err := ex.ExecAll(env, functionCall)
 	require.NoError(t, err)

@@ -55,12 +55,9 @@ func TestFunction(t *testing.T) {
 		inputVarName2: ast.NewNumInt(0, testInt3),
 	}))
 
-	packageAst := ast.NewPackage()
-	packageAst.RegisterFunctionDefinition(definition)
-	packagist := executor.NewPackagist(packageAst)
 	env := environment.NewEnvironment()
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 
 	res, err := ex.ExecAll(env, functionCall)
 	require.NoError(t, err)

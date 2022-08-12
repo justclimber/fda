@@ -1,4 +1,4 @@
-package ast
+package validator
 
 import (
 	"github.com/justclimber/fda/common/lang/ast"

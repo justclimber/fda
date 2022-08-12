@@ -37,12 +37,9 @@ func TestExecutor(t *testing.T) {
 			),
 		}),
 	)
-	packageAst := ast.NewPackage()
-	packageAst.RegisterFunctionDefinition(definition)
-	packagist := executor.NewPackagist(packageAst)
 	env := environment.NewEnvironment()
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 
 	functionCall := ast.NewFunctionCall(0, function, nil)
 	_, err := ex.ExecAll(env, functionCall)

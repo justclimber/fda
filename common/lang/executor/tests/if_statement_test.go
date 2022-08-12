@@ -43,9 +43,8 @@ func TestIfStatement_Exec_WithoutFalseBranch(t *testing.T) {
 				nil,
 			)
 			env := environment.NewEnvironment()
-			packagist := executor.NewPackagist(nil)
 			execQueue := executor.NewExecFnList()
-			ex := executor.NewExecutor(packagist, execQueue)
+			ex := executor.NewExecutor(execQueue)
 			err := ifStmtAst.Exec(env, ex)
 			require.NoError(t, err, "check error from exec")
 

@@ -184,8 +184,7 @@ func TestComparisonOperation(t *testing.T) {
 
 			actualRes := object.NewResult()
 			execQueue := executor.NewExecFnList()
-			packagist := executor.NewPackagist(nil)
-			ex := executor.NewExecutor(packagist, execQueue)
+			ex := executor.NewExecutor(execQueue)
 			err := comparisonOperation.Exec(env, actualRes, ex)
 			require.NoError(t, err, "check error from exec")
 

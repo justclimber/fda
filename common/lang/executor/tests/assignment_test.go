@@ -22,9 +22,8 @@ func TestAssignment_Exec(t *testing.T) {
 
 	env := environment.NewEnvironment()
 	res := object.NewResult()
-	packagist := executor.NewPackagist(nil)
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 	err := assignment.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 
@@ -50,9 +49,8 @@ func TestAssignment_Exec_Multiple(t *testing.T) {
 
 	env := environment.NewEnvironment()
 	res := object.NewResult()
-	packagist := executor.NewPackagist(nil)
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 	err := assignment.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 

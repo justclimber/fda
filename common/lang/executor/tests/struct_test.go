@@ -15,7 +15,7 @@ func TestStruct_Exec(t *testing.T) {
 	expectedInt1, expectedInt2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
 	testStructName := "abc"
-	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
+	astStruct := getTestStructAst(t, testStruct{
 		name: testStructName,
 		fields: []testStructField{
 			{
@@ -31,12 +31,9 @@ func TestStruct_Exec(t *testing.T) {
 		},
 	})
 
-	packageAst := ast.NewPackage()
-	packageAst.RegisterStructDefinition(structDefinition)
-	packagist := executor.NewPackagist(packageAst)
 	execQueue := executor.NewExecFnList()
 	res := object.NewResult()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 	env := environment.NewEnvironment()
 	err := astStruct.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")

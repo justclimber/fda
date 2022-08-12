@@ -17,9 +17,8 @@ func TestNumInt_Exec(t *testing.T) {
 
 	env := environment.NewEnvironment()
 	res := object.NewResult()
-	packagist := executor.NewPackagist(nil)
 	execQueue := executor.NewExecFnList()
-	ex := executor.NewExecutor(packagist, execQueue)
+	ex := executor.NewExecutor(execQueue)
 	err := numInt.Exec(env, res, ex)
 	require.NoError(t, err, "check error from exec")
 

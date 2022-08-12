@@ -8,7 +8,6 @@ import (
 
 type execManager interface {
 	AddNextExec(node ast.Node, fn func() error)
-	MainPackage() *Package
 }
 
 type Stmt interface {

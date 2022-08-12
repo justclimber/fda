@@ -18,12 +18,11 @@ func (e *Environment) Set(name string, objType object.Type) {
 	e.store[name] = objType
 }
 
-func (e *Environment) Check(name string, objType object.Type) bool {
-	t, exists := e.Get(name)
-	if !exists {
-		return false
-	}
-	return t == objType
+func (e *Environment) Check(name string, objType object.Type) (exists bool, matched bool) {
+	var t object.Type
+	t, exists = e.Get(name)
+	matched = t == objType
+	return
 }
 
 func (e *Environment) Get(name string) (object.Type, bool) {

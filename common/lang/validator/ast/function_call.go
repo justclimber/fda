@@ -4,7 +4,6 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/errors"
 	execAst "github.com/justclimber/fda/common/lang/executor/ast"
-	"github.com/justclimber/fda/common/lang/executor/object"
 	"github.com/justclimber/fda/common/lang/validator/result"
 )
 
@@ -32,7 +31,10 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 	var namedResult *result.NamedResult
 
 	if fc.function.definition.Args != nil || fc.args != nil {
-		// todo check count actual args and count args in definition
+		err = fc.checkArgsCountMatch()
+		if err != nil {
+			return nil, nil, err
+		}
 		namedResult, namedExpressionListAst, err = fc.args.Check(env, validMngr)
 		if err != nil {
 			return nil, nil, err
@@ -55,26 +57,34 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 	}
 
 	res := result.NewResult()
+	validationErrorSet := errors.NewValidationErrorSet()
 	for _, returnVar := range fc.function.definition.Returns {
-		// todo return vars check
-		returnVarObj, ok := functionEnv.Get(returnVar.VarName)
-		if !ok {
-			returnVarObj = returnVar.VarType
+		exists, matched := functionEnv.Check(returnVar.VarName, returnVar.VarType)
+		if !exists {
+			res.Add(returnVar.VarType)
+		} else if !matched {
+			validationErrorSet.Add(errors.NewValidationError(fc, errors.ErrorTypeMismatch))
 		}
-		res.Add(returnVarObj)
 	}
+	if !validationErrorSet.Empty() {
+		return nil, nil, validationErrorSet
+	}
+
 	functionAst := execAst.NewFunction(fc.function.id, fc.function.definition, bodyAst)
 	return res, execAst.NewFunctionCall(fc.id, functionAst, namedExpressionListAst), nil
 }
 
-// todo move to object helpers?
-func getEmptyObjectByType(varType object.Type) object.Object {
-	switch varType {
-	case object.TypeInt:
-		return &object.ObjInteger{
-			Emptier: object.Emptier{Empty: true},
-			Value:   0,
-		}
+func (fc *FunctionCall) checkArgsCountMatch() error {
+	definitionArgCount, inputArgCount := 0, 0
+	if fc.function.definition.Args != nil {
+		definitionArgCount = len(fc.function.definition.Args)
+	}
+	if fc.args != nil {
+		inputArgCount = len(fc.args.exprs)
+	}
+
+	if definitionArgCount != inputArgCount {
+		return errors.NewRuntimeError(fc, errors.ErrorTypeArgumentsCountMismatch)
 	}
 	return nil
 }

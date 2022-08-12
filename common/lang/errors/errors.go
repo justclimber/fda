@@ -13,6 +13,7 @@ const (
 	ErrorTypeUnknown ErrorType = iota + 1
 	ErrorTypeIdentifierNotFound
 	ErrorTypeMismatch
+	ErrorTypeArgumentsCountMismatch
 )
 
 func (et ErrorType) String() string {
@@ -20,8 +21,9 @@ func (et ErrorType) String() string {
 }
 
 var errorMessages = [...]string{
-	ErrorTypeUnknown:            "unknown error occurred",
-	ErrorTypeIdentifierNotFound: "identifier not found",
+	ErrorTypeUnknown:                "unknown error occurred",
+	ErrorTypeIdentifierNotFound:     "identifier not found",
+	ErrorTypeArgumentsCountMismatch: "arguments count is mismatched",
 }
 
 type ValidationError struct {

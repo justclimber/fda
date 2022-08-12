@@ -9,6 +9,7 @@ import (
 	execAst "github.com/justclimber/fda/common/lang/executor/ast"
 	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
+	"github.com/justclimber/fda/common/lang/validator"
 	"github.com/justclimber/fda/common/lang/validator/ast"
 )
 
@@ -54,7 +55,7 @@ func TestFunction(t *testing.T) {
 		inputVarName2: ast.NewNumInt(0, testInt3),
 	}))
 
-	envForValidation := environment.NewEnvironment()
+	envForValidation := validator.NewEnvironment()
 	_, resAst, err := functionCall.Check(envForValidation, struct{}{})
 	require.NoError(t, err, "check error after ast validation")
 

@@ -3,7 +3,6 @@ package ast
 import (
 	"github.com/justclimber/fda/common/lang/ast"
 	execAst "github.com/justclimber/fda/common/lang/executor/ast"
-	"github.com/justclimber/fda/common/lang/executor/environment"
 )
 
 func NewStatementsBlock(id int64, stmts []Stmt) *StatementsBlock {
@@ -21,7 +20,7 @@ type StatementsBlock struct {
 func (sb *StatementsBlock) ID() int64            { return sb.id }
 func (sb *StatementsBlock) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
-func (sb *StatementsBlock) Check(env *environment.Environment, validMngr validationManager) (*execAst.StatementsBlock, error) {
+func (sb *StatementsBlock) Check(env ValidatorEnv, validMngr validationManager) (*execAst.StatementsBlock, error) {
 	statementsAst := make([]execAst.Stmt, 0, len(sb.statements))
 	for _, statement := range sb.statements {
 		stmtAst, err := statement.Check(env, validMngr)

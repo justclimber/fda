@@ -3,8 +3,7 @@ package ast
 import (
 	"github.com/justclimber/fda/common/lang/ast"
 	execAst "github.com/justclimber/fda/common/lang/executor/ast"
-	"github.com/justclimber/fda/common/lang/executor/environment"
-	"github.com/justclimber/fda/common/lang/executor/object"
+	"github.com/justclimber/fda/common/lang/validator/result"
 )
 
 func NewExpressionList(id int64, exprs []Expr) *ExpressionList {
@@ -22,8 +21,8 @@ type ExpressionList struct {
 func (el *ExpressionList) ID() int64            { return el.id }
 func (el *ExpressionList) NodeKey() ast.NodeKey { return ast.KeyExpressionList }
 
-func (el *ExpressionList) Check(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
-	result := object.NewResult()
+func (el *ExpressionList) Check(env ValidatorEnv, validMngr validationManager) (*result.Result, execAst.Expr, error) {
+	res := result.NewResult()
 	exprListAst := make([]execAst.Expr, 0, len(el.exprs))
 	for i := range el.exprs {
 		r, exprAst, err := el.exprs[i].Check(env, validMngr)
@@ -31,8 +30,8 @@ func (el *ExpressionList) Check(env *environment.Environment, validMngr validati
 			return nil, nil, err
 		}
 		exprListAst = append(exprListAst, exprAst)
-		result.Add(r.ObjectList[0])
+		res.Add(r.Get())
 	}
 
-	return result, execAst.NewExpressionList(el.id, exprListAst), nil
+	return res, execAst.NewExpressionList(el.id, exprListAst), nil
 }

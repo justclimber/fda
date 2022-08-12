@@ -4,8 +4,8 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 	"github.com/justclimber/fda/common/lang/errors"
 	execAst "github.com/justclimber/fda/common/lang/executor/ast"
-	"github.com/justclimber/fda/common/lang/executor/environment"
 	"github.com/justclimber/fda/common/lang/executor/object"
+	"github.com/justclimber/fda/common/lang/validator/result"
 )
 
 func NewFunctionCall(id int64, function *Function, args *NamedExpressionList) *FunctionCall {
@@ -25,12 +25,11 @@ type FunctionCall struct {
 func (fc *FunctionCall) ID() int64            { return fc.id }
 func (fc *FunctionCall) NodeKey() ast.NodeKey { return ast.KeyFunctionCall }
 
-func (fc *FunctionCall) Check(env *environment.Environment, validMngr validationManager) (*object.Result, execAst.Expr, error) {
-	result := object.NewResult()
-	functionEnv := environment.NewEnclosedEnvironment(env)
+func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*result.Result, execAst.Expr, error) {
+	functionEnv := env.NewEnclosedEnvironment()
 	var namedExpressionListAst *execAst.NamedExpressionList
 	var err error
-	var namedResult *object.NamedResult
+	var namedResult *result.NamedResult
 
 	if fc.function.definition.Args != nil || fc.args != nil {
 		// todo check count actual args and count args in definition
@@ -41,7 +40,7 @@ func (fc *FunctionCall) Check(env *environment.Environment, validMngr validation
 		validationErrorSet := errors.NewValidationErrorSet()
 		for _, arg := range fc.function.definition.Args {
 			inputArg := namedResult.Get(arg.VarName)
-			if inputArg.GetType() != arg.VarType {
+			if inputArg != arg.VarType {
 				validationErrorSet.Add(errors.NewValidationError(arg, errors.ErrorTypeMismatch))
 			}
 			functionEnv.Set(arg.VarName, inputArg)
@@ -55,16 +54,17 @@ func (fc *FunctionCall) Check(env *environment.Environment, validMngr validation
 		return nil, nil, err
 	}
 
+	res := result.NewResult()
 	for _, returnVar := range fc.function.definition.Returns {
 		// todo return vars check
 		returnVarObj, ok := functionEnv.Get(returnVar.VarName)
 		if !ok {
-			returnVarObj = getEmptyObjectByType(returnVar.VarType)
+			returnVarObj = returnVar.VarType
 		}
-		result.Add(returnVarObj)
+		res.Add(returnVarObj)
 	}
 	functionAst := execAst.NewFunction(fc.function.id, fc.function.definition, bodyAst)
-	return result, execAst.NewFunctionCall(fc.id, functionAst, namedExpressionListAst), nil
+	return res, execAst.NewFunctionCall(fc.id, functionAst, namedExpressionListAst), nil
 }
 
 // todo move to object helpers?

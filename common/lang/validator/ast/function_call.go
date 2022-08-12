@@ -64,6 +64,8 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 			res.Add(returnVar.VarType)
 		} else if !matched {
 			validationErrorSet.Add(errors.NewValidationError(fc, errors.ErrorTypeMismatch))
+		} else {
+			res.Add(returnVar.VarType)
 		}
 	}
 	if !validationErrorSet.Empty() {

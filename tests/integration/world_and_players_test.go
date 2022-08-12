@@ -55,7 +55,7 @@ func TestWorldProcessorRun_WithPlayerProcessor(t *testing.T) {
 	ppWpLink := internalapi.NewPpWpLink()
 
 	execFnList := executor.NewExecFnList()
-	exec := executor.NewExecutor(nil, execFnList)
+	exec := executor.NewExecutor(execFnList)
 	env := environment.NewEnvironment()
 	comp := computer.NewComputer(exec, env)
 	comp.SetCode(getCode())

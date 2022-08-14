@@ -24,8 +24,18 @@ func (r *Result) Add(objType object.Type) {
 	r.ResultTypeList = append(r.ResultTypeList, objType)
 }
 
+func (r *Result) Merge(r2 *Result) {
+	for _, rt := range r2.ResultTypeList {
+		r.Add(rt)
+	}
+}
+
 func (r *Result) Get() object.Type {
 	return r.ResultTypeList[0]
+}
+
+func (r *Result) Count() int {
+	return len(r.ResultTypeList)
 }
 
 func (r *Result) GetByIndex(index int) object.Type {

@@ -24,6 +24,11 @@ func (vs *ErrContainer) Add(e error) {
 	}
 }
 
+func (vs *ErrContainer) Wrap(e error) *ErrContainer {
+	vs.Add(e)
+	return vs
+}
+
 func (vs *ErrContainer) NotEmpty() bool {
 	return len(vs.errList) > 0
 }

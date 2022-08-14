@@ -33,16 +33,14 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 
 	if fc.function.definition.Args != nil || fc.args != nil {
 		err = fc.checkArgsCountMatch()
-		errContainer.Add(err)
 		if err != nil {
 			// this is major error, we should break validation
-			return nil, nil, errContainer
+			return nil, nil, errContainer.Wrap(err)
 		}
 		namedResult, namedExpressionListAst, err = fc.args.Check(env, validMngr)
-		errContainer.Add(err)
 		if err != nil {
 			// this is major error, we should break validation
-			return nil, nil, errContainer
+			return nil, nil, errContainer.Wrap(err)
 		}
 		for _, defArg := range fc.function.definition.Args {
 			inputArg := namedResult.Get(defArg.VarName)

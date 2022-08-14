@@ -32,8 +32,7 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 	errContainer := errors.NewErrContainer(fc)
 
 	if fc.function.definition.Args != nil || fc.args != nil {
-		err = fc.checkArgsCountMatch()
-		if err != nil {
+		if err = fc.checkArgsCountMatch(); err != nil {
 			// this is major error, we should break validation
 			return nil, nil, errContainer.Wrap(err)
 		}

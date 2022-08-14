@@ -28,5 +28,5 @@ func (i *Identifier) Exec(env *environment.Environment, result *object.Result, _
 		return nil
 	}
 
-	return errors.NewRuntimeError(i, errors.ErrorTypeIdentifierNotFound)
+	return errors.NewErrIdentifierNotFound(i, i.name)
 }

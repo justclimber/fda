@@ -29,26 +29,27 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 	var namedExpressionListAst *execAst.NamedExpressionList
 	var err error
 	var namedResult *result.NamedResult
+	errContainer := errors.NewErrContainer(fc)
 
 	if fc.function.definition.Args != nil || fc.args != nil {
 		err = fc.checkArgsCountMatch()
+		errContainer.Add(err)
 		if err != nil {
-			return nil, nil, err
+			// this is major error, we should break validation
+			return nil, nil, errContainer
 		}
 		namedResult, namedExpressionListAst, err = fc.args.Check(env, validMngr)
+		errContainer.Add(err)
 		if err != nil {
-			return nil, nil, err
+			// this is major error, we should break validation
+			return nil, nil, errContainer
 		}
-		validationErrorSet := errors.NewValidationErrorSet()
-		for _, arg := range fc.function.definition.Args {
-			inputArg := namedResult.Get(arg.VarName)
-			if inputArg != arg.VarType {
-				validationErrorSet.Add(errors.NewValidationError(arg, errors.ErrorTypeMismatch))
+		for _, defArg := range fc.function.definition.Args {
+			inputArg := namedResult.Get(defArg.VarName)
+			if inputArg != defArg.VarType {
+				errContainer.Add(errors.NewErrTypesMismatch(defArg, defArg.VarType, inputArg))
 			}
-			functionEnv.Set(arg.VarName, inputArg)
-		}
-		if !validationErrorSet.Empty() {
-			return nil, nil, validationErrorSet
+			functionEnv.Set(defArg.VarName, inputArg)
 		}
 	}
 	bodyAst, err := fc.function.body.Check(functionEnv, validMngr)
@@ -57,23 +58,23 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 	}
 
 	res := result.NewResult()
-	validationErrorSet := errors.NewValidationErrorSet()
 	for _, returnVar := range fc.function.definition.Returns {
-		exists, matched := functionEnv.Check(returnVar.VarName, returnVar.VarType)
+		actualType, exists := functionEnv.Get(returnVar.VarName)
 		if !exists {
 			res.Add(returnVar.VarType)
-		} else if !matched {
-			validationErrorSet.Add(errors.NewValidationError(fc, errors.ErrorTypeMismatch))
+		} else if actualType != returnVar.VarType {
+			errContainer.Add(errors.NewErrTypesMismatch(returnVar, returnVar.VarType, actualType))
 		} else {
-			res.Add(returnVar.VarType)
+			res.Add(actualType)
 		}
 	}
-	if !validationErrorSet.Empty() {
-		return nil, nil, validationErrorSet
+	if errContainer.NotEmpty() {
+		return nil, nil, errContainer
 	}
 
 	functionAst := execAst.NewFunction(fc.function.id, fc.function.definition, bodyAst)
-	return res, execAst.NewFunctionCall(fc.id, functionAst, namedExpressionListAst), nil
+	functionCallAst := execAst.NewFunctionCall(fc.id, functionAst, namedExpressionListAst)
+	return res, functionCallAst, nil
 }
 
 func (fc *FunctionCall) checkArgsCountMatch() error {
@@ -84,9 +85,9 @@ func (fc *FunctionCall) checkArgsCountMatch() error {
 	if fc.args != nil {
 		inputArgCount = len(fc.args.exprs)
 	}
-
-	if definitionArgCount != inputArgCount {
-		return errors.NewRuntimeError(fc, errors.ErrorTypeArgumentsCountMismatch)
+	if definitionArgCount == inputArgCount {
+		return nil
 	}
-	return nil
+
+	return errors.NewErrArgCountMismatch(fc, definitionArgCount, inputArgCount)
 }

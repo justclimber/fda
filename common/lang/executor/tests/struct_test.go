@@ -15,7 +15,7 @@ func TestStruct_Exec(t *testing.T) {
 	expectedInt1, expectedInt2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
 	testStructName := "abc"
-	astStruct := getTestStructAst(t, testStruct{
+	astStruct, _ := getTestStructAstAndDefinition(t, testStruct{
 		name: testStructName,
 		fields: []testStructField{
 			{

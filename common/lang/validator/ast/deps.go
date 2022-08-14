@@ -12,6 +12,7 @@ type validationManager interface{}
 type ValidatorEnv interface {
 	Set(name string, objType object.Type)
 	Check(name string, objType object.Type) (exists bool, matched bool)
+	GetRecursive(name string) (object.Type, bool)
 	Get(name string) (object.Type, bool)
 	NewEnclosedEnvironment() ValidatorEnv
 }

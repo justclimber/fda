@@ -16,7 +16,7 @@ func TestStructFieldAssignment(t *testing.T) {
 	structName := "abc"
 	int1, int2 := int64(44), int64(55)
 	fieldName1, fieldName2 := "a", "b"
-	astStruct := getTestStructAst(t, testStruct{
+	astStruct, _ := getTestStructAstAndDefinition(t, testStruct{
 		name: structName,
 		fields: []testStructField{
 			{

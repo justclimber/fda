@@ -23,9 +23,9 @@ func (i *Identifier) ID() int64            { return i.id }
 func (i *Identifier) NodeKey() ast.NodeKey { return ast.KeyIdentifier }
 
 func (i *Identifier) Check(env ValidatorEnv, _ validationManager) (*result.Result, execAst.Expr, error) {
-	if objType, ok := env.Get(i.name); ok {
+	if objType, ok := env.GetRecursive(i.name); ok {
 		return result.NewSingleResult(objType), execAst.NewIdentifier(i.id, i.name), nil
 	}
 
-	return nil, nil, errors.NewValidationError(i, errors.ErrorTypeIdentifierNotFound)
+	return nil, nil, errors.NewErrIdentifierNotFound(i, i.name)
 }

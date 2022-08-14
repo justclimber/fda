@@ -55,7 +55,7 @@ type testStructField struct {
 	value     ast.Expr
 }
 
-func getTestStructAst(t *testing.T, testStruct testStruct) *ast.Struct {
+func getTestStructAstAndDefinition(t *testing.T, testStruct testStruct) (*ast.Struct, *object.StructDefinition) {
 	t.Helper()
 
 	f := map[string]ast.Expr{}
@@ -71,5 +71,5 @@ func getTestStructAst(t *testing.T, testStruct testStruct) *ast.Struct {
 
 	astStruct := ast.NewStruct(0, structDefinition, ast.NewNamedExpressionList(0, f))
 
-	return astStruct
+	return astStruct, structDefinition
 }

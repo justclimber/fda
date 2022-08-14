@@ -27,8 +27,13 @@ func (e *Environment) Check(name string, objType object.Type) (exists bool, matc
 
 func (e *Environment) Get(name string) (object.Type, bool) {
 	t, exists := e.store[name]
+	return t, exists
+}
+
+func (e *Environment) GetRecursive(name string) (object.Type, bool) {
+	t, exists := e.store[name]
 	if !exists && e.outer != nil {
-		t, exists = e.outer.Get(name)
+		t, exists = e.outer.GetRecursive(name)
 	}
 	return t, exists
 }

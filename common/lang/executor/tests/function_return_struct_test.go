@@ -18,7 +18,7 @@ func TestFunctionReturnStruct(t *testing.T) {
 	testInt1 := int64(3)
 	fieldName := "x"
 
-	astStruct, structDefinition := getTestStructAst(t, testStruct{
+	astStruct, structDefinition := getTestStructAstAndDefinition(t, testStruct{
 		name: structName,
 		fields: []testStructField{
 			{

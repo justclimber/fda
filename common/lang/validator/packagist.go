@@ -1,17 +1,25 @@
 package validator
 
+import (
+	"github.com/justclimber/fda/common/lang/validator/ast"
+)
+
 type Packagist struct {
-	mainPackage *Package
-	packages    map[string]*Package
+	packages map[string]*ast.Package
 }
 
-func NewPackagist(mainPackage *Package) *Packagist {
+func NewPackagist() *Packagist {
 	return &Packagist{
-		mainPackage: mainPackage,
-		packages:    make(map[string]*Package),
+		packages: make(map[string]*ast.Package),
 	}
 }
 
-func (p *Packagist) Main() *Package {
-	return p.mainPackage
+func (p *Packagist) PackageByName(name string) (*ast.Package, bool) {
+	pkg, ok := p.packages[name]
+	return pkg, ok
+}
+
+func (p *Packagist) RegisterPackage(pkg *ast.Package) error {
+	p.packages[pkg.Name] = pkg
+	return nil
 }

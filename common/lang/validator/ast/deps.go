@@ -7,7 +7,9 @@ import (
 	"github.com/justclimber/fda/common/lang/validator/result"
 )
 
-type validationManager interface{}
+type validationManager interface {
+	PackageByName(name string) (*Package, bool)
+}
 
 type ValidatorEnv interface {
 	Set(name string, objType object.Type)

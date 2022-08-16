@@ -15,6 +15,7 @@ import (
 
 func TestFunction(t *testing.T) {
 	functionName := "testFunc"
+	packageName := "testPackage"
 	varName1, varName2 := "a", "b"
 	inputVarName1, inputVarName2 := "inA", "inB"
 	testInt1, testInt2, testInt3 := int64(3), int64(10), int64(2)
@@ -50,13 +51,23 @@ func TestFunction(t *testing.T) {
 			)),
 		}),
 	)
-	functionCall := ast.NewFunctionCall(0, function, ast.NewNamedExpressionList(0, map[string]ast.Expr{
+	pkg := ast.NewPackage(0, packageName)
+	packagist := validator.NewPackagist()
+	err := packagist.RegisterPackage(pkg)
+	require.NoError(t, err, "check error after registering package")
+
+	err = function.Compile(validator.NewEnvironment(), packagist)
+	require.NoError(t, err, "check error after function compiling")
+	err = pkg.RegisterFunction(function)
+	require.NoError(t, err, "check error after registering function")
+
+	functionCall := ast.NewFunctionCall(0, functionName, packageName, ast.NewNamedExpressionList(0, map[string]ast.Expr{
 		inputVarName1: ast.NewNumInt(0, testInt3),
 		inputVarName2: ast.NewNumInt(0, testInt3),
 	}))
 
 	envForValidation := validator.NewEnvironment()
-	_, resAst, err := functionCall.Check(envForValidation, struct{}{})
+	_, resAst, err := functionCall.Check(envForValidation, packagist)
 	require.NoError(t, err, "check error after ast validation")
 
 	functionCalForExec, ok := resAst.(*execAst.FunctionCall)

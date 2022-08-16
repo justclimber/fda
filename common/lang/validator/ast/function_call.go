@@ -7,32 +7,37 @@ import (
 	"github.com/justclimber/fda/common/lang/validator/result"
 )
 
-func NewFunctionCall(id int64, function *Function, args *NamedExpressionList) *FunctionCall {
+func NewFunctionCall(id int64, functionName string, packageName string, args *NamedExpressionList) *FunctionCall {
 	return &FunctionCall{
-		id:       id,
-		function: function,
-		args:     args,
+		id:           id,
+		functionName: functionName,
+		packageName:  packageName,
+		args:         args,
 	}
 }
 
 type FunctionCall struct {
-	id       int64
-	function *Function
-	args     *NamedExpressionList
+	id           int64
+	functionName string
+	packageName  string
+	args         *NamedExpressionList
 }
 
 func (fc *FunctionCall) ID() int64            { return fc.id }
 func (fc *FunctionCall) NodeKey() ast.NodeKey { return ast.KeyFunctionCall }
 
 func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*result.Result, execAst.Expr, error) {
-	functionEnv := env.NewEnclosedEnvironment()
 	var namedExpressionListAst *execAst.NamedExpressionList
-	var err error
 	var namedResult *result.NamedResult
+
+	function, err := fc.getFunctionFromPackage(validMngr)
+	if err != nil {
+		return nil, nil, err
+	}
 	errContainer := errors.NewErrContainer(fc)
 
-	if fc.function.definition.Args != nil || fc.args != nil {
-		if err = fc.checkArgsCountMatch(); err != nil {
+	if function.definition.Args != nil || fc.args != nil {
+		if err = fc.checkArgsCountMatch(function); err != nil {
 			// this is major error, we should break validation
 			return nil, nil, errContainer.Wrap(err)
 		}
@@ -41,43 +46,50 @@ func (fc *FunctionCall) Check(env ValidatorEnv, validMngr validationManager) (*r
 			// this is major error, we should break validation
 			return nil, nil, errContainer.Wrap(err)
 		}
-		for _, defArg := range fc.function.definition.Args {
+		for _, defArg := range function.definition.Args {
 			inputArg := namedResult.Get(defArg.VarName)
 			if inputArg != defArg.VarType {
 				errContainer.Add(errors.NewErrTypesMismatch(defArg, defArg.VarType, inputArg))
 			}
-			functionEnv.Set(defArg.VarName, inputArg)
 		}
 	}
-	bodyAst, err := fc.function.body.Check(functionEnv, validMngr)
+	bodyAst, hasError, err := function.GetCompiled()
 	if err != nil {
 		return nil, nil, err
 	}
+	if hasError {
+		errContainer.Add(errors.NewErrCalledFunctionContainsErrors(fc, fc.functionName, fc.packageName))
+	}
 
 	res := result.NewResult()
-	for _, returnVar := range fc.function.definition.Returns {
-		actualType, exists := functionEnv.Get(returnVar.VarName)
-		if !exists {
-			res.Add(returnVar.VarType)
-		} else if actualType != returnVar.VarType {
-			errContainer.Add(errors.NewErrTypesMismatch(returnVar, returnVar.VarType, actualType))
-		} else {
-			res.Add(actualType)
-		}
+	for _, returnVar := range function.definition.Returns {
+		res.Add(returnVar.VarType)
 	}
 	if errContainer.NotEmpty() {
 		return nil, nil, errContainer
 	}
 
-	functionAst := execAst.NewFunction(fc.function.id, fc.function.definition, bodyAst)
+	functionAst := execAst.NewFunction(function.id, function.definition, bodyAst)
 	functionCallAst := execAst.NewFunctionCall(fc.id, functionAst, namedExpressionListAst)
 	return res, functionCallAst, nil
 }
 
-func (fc *FunctionCall) checkArgsCountMatch() error {
+func (fc *FunctionCall) getFunctionFromPackage(validMngr validationManager) (*Function, error) {
+	pkg, ok := validMngr.PackageByName(fc.packageName)
+	if !ok {
+		return nil, errors.NewErrPackageNotFound(fc, fc.packageName)
+	}
+	function, ok := pkg.Function(fc.functionName)
+	if !ok {
+		return nil, errors.NewErrFunctionNotFound(fc, fc.functionName, fc.packageName)
+	}
+	return function, nil
+}
+
+func (fc *FunctionCall) checkArgsCountMatch(function *Function) error {
 	definitionArgCount, inputArgCount := 0, 0
-	if fc.function.definition.Args != nil {
-		definitionArgCount = len(fc.function.definition.Args)
+	if function.definition.Args != nil {
+		definitionArgCount = len(function.definition.Args)
 	}
 	if fc.args != nil {
 		inputArgCount = len(fc.args.exprs)

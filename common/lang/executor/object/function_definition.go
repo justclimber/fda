@@ -8,24 +8,24 @@ import (
 
 func NewFunctionDefinition(name string, packageName string, args []*VarAndType, returns []*VarAndType) *FunctionDefinition {
 	return &FunctionDefinition{
-		Name:    name,
-		Package: packageName,
-		Args:    args,
-		Returns: returns,
+		Name:        name,
+		PackageName: packageName,
+		Args:        args,
+		Returns:     returns,
 	}
 }
 
 type FunctionDefinition struct {
-	id      int64
-	Name    string
-	Package string
-	Args    []*VarAndType
-	Returns []*VarAndType
+	id          int64
+	Name        string
+	PackageName string
+	Args        []*VarAndType
+	Returns     []*VarAndType
 }
 
 func (fd *FunctionDefinition) ID() int64            { return fd.id }
 func (fd *FunctionDefinition) NodeKey() ast.NodeKey { return ast.KeyFunctionDefinition }
 
 func (fd *FunctionDefinition) Type() Type {
-	return Type(fmt.Sprintf("%s#%s", fd.Package, fd.Name))
+	return Type(fmt.Sprintf("%s#%s", fd.PackageName, fd.Name))
 }

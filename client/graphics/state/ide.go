@@ -12,23 +12,23 @@ import (
 	"github.com/justclimber/fda/client/graphics/ui/widget"
 )
 
-type IDE struct {
+type IDEState struct {
 	ui *ui.UI
 }
 
-func NewIDEState() *IDE {
-	return &IDE{}
+func NewIDEState() *IDEState {
+	return &IDEState{}
 }
 
-func (i *IDE) Draw(screen *ebiten.Image) {
-	i.ui.Draw(screen)
+func (is *IDEState) Draw(screen *ebiten.Image) {
+	is.ui.Draw(screen)
 }
 
-func (i *IDE) Update() (graphics.ScreenState, error) {
+func (is *IDEState) Update() (graphics.ScreenState, error) {
 	return nil, nil
 }
 
-func (i *IDE) Setup(assets embed.FS) error {
+func (is *IDEState) Setup(assets embed.FS) error {
 	f, err := font.LoadFont("NotoSans-Regular.ttf", 14, assets)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (i *IDE) Setup(assets embed.FS) error {
 			widget.GridLayoutOpts.Padding(widget.NewInsetsSimple(20)),
 			widget.GridLayoutOpts.Spacing(0, 20))),
 	)
-	i.ui = &ui.UI{Container: rootContainer}
+	is.ui = &ui.UI{Container: rootContainer}
 
 	rootContainer.AddChild(widget.NewText(
 		widget.TextOpts.Text(
@@ -59,17 +59,7 @@ func (i *IDE) Setup(assets embed.FS) error {
 	)
 	rootContainer.AddChild(mainContainer)
 
-	i.ui = &ui.UI{Container: rootContainer}
-
-	//mainContainer.AddChild(s.g.assets.Prefabs.AppPanel.Make(
-	//	am.appLinks(),
-	//	func(e interface{}) string {
-	//		return e.(appLink).app.title
-	//	},
-	//	func(args *widget.ListEntrySelectedEventArgs) {
-	//		am.appToggle(args.Entry.(appLink).app)
-	//	},
-	//))
+	is.ui = &ui.UI{Container: rootContainer}
 
 	return nil
 }

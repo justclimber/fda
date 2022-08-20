@@ -1,4 +1,4 @@
-package ide
+package program
 
 import (
 	"github.com/justclimber/fda/common/lang/validator/ast"

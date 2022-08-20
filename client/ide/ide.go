@@ -1,5 +1,12 @@
 package ide
 
+import (
+	"github.com/justclimber/fda/client/ide/program"
+)
+
 type IDE struct {
-	packagist Packagist
+	code *program.Program
+	// tabs
+	// current tab
+	// version control
 }

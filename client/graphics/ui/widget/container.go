@@ -14,7 +14,7 @@ type Container struct {
 	BackgroundImage     *image.NineSlice
 	AutoDisableChildren bool
 
-	widgetOpts  []WidgetOpt
+	widgetOpts  []Opt
 	layout      Layouter
 	layoutDirty bool
 
@@ -53,7 +53,7 @@ func NewContainer(debugLabel string, opts ...ContainerOpt) *Container {
 	return c
 }
 
-func (o ContainerOptions) WidgetOpts(opts ...WidgetOpt) ContainerOpt {
+func (o ContainerOptions) WidgetOpts(opts ...Opt) ContainerOpt {
 	return func(c *Container) {
 		c.widgetOpts = append(c.widgetOpts, opts...)
 	}

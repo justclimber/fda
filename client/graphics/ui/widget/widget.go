@@ -32,21 +32,21 @@ type Widget struct {
 	// the user's perspective, scrolling does not change state, but only the display of that state.
 	Disabled bool
 
-	// CursorEnterEvent fires an event with *WidgetCursorEnterEventArgs when the cursor enters the widget's Rect.
+	// CursorEnterEvent fires an event with *CursorEnterEventArgs when the cursor enters the widget's Rect.
 	CursorEnterEvent *event.Event
 
-	// CursorExitEvent fires an event with *WidgetCursorExitEventArgs when the cursor exits the widget's Rect.
+	// CursorExitEvent fires an event with *CursorExitEventArgs when the cursor exits the widget's Rect.
 	CursorExitEvent *event.Event
 
-	// MouseButtonPressedEvent fires an event with *WidgetMouseButtonPressedEventArgs when a mouse button is pressed
+	// MouseButtonPressedEvent fires an event with *MouseButtonPressedEventArgs when a mouse button is pressed
 	// while the cursor is inside the widget's Rect.
 	MouseButtonPressedEvent *event.Event
 
-	// MouseButtonReleasedEvent fires an event with *WidgetMouseButtonReleasedEventArgs when a mouse button is released
+	// MouseButtonReleasedEvent fires an event with *MouseButtonReleasedEventArgs when a mouse button is released
 	// while the cursor is inside the widget's Rect.
 	MouseButtonReleasedEvent *event.Event
 
-	// ScrolledEvent fires an event with *WidgetScrolledEventArgs when the mouse wheel is scrolled while
+	// ScrolledEvent fires an event with *ScrolledEventArgs when the mouse wheel is scrolled while
 	// the cursor is inside the widget's Rect.
 	ScrolledEvent *event.Event
 
@@ -60,8 +60,8 @@ type Widget struct {
 	inputLayer                 *input.Layer
 }
 
-// WidgetOpt is a function that configures w.
-type WidgetOpt func(w *Widget) //nolint:golint
+// Opt is a function that configures w.
+type Opt func(w *Widget)
 
 // HasWidget must be implemented by concrete widget types to get their Widget.
 type HasWidget interface {
@@ -104,18 +104,18 @@ type PreferredSizer interface {
 	PreferredSize() (int, int)
 }
 
-// WidgetCursorEnterEventArgs are the arguments for cursor enter events.
-type WidgetCursorEnterEventArgs struct { //nolint:golint
+// CursorEnterEventArgs are the arguments for cursor enter events.
+type CursorEnterEventArgs struct {
 	Widget *Widget
 }
 
-// WidgetCursorExitEventArgs are the arguments for cursor exit events.
-type WidgetCursorExitEventArgs struct { //nolint:golint
+// CursorExitEventArgs are the arguments for cursor exit events.
+type CursorExitEventArgs struct {
 	Widget *Widget
 }
 
-// WidgetMouseButtonPressedEventArgs are the arguments for mouse button press events.
-type WidgetMouseButtonPressedEventArgs struct { //nolint:golint
+// MouseButtonPressedEventArgs are the arguments for mouse button press events.
+type MouseButtonPressedEventArgs struct {
 	Widget *Widget
 	Button ebiten.MouseButton
 
@@ -126,8 +126,8 @@ type WidgetMouseButtonPressedEventArgs struct { //nolint:golint
 	OffsetY int
 }
 
-// WidgetMouseButtonReleasedEventArgs are the arguments for mouse button release events.
-type WidgetMouseButtonReleasedEventArgs struct { //nolint:golint
+// MouseButtonReleasedEventArgs are the arguments for mouse button release events.
+type MouseButtonReleasedEventArgs struct {
 	Widget *Widget
 	Button ebiten.MouseButton
 
@@ -141,43 +141,43 @@ type WidgetMouseButtonReleasedEventArgs struct { //nolint:golint
 	OffsetY int
 }
 
-// WidgetScrolledEventArgs are the arguments for mouse wheel scroll events.
-type WidgetScrolledEventArgs struct { //nolint:golint
+// ScrolledEventArgs are the arguments for mouse wheel scroll events.
+type ScrolledEventArgs struct {
 	Widget *Widget
 	X      float64
 	Y      float64
 }
 
-type WidgetFocusEventArgs struct { //nolint:golint
+type FocusEventArgs struct {
 	Widget  *Widget
 	Focused bool
 }
 
-// WidgetCursorEnterHandlerFunc is a function that handles cursor enter events.
-type WidgetCursorEnterHandlerFunc func(args *WidgetCursorEnterEventArgs) //nolint:golint
+// CursorEnterHandlerFunc is a function that handles cursor enter events.
+type CursorEnterHandlerFunc func(args *CursorEnterEventArgs)
 
-// WidgetCursorExitHandlerFunc is a function that handles cursor exit events.
-type WidgetCursorExitHandlerFunc func(args *WidgetCursorExitEventArgs) //nolint:golint
+// CursorExitHandlerFunc is a function that handles cursor exit events.
+type CursorExitHandlerFunc func(args *CursorExitEventArgs)
 
-// WidgetMouseButtonPressedHandlerFunc is a function that handles mouse button press events.
-type WidgetMouseButtonPressedHandlerFunc func(args *WidgetMouseButtonPressedEventArgs) //nolint:golint
+// MouseButtonPressedHandlerFunc is a function that handles mouse button press events.
+type MouseButtonPressedHandlerFunc func(args *MouseButtonPressedEventArgs)
 
-// WidgetMouseButtonReleasedHandlerFunc is a function that handles mouse button release events.
-type WidgetMouseButtonReleasedHandlerFunc func(args *WidgetMouseButtonReleasedEventArgs) //nolint:golint
+// MouseButtonReleasedHandlerFunc is a function that handles mouse button release events.
+type MouseButtonReleasedHandlerFunc func(args *MouseButtonReleasedEventArgs)
 
-// WidgetScrolledHandlerFunc is a function that handles mouse wheel scroll events.
-type WidgetScrolledHandlerFunc func(args *WidgetScrolledEventArgs) //nolint:golint
+// ScrolledHandlerFunc is a function that handles mouse wheel scroll events.
+type ScrolledHandlerFunc func(args *ScrolledEventArgs)
 
-type WidgetOptions struct { //nolint:golint
+type Options struct {
 }
 
-// WidgetOpts contains functions that configure a Widget.
-var WidgetOpts WidgetOptions
+// Opts contains functions that configure a Widget.
+var Opts Options
 
 var deferredRenders []RenderFunc
 
 // NewWidget constructs a new Widget configured with opts.
-func NewWidget(opts ...WidgetOpt) *Widget {
+func NewWidget(opts ...Opt) *Widget {
 	w := &Widget{
 		CursorEnterEvent:         &event.Event{},
 		CursorExitEvent:          &event.Event{},
@@ -195,53 +195,53 @@ func NewWidget(opts ...WidgetOpt) *Widget {
 }
 
 // LayoutData configures a Widget with layout data ld.
-func (o WidgetOptions) LayoutData(ld interface{}) WidgetOpt {
+func (o Options) LayoutData(ld interface{}) Opt {
 	return func(w *Widget) {
 		w.LayoutData = ld
 	}
 }
 
 // CursorEnterHandler configures a Widget with cursor enter event handler f.
-func (o WidgetOptions) CursorEnterHandler(f WidgetCursorEnterHandlerFunc) WidgetOpt {
+func (o Options) CursorEnterHandler(f CursorEnterHandlerFunc) Opt {
 	return func(w *Widget) {
 		w.CursorEnterEvent.AddHandler(func(args interface{}) {
-			f(args.(*WidgetCursorEnterEventArgs))
+			f(args.(*CursorEnterEventArgs))
 		})
 	}
 }
 
 // CursorExitHandler configures a Widget with cursor exit event handler f.
-func (o WidgetOptions) CursorExitHandler(f WidgetCursorExitHandlerFunc) WidgetOpt {
+func (o Options) CursorExitHandler(f CursorExitHandlerFunc) Opt {
 	return func(w *Widget) {
 		w.CursorExitEvent.AddHandler(func(args interface{}) {
-			f(args.(*WidgetCursorExitEventArgs))
+			f(args.(*CursorExitEventArgs))
 		})
 	}
 }
 
 // MouseButtonPressedHandler configures a Widget with mouse button press event handler f.
-func (o WidgetOptions) MouseButtonPressedHandler(f WidgetMouseButtonPressedHandlerFunc) WidgetOpt {
+func (o Options) MouseButtonPressedHandler(f MouseButtonPressedHandlerFunc) Opt {
 	return func(w *Widget) {
 		w.MouseButtonPressedEvent.AddHandler(func(args interface{}) {
-			f(args.(*WidgetMouseButtonPressedEventArgs))
+			f(args.(*MouseButtonPressedEventArgs))
 		})
 	}
 }
 
 // MouseButtonReleasedHandler configures a Widget with mouse button release event handler f.
-func (o WidgetOptions) MouseButtonReleasedHandler(f WidgetMouseButtonReleasedHandlerFunc) WidgetOpt {
+func (o Options) MouseButtonReleasedHandler(f MouseButtonReleasedHandlerFunc) Opt {
 	return func(w *Widget) {
 		w.MouseButtonReleasedEvent.AddHandler(func(args interface{}) {
-			f(args.(*WidgetMouseButtonReleasedEventArgs))
+			f(args.(*MouseButtonReleasedEventArgs))
 		})
 	}
 }
 
 // ScrolledHandler configures a Widget with mouse wheel scroll event handler f.
-func (o WidgetOptions) ScrolledHandler(f WidgetScrolledHandlerFunc) WidgetOpt {
+func (o Options) ScrolledHandler(f ScrolledHandlerFunc) Opt {
 	return func(w *Widget) {
 		w.ScrolledEvent.AddHandler(func(args interface{}) {
-			f(args.(*WidgetScrolledEventArgs))
+			f(args.(*ScrolledEventArgs))
 		})
 	}
 }
@@ -273,7 +273,7 @@ func (w *Widget) EffectiveInputLayer() *input.Layer {
 // Render renders w onto screen. Since Widget is only an abstraction, it does not actually draw
 // anything, but it is still responsible for firing events. Concrete widget implementations should
 // always call this method first before rendering themselves.
-func (w *Widget) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
+func (w *Widget) Render(screen *ebiten.Image, _ DeferredRenderFunc, debugMode DebugMode) {
 	w.fireEvents()
 
 	if debugMode == DebugModeBorderOnMouseOver && w.mouseIn {
@@ -309,7 +309,7 @@ func drawAroundRect(screen *ebiten.Image, r image.Rectangle, c color.Color) {
 
 func (w *Widget) fireEvents() {
 	x, y := input.CursorPosition()
-	p := image.Point{x, y}
+	p := image.Point{X: x, Y: y}
 	layer := w.EffectiveInputLayer()
 	inside := p.In(w.Rect)
 
@@ -318,11 +318,11 @@ func (w *Widget) fireEvents() {
 	w.mouseIn = entered
 	if entered != w.lastUpdateCursorEntered {
 		if entered {
-			w.CursorEnterEvent.Fire(&WidgetCursorEnterEventArgs{
+			w.CursorEnterEvent.Fire(&CursorEnterEventArgs{
 				Widget: w,
 			})
 		} else {
-			w.CursorExitEvent.Fire(&WidgetCursorExitEventArgs{
+			w.CursorExitEvent.Fire(&CursorExitEventArgs{
 				Widget: w,
 			})
 		}
@@ -335,7 +335,7 @@ func (w *Widget) fireEvents() {
 		w.mouseLeftPressedInside = inside
 
 		off := p.Sub(w.Rect.Min)
-		w.MouseButtonPressedEvent.Fire(&WidgetMouseButtonPressedEventArgs{
+		w.MouseButtonPressedEvent.Fire(&MouseButtonPressedEventArgs{
 			Widget:  w,
 			Button:  ebiten.MouseButtonLeft,
 			OffsetX: off.X,
@@ -347,7 +347,7 @@ func (w *Widget) fireEvents() {
 		w.lastUpdateMouseLeftPressed = false
 
 		off := p.Sub(w.Rect.Min)
-		w.MouseButtonReleasedEvent.Fire(&WidgetMouseButtonReleasedEventArgs{
+		w.MouseButtonReleasedEvent.Fire(&MouseButtonReleasedEventArgs{
 			Widget:  w,
 			Button:  ebiten.MouseButtonLeft,
 			Inside:  inside,
@@ -358,7 +358,7 @@ func (w *Widget) fireEvents() {
 
 	scrollX, scrollY := input.WheelLayer(layer)
 	if inside && (scrollX != 0 || scrollY != 0) {
-		w.ScrolledEvent.Fire(&WidgetScrolledEventArgs{
+		w.ScrolledEvent.Fire(&ScrolledEventArgs{
 			Widget: w,
 			X:      scrollX,
 			Y:      scrollY,
@@ -381,8 +381,8 @@ func (w *Widget) Parent() PreferredSizeLocateableWidget {
 	return w.parent
 }
 
-func WidgetFireFocusEvent(w *Widget, focused bool) { //nolint:golint
-	w.FocusEvent.Fire(&WidgetFocusEventArgs{
+func FireFocusEvent(w *Widget, focused bool) {
+	w.FocusEvent.Fire(&FocusEventArgs{
 		Widget:  w,
 		Focused: focused,
 	})

@@ -13,7 +13,7 @@ type Graphic struct {
 	ImageNineSlice *image.NineSlice
 	Callback       ImageCallback
 
-	widgetOpts []WidgetOpt
+	widgetOpts []Opt
 
 	init   *MultiOnce
 	widget *Widget
@@ -42,7 +42,7 @@ func NewGraphic(opts ...GraphicOpt) *Graphic {
 	return g
 }
 
-func (o GraphicOptions) WidgetOpts(opts ...WidgetOpt) GraphicOpt {
+func (o GraphicOptions) WidgetOpts(opts ...Opt) GraphicOpt {
 	return func(g *Graphic) {
 		g.widgetOpts = append(g.widgetOpts, opts...)
 	}

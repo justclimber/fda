@@ -18,7 +18,7 @@ type Text struct {
 	Face  font.Face
 	Color color.Color
 
-	widgetOpts         []WidgetOpt
+	widgetOpts         []Opt
 	horizontalPosition TextPosition
 	verticalPosition   TextPosition
 
@@ -68,7 +68,7 @@ func NewText(opts ...TextOpt) *Text {
 	return t
 }
 
-func (o TextOptions) WidgetOpts(opts ...WidgetOpt) TextOpt {
+func (o TextOptions) WidgetOpts(opts ...Opt) TextOpt {
 	return func(t *Text) {
 		t.widgetOpts = append(t.widgetOpts, opts...)
 	}

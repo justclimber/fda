@@ -22,7 +22,7 @@ type Button struct {
 	ReleasedEvent *event.Event
 	ClickedEvent  *event.Event
 
-	widgetOpts               []WidgetOpt
+	widgetOpts               []Opt
 	autoUpdateTextAndGraphic bool
 	textPadding              Insets
 	graphicPadding           Insets
@@ -101,7 +101,7 @@ func NewButton(opts ...ButtonOpt) *Button {
 	return b
 }
 
-func (o ButtonOptions) WidgetOpts(opts ...WidgetOpt) ButtonOpt {
+func (o ButtonOptions) WidgetOpts(opts ...Opt) ButtonOpt {
 	return func(b *Button) {
 		b.widgetOpts = append(b.widgetOpts, opts...)
 	}
@@ -123,7 +123,7 @@ func (o ButtonOptions) TextSimpleLeft(label string, face font.Face, color *Butto
 			)
 
 			b.text = NewText(
-				TextOpts.WidgetOpts(WidgetOpts.LayoutData(AnchorLayoutData{
+				TextOpts.WidgetOpts(Opts.LayoutData(AnchorLayoutData{
 					HorizontalPosition: AnchorLayoutPositionStart,
 					VerticalPosition:   AnchorLayoutPositionCenter,
 				})),
@@ -148,7 +148,7 @@ func (o ButtonOptions) Text(label string, face font.Face, color *ButtonTextColor
 			)
 
 			b.text = NewText(
-				TextOpts.WidgetOpts(WidgetOpts.LayoutData(AnchorLayoutData{
+				TextOpts.WidgetOpts(Opts.LayoutData(AnchorLayoutData{
 					HorizontalPosition: AnchorLayoutPositionCenter,
 					VerticalPosition:   AnchorLayoutPositionCenter,
 				})),
@@ -175,7 +175,7 @@ func (o ButtonOptions) TextAndImage(label string, face font.Face, image *ButtonI
 
 			c := NewContainer(
 				"button c",
-				ContainerOpts.WidgetOpts(WidgetOpts.LayoutData(AnchorLayoutData{
+				ContainerOpts.WidgetOpts(Opts.LayoutData(AnchorLayoutData{
 					HorizontalPosition: AnchorLayoutPositionCenter,
 					VerticalPosition:   AnchorLayoutPositionCenter,
 				})),
@@ -185,14 +185,14 @@ func (o ButtonOptions) TextAndImage(label string, face font.Face, image *ButtonI
 			b.container.AddChild(c)
 
 			b.text = NewText(
-				TextOpts.WidgetOpts(WidgetOpts.LayoutData(RowLayoutData{
+				TextOpts.WidgetOpts(Opts.LayoutData(RowLayoutData{
 					Stretch: true,
 				})),
 				TextOpts.Text(label, face, color.Idle))
 			c.AddChild(b.text)
 
 			b.graphic = NewGraphic(
-				GraphicOpts.WidgetOpts(WidgetOpts.LayoutData(RowLayoutData{
+				GraphicOpts.WidgetOpts(Opts.LayoutData(RowLayoutData{
 					Stretch: true,
 				})),
 				GraphicOpts.Image(image.Idle))
@@ -229,7 +229,7 @@ func (o ButtonOptions) withGraphic(opt GraphicOpt) ButtonOpt {
 
 			b.graphic = NewGraphic(
 				opt,
-				GraphicOpts.WidgetOpts(WidgetOpts.LayoutData(AnchorLayoutData{
+				GraphicOpts.WidgetOpts(Opts.LayoutData(AnchorLayoutData{
 					HorizontalPosition: AnchorLayoutPositionCenter,
 					VerticalPosition:   AnchorLayoutPositionCenter,
 				})),
@@ -407,18 +407,18 @@ func (b *Button) Text() *Text {
 }
 
 func (b *Button) createWidget() {
-	b.widget = NewWidget(append(b.widgetOpts, []WidgetOpt{
-		WidgetOpts.CursorEnterHandler(func(args *WidgetCursorEnterEventArgs) {
+	b.widget = NewWidget(append(b.widgetOpts, []Opt{
+		Opts.CursorEnterHandler(func(args *CursorEnterEventArgs) {
 			if !b.widget.Disabled {
 				b.hovering = true
 			}
 		}),
 
-		WidgetOpts.CursorExitHandler(func(args *WidgetCursorExitEventArgs) {
+		Opts.CursorExitHandler(func(args *CursorExitEventArgs) {
 			b.hovering = false
 		}),
 
-		WidgetOpts.MouseButtonPressedHandler(func(args *WidgetMouseButtonPressedEventArgs) {
+		Opts.MouseButtonPressedHandler(func(args *MouseButtonPressedEventArgs) {
 			if !b.widget.Disabled {
 				b.pressing = true
 
@@ -430,7 +430,7 @@ func (b *Button) createWidget() {
 			}
 		}),
 
-		WidgetOpts.MouseButtonReleasedHandler(func(args *WidgetMouseButtonReleasedEventArgs) {
+		Opts.MouseButtonReleasedHandler(func(args *MouseButtonReleasedEventArgs) {
 			b.pressing = false
 
 			if !b.widget.Disabled {

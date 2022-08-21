@@ -106,18 +106,18 @@ func (l *LabeledCheckbox) createWidget() {
 		ContainerOpts.AutoDisableChildren(),
 	)
 
-	l.checkbox = NewCheckbox(append(l.checkboxOpts, CheckboxOpts.ButtonOpts(ButtonOpts.WidgetOpts(WidgetOpts.LayoutData(RowLayoutData{
+	l.checkbox = NewCheckbox(append(l.checkboxOpts, CheckboxOpts.ButtonOpts(ButtonOpts.WidgetOpts(Opts.LayoutData(RowLayoutData{
 		Position: RowLayoutPositionCenter,
 	}))))...)
 	l.container.AddChild(l.checkbox)
 	l.checkboxOpts = nil
 
 	l.label = NewLabel(append(l.labelOpts, LabelOpts.TextOpts(TextOpts.WidgetOpts(
-		WidgetOpts.LayoutData(RowLayoutData{
+		Opts.LayoutData(RowLayoutData{
 			Position: RowLayoutPositionCenter,
 		}),
 
-		WidgetOpts.MouseButtonReleasedHandler(func(args *WidgetMouseButtonReleasedEventArgs) {
+		Opts.MouseButtonReleasedHandler(func(args *MouseButtonReleasedEventArgs) {
 			if !args.Widget.Disabled && args.Button == ebiten.MouseButtonLeft && args.Inside {
 				l.checkbox.SetState(l.checkbox.state.Advance(l.checkbox.triState))
 			}

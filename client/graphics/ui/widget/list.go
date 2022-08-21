@@ -258,7 +258,7 @@ func (l *List) createWidget() {
 	for _, e := range l.entries {
 		e := e
 		but := NewButton(
-			ButtonOpts.WidgetOpts(WidgetOpts.LayoutData(RowLayoutData{
+			ButtonOpts.WidgetOpts(Opts.LayoutData(RowLayoutData{
 				Stretch: true,
 			})),
 			ButtonOpts.Image(l.entryUnselectedColor),
@@ -295,7 +295,7 @@ func (l *List) createWidget() {
 		l.container.AddChild(l.vSlider)
 
 		l.scrollContainer.widget.ScrolledEvent.AddHandler(func(args interface{}) {
-			a := args.(*WidgetScrolledEventArgs)
+			a := args.(*ScrolledEventArgs)
 			p := pageSizeFunc() / 3
 			if p < 1 {
 				p = 1

@@ -21,7 +21,7 @@ type TextInput struct {
 
 	InputText string
 
-	widgetOpts      []WidgetOpt
+	widgetOpts      []Opt
 	caretOpts       []CaretOpt
 	image           *TextInputImage
 	color           *TextInputColor
@@ -129,7 +129,7 @@ func NewTextInput(opts ...TextInputOpt) *TextInput {
 	return t
 }
 
-func (o TextInputOptions) WidgetOpts(opts ...WidgetOpt) TextInputOpt {
+func (o TextInputOptions) WidgetOpts(opts ...Opt) TextInputOpt {
 	return func(t *TextInput) {
 		t.widgetOpts = append(t.widgetOpts, opts...)
 	}
@@ -502,7 +502,7 @@ func (t *TextInput) drawTextAndCaret(screen *ebiten.Image, def DeferredRenderFun
 
 func (t *TextInput) Focus(focused bool) {
 	t.init.Do()
-	WidgetFireFocusEvent(t.widget, focused)
+	FireFocusEvent(t.widget, focused)
 	t.caret.resetBlinking()
 	t.focused = focused
 }

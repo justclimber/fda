@@ -25,7 +25,7 @@ var fontFace2 font.Face
 
 func newSimpleWidget(preferredWidth int, preferredHeight int, ld interface{}) *simpleWidget {
 	return &simpleWidget{
-		widget:          NewWidget(WidgetOpts.LayoutData(ld)),
+		widget:          NewWidget(Opts.LayoutData(ld)),
 		preferredWidth:  preferredWidth,
 		preferredHeight: preferredHeight,
 	}
@@ -90,7 +90,7 @@ func leftMouseButtonClick(w HasWidget, t *testing.T) {
 func leftMouseButtonPress(w HasWidget, t *testing.T) {
 	t.Helper()
 
-	w.GetWidget().MouseButtonPressedEvent.Fire(&WidgetMouseButtonPressedEventArgs{
+	w.GetWidget().MouseButtonPressedEvent.Fire(&MouseButtonPressedEventArgs{
 		Widget:  w.GetWidget(),
 		Button:  ebiten.MouseButtonLeft,
 		OffsetX: 0,
@@ -103,7 +103,7 @@ func leftMouseButtonPress(w HasWidget, t *testing.T) {
 func leftMouseButtonRelease(w HasWidget, t *testing.T) {
 	t.Helper()
 
-	w.GetWidget().MouseButtonReleasedEvent.Fire(&WidgetMouseButtonReleasedEventArgs{
+	w.GetWidget().MouseButtonReleasedEvent.Fire(&MouseButtonReleasedEventArgs{
 		Widget:  w.GetWidget(),
 		Button:  ebiten.MouseButtonLeft,
 		OffsetX: 0,

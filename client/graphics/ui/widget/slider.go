@@ -19,7 +19,7 @@ type Slider struct {
 
 	ChangedEvent *event.Event
 
-	widgetOpts   []WidgetOpt
+	widgetOpts   []Opt
 	handleOpts   []ButtonOpt
 	direction    Direction
 	trackImage   *SliderTrackImage
@@ -91,7 +91,7 @@ func NewSlider(opts ...SliderOpt) *Slider {
 	return s
 }
 
-func (o SliderOptions) WidgetOpts(opts ...WidgetOpt) SliderOpt {
+func (o SliderOptions) WidgetOpts(opts ...Opt) SliderOpt {
 	return func(s *Slider) {
 		s.widgetOpts = append(s.widgetOpts, opts...)
 	}
@@ -327,19 +327,19 @@ func (s *Slider) clampCurrentMinMax() {
 }
 
 func (s *Slider) createWidget() {
-	s.widget = NewWidget(append(s.widgetOpts, []WidgetOpt{
-		WidgetOpts.CursorEnterHandler(func(args *WidgetCursorEnterEventArgs) {
+	s.widget = NewWidget(append(s.widgetOpts, []Opt{
+		Opts.CursorEnterHandler(func(args *CursorEnterEventArgs) {
 			if !s.widget.Disabled {
 				s.hovering = true
 			}
 		}),
 
-		WidgetOpts.CursorExitHandler(func(args *WidgetCursorExitEventArgs) {
+		Opts.CursorExitHandler(func(args *CursorExitEventArgs) {
 			s.hovering = false
 		}),
 
 		// TODO: keeping the mouse button pressed should move the handle repeatedly (in PageSize steps) until it stops under the cursor
-		WidgetOpts.MouseButtonPressedHandler(func(args *WidgetMouseButtonPressedEventArgs) {
+		Opts.MouseButtonPressedHandler(func(args *MouseButtonPressedEventArgs) {
 			if !s.widget.Disabled {
 				x, y := input.CursorPosition()
 				ps := s.pageSizeFunc()

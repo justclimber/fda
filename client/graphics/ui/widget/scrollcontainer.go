@@ -14,7 +14,7 @@ type ScrollContainer struct {
 	ScrollLeft float64
 	ScrollTop  float64
 
-	widgetOpts          []WidgetOpt
+	widgetOpts          []Opt
 	image               *ScrollContainerImage
 	content             HasWidget
 	padding             Insets
@@ -54,7 +54,7 @@ func NewScrollContainer(opts ...ScrollContainerOpt) *ScrollContainer {
 	return s
 }
 
-func (o ScrollContainerOptions) WidgetOpts(opts ...WidgetOpt) ScrollContainerOpt {
+func (o ScrollContainerOptions) WidgetOpts(opts ...Opt) ScrollContainerOpt {
 	return func(s *ScrollContainer) {
 		s.widgetOpts = append(s.widgetOpts, opts...)
 	}

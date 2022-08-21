@@ -21,7 +21,7 @@ func TestContainer_Render(t *testing.T) {
 	m.On("GetWidget").Maybe().Return(w)
 	m.On("PreferredSize").Maybe().Return(50, 50)
 	m.On("SetLocation", mock.Anything).Maybe()
-	m.On("Render", mock.Anything, mock.Anything)
+	m.On("Render", mock.Anything, mock.Anything, mock.Anything)
 
 	c := newContainer(t,
 		ContainerOpts.Layout(newRowLayout(t)))
@@ -40,7 +40,7 @@ func TestContainer_Render_AutoDisableChildren(t *testing.T) {
 	m.On("GetWidget").Maybe().Return(w)
 	m.On("PreferredSize").Maybe().Return(50, 50)
 	m.On("SetLocation", mock.Anything).Maybe()
-	m.On("Render", mock.Anything, mock.Anything).Maybe()
+	m.On("Render", mock.Anything, mock.Anything, mock.Anything).Maybe()
 
 	c := newContainer(t,
 		ContainerOpts.AutoDisableChildren(),
@@ -86,8 +86,8 @@ func (c *controlMock) SetLocation(rect image.Rectangle) {
 	c.Called(rect)
 }
 
-func (c *controlMock) Render(screen *ebiten.Image, def DeferredRenderFunc) {
-	c.Called(screen, def)
+func (c *controlMock) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
+	c.Called(screen, def, debugMode)
 }
 
 func (c *controlMock) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {

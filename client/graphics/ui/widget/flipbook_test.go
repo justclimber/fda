@@ -14,8 +14,8 @@ func TestFlipBook_SetPage_AlwaysRenderSingleWidget(t *testing.T) {
 
 	f := newFlipBook(t)
 
-	pages := []*controlMock{}
-	order := []*controlMock{}
+	var pages []*controlMock
+	var order []*controlMock
 
 	for i := 0; i < 3; i++ {
 		w := NewWidget()
@@ -23,7 +23,7 @@ func TestFlipBook_SetPage_AlwaysRenderSingleWidget(t *testing.T) {
 		p.On("GetWidget").Maybe().Return(w)
 		p.On("PreferredSize").Maybe().Return(50, 50)
 		p.On("SetLocation", mock.Anything).Maybe()
-		p.On("Render", mock.Anything, mock.Anything).Maybe().Run(func(args mock.Arguments) {
+		p.On("Render", mock.Anything, mock.Anything, mock.Anything).Maybe().Run(func(args mock.Arguments) {
 			order = append(order, &p)
 		})
 		pages = append(pages, &p)

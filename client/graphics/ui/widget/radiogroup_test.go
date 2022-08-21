@@ -3,15 +3,13 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestRadioGroup_Active_Initial(t *testing.T) {
-	is := is.New(t)
-
-	cbs := []*Checkbox{}
+	var cbs []*Checkbox
 	for i := 0; i < 3; i++ {
 		c := newCheckbox(t)
 		cbs = append(cbs, c)
@@ -23,15 +21,13 @@ func TestRadioGroup_Active_Initial(t *testing.T) {
 		eventArgs = args
 	}))
 
-	is.Equal(r.Active(), cbs[0])
-	is.Equal(eventArgs.Active, cbs[0])
-	is.Equal(cbs[0].State(), CheckboxChecked)
+	assert.Equal(t, cbs[0], r.Active())
+	assert.Equal(t, cbs[0], eventArgs.Active)
+	assert.Equal(t, CheckboxChecked, cbs[0].State())
 }
 
 func TestRadioGroup_ChangedEvent_User(t *testing.T) {
-	is := is.New(t)
-
-	cbs := []*Checkbox{}
+	var cbs []*Checkbox
 	for i := 0; i < 3; i++ {
 		c := newCheckbox(t)
 		cbs = append(cbs, c)
@@ -46,16 +42,14 @@ func TestRadioGroup_ChangedEvent_User(t *testing.T) {
 
 	leftMouseButtonClick(cbs[1], t)
 
-	is.Equal(r.Active(), cbs[1])
-	is.Equal(eventArgs.Active, cbs[1])
-	is.Equal(cbs[0].State(), CheckboxUnchecked)
-	is.Equal(cbs[1].State(), CheckboxChecked)
+	assert.Equal(t, cbs[1], r.Active())
+	assert.Equal(t, cbs[1], eventArgs.Active)
+	assert.Equal(t, CheckboxUnchecked, cbs[0].State())
+	assert.Equal(t, CheckboxChecked, cbs[1].State())
 }
 
 func TestRadioGroup_SetActive(t *testing.T) {
-	is := is.New(t)
-
-	cbs := []*Checkbox{}
+	var cbs []*Checkbox
 	for i := 0; i < 3; i++ {
 		c := newCheckbox(t)
 		cbs = append(cbs, c)
@@ -71,10 +65,10 @@ func TestRadioGroup_SetActive(t *testing.T) {
 	r.SetActive(cbs[1])
 	event.ExecuteDeferred()
 
-	is.Equal(r.Active(), cbs[1])
-	is.Equal(eventArgs.Active, cbs[1])
-	is.Equal(cbs[0].State(), CheckboxUnchecked)
-	is.Equal(cbs[1].State(), CheckboxChecked)
+	assert.Equal(t, cbs[1], r.Active())
+	assert.Equal(t, cbs[1], eventArgs.Active)
+	assert.Equal(t, CheckboxUnchecked, cbs[0].State())
+	assert.Equal(t, CheckboxChecked, cbs[1].State())
 }
 
 func newRadioGroup(t *testing.T, cbs []*Checkbox, opts ...RadioGroupOpt) *RadioGroup {

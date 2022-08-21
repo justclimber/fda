@@ -4,7 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -20,8 +20,6 @@ func TestSetupInputLayersWithDeferred(t *testing.T) {
 }
 
 func TestSetupInputLayersWithDeferred_Deferred(t *testing.T) {
-	is := is.New(t)
-
 	called := false
 	l := newLayererMock(func(def DeferredSetupInputLayerFunc) {
 		def(func(d DeferredSetupInputLayerFunc) {
@@ -31,12 +29,10 @@ func TestSetupInputLayersWithDeferred_Deferred(t *testing.T) {
 
 	SetupInputLayersWithDeferred([]Layerer{l})
 
-	is.True(called)
+	assert.True(t, called)
 }
 
 func TestLayer_ActiveFor_FullScreen(t *testing.T) {
-	is := is.New(t)
-
 	l1 := Layer{
 		EventTypes: LayerEventTypeAll,
 		BlockLower: false,
@@ -51,13 +47,11 @@ func TestLayer_ActiveFor_FullScreen(t *testing.T) {
 	}
 	AddLayer(&l2)
 
-	is.True(l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
-	is.True(l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.True(t, l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.True(t, l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
 }
 
 func TestLayer_ActiveFor_BlockLower(t *testing.T) {
-	is := is.New(t)
-
 	l1 := Layer{
 		EventTypes: LayerEventTypeAll,
 		BlockLower: false,
@@ -72,13 +66,11 @@ func TestLayer_ActiveFor_BlockLower(t *testing.T) {
 	}
 	AddLayer(&l2)
 
-	is.True(!l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
-	is.True(l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.False(t, l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.True(t, l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
 }
 
 func TestLayer_ActiveFor_Rect(t *testing.T) {
-	is := is.New(t)
-
 	l1 := Layer{
 		EventTypes: LayerEventTypeAll,
 		BlockLower: false,
@@ -97,19 +89,17 @@ func TestLayer_ActiveFor_Rect(t *testing.T) {
 	}
 	AddLayer(&l2)
 
-	is.True(l1.ActiveFor(10, 10, LayerEventTypeMouseButton))
-	is.True(!l2.ActiveFor(10, 10, LayerEventTypeMouseButton))
+	assert.True(t, l1.ActiveFor(10, 10, LayerEventTypeMouseButton))
+	assert.False(t, l2.ActiveFor(10, 10, LayerEventTypeMouseButton))
 
-	is.True(l1.ActiveFor(30, 30, LayerEventTypeMouseButton))
-	is.True(l2.ActiveFor(30, 30, LayerEventTypeMouseButton))
+	assert.True(t, l1.ActiveFor(30, 30, LayerEventTypeMouseButton))
+	assert.True(t, l2.ActiveFor(30, 30, LayerEventTypeMouseButton))
 
-	is.True(!l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
-	is.True(!l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.False(t, l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.False(t, l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
 }
 
 func TestLayer_ActiveFor_EventType(t *testing.T) {
-	is := is.New(t)
-
 	l1 := Layer{
 		EventTypes: LayerEventTypeAll,
 		BlockLower: false,
@@ -124,11 +114,11 @@ func TestLayer_ActiveFor_EventType(t *testing.T) {
 	}
 	AddLayer(&l2)
 
-	is.True(l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
-	is.True(l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.True(t, l1.ActiveFor(100, 100, LayerEventTypeMouseButton))
+	assert.True(t, l2.ActiveFor(100, 100, LayerEventTypeMouseButton))
 
-	is.True(l1.ActiveFor(100, 100, LayerEventTypeWheel))
-	is.True(!l2.ActiveFor(100, 100, LayerEventTypeWheel))
+	assert.True(t, l1.ActiveFor(100, 100, LayerEventTypeWheel))
+	assert.False(t, l2.ActiveFor(100, 100, LayerEventTypeWheel))
 }
 
 func newLayererMock(f SetupInputLayerFunc) *layererMock {

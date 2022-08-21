@@ -4,21 +4,19 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestListComboButton_SelectedEntry_Initial(t *testing.T) {
-	is := is.New(t)
-
 	entries := []interface{}{"first", "second", "third"}
 
 	l := newListComboButton(t,
 		ListComboButtonOpts.ListOpts(ListOpts.Entries(entries)),
 
 		ListComboButtonOpts.EntrySelectedHandler(func(args *ListComboButtonEntrySelectedEventArgs) {
-			is.Fail() // event fired without previous action
+			t.Fail() // event fired without previous action
 		}),
 
 		ListComboButtonOpts.EntryLabelFunc(
@@ -28,13 +26,11 @@ func TestListComboButton_SelectedEntry_Initial(t *testing.T) {
 				return e.(string)
 			}))
 
-	is.Equal(l.SelectedEntry(), entries[0])
-	is.Equal(l.Label(), "label first")
+	assert.Equal(t, entries[0], l.SelectedEntry())
+	assert.Equal(t, "label first", l.Label())
 }
 
 func TestListComboButton_SetSelectedEntry(t *testing.T) {
-	is := is.New(t)
-
 	entries := []interface{}{"first", "second", "third"}
 
 	var eventArgs *ListComboButtonEntrySelectedEventArgs
@@ -58,19 +54,17 @@ func TestListComboButton_SetSelectedEntry(t *testing.T) {
 	l.SetSelectedEntry(entries[1])
 	event.ExecuteDeferred()
 
-	is.Equal(l.SelectedEntry(), entries[1])
-	is.Equal(eventArgs.Entry, entries[1])
-	is.Equal(eventArgs.PreviousEntry, entries[0])
-	is.Equal(l.Label(), "label second")
+	assert.Equal(t, entries[1], l.SelectedEntry())
+	assert.Equal(t, entries[1], eventArgs.Entry)
+	assert.Equal(t, entries[0], eventArgs.PreviousEntry)
+	assert.Equal(t, "label second", l.Label())
 
 	l.SetSelectedEntry(entries[1])
 	event.ExecuteDeferred()
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 }
 
 func TestListComboButton_EntrySelectedEvent_User(t *testing.T) {
-	is := is.New(t)
-
 	entries := []interface{}{"first", "second", "third"}
 
 	var eventArgs *ListComboButtonEntrySelectedEventArgs
@@ -96,22 +90,20 @@ func TestListComboButton_EntrySelectedEvent_User(t *testing.T) {
 
 	leftMouseButtonClick(listEntryButtons(listComboButtonContentList(l))[1], t)
 
-	is.Equal(l.SelectedEntry(), entries[1])
-	is.Equal(eventArgs.Entry, entries[1])
-	is.Equal(eventArgs.PreviousEntry, entries[0])
-	is.Equal(l.Label(), "label second")
+	assert.Equal(t, entries[1], l.SelectedEntry())
+	assert.Equal(t, entries[1], eventArgs.Entry)
+	assert.Equal(t, entries[0], eventArgs.PreviousEntry)
+	assert.Equal(t, "label second", l.Label())
 
 	l.SetContentVisible(true)
 	render(l, t)
 
 	leftMouseButtonClick(listEntryButtons(listComboButtonContentList(l))[1], t)
 
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 }
 
 func TestListComboButton_ContentVisible_Click(t *testing.T) {
-	is := is.New(t)
-
 	entries := []interface{}{"first", "second", "third"}
 
 	l := newListComboButton(t,
@@ -125,15 +117,13 @@ func TestListComboButton_ContentVisible_Click(t *testing.T) {
 			}))
 
 	leftMouseButtonClick(l, t)
-	is.True(l.ContentVisible())
+	assert.True(t, l.ContentVisible())
 
 	leftMouseButtonClick(l, t)
-	is.True(!l.ContentVisible())
+	assert.False(t, l.ContentVisible())
 }
 
 func TestListComboButton_ContentVisible_Programmatic(t *testing.T) {
-	is := is.New(t)
-
 	entries := []interface{}{"first", "second", "third"}
 
 	l := newListComboButton(t,
@@ -147,10 +137,10 @@ func TestListComboButton_ContentVisible_Programmatic(t *testing.T) {
 			}))
 
 	l.SetContentVisible(true)
-	is.True(l.ContentVisible())
+	assert.True(t, l.ContentVisible())
 
 	l.SetContentVisible(false)
-	is.True(!l.ContentVisible())
+	assert.False(t, l.ContentVisible())
 }
 
 func newListComboButton(t *testing.T, opts ...ListComboButtonOpt) *ListComboButton {

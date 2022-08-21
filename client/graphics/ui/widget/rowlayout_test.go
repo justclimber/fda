@@ -4,12 +4,10 @@ import (
 	"image"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRowLayout_PreferredSize(t *testing.T) {
-	is := is.New(t)
-
 	spacing := 7
 
 	padding := Insets{
@@ -73,13 +71,11 @@ func TestRowLayout_PreferredSize(t *testing.T) {
 
 	w, h := l.PreferredSize(widgets)
 
-	is.Equal(w, expectedWidth)
-	is.Equal(h, expectedHeight)
+	assert.Equal(t, expectedWidth, w)
+	assert.Equal(t, expectedHeight, h)
 }
 
 func TestRowLayout_Layout(t *testing.T) {
-	is := is.New(t)
-
 	l := newRowLayout(t,
 		RowLayoutOpts.Padding(Insets{
 			Top:    10,
@@ -126,7 +122,7 @@ func TestRowLayout_Layout(t *testing.T) {
 	}
 
 	for i, r := range expected {
-		is.Equal(widgets[i].GetWidget().Rect, r)
+		assert.Equal(t, r, widgets[i].GetWidget().Rect)
 	}
 }
 

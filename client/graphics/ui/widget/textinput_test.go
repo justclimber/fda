@@ -4,14 +4,12 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestTextInput_ChangedEvent(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *TextInputChangedEventArgs
 	ti := newTextInput(t, TextInputOpts.ChangedHandler(func(args *TextInputChangedEventArgs) {
 		eventArgs = args
@@ -20,12 +18,10 @@ func TestTextInput_ChangedEvent(t *testing.T) {
 	ti.InputText = "foo"
 	render(ti, t)
 
-	is.Equal(eventArgs.InputText, "foo")
+	assert.Equal(t, "foo", eventArgs.InputText)
 }
 
 func TestTextInput_ChangedEvent_OnlyOnce(t *testing.T) {
-	is := is.New(t)
-
 	numEvents := 0
 	ti := newTextInput(t, TextInputOpts.ChangedHandler(func(args *TextInputChangedEventArgs) {
 		numEvents++
@@ -35,19 +31,17 @@ func TestTextInput_ChangedEvent_OnlyOnce(t *testing.T) {
 	render(ti, t)
 	render(ti, t)
 
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 }
 
 func TestTextInput_DoBackspace(t *testing.T) {
-	is := is.New(t)
-
 	ti := newTextInput(t)
 	ti.InputText = "foo"
 	ti.cursorPosition = 1
 	render(ti, t)
 
 	ti.ChangedEvent.AddHandler(func(args interface{}) {
-		is.Equal(args.(*TextInputChangedEventArgs).InputText, "oo")
+		assert.Equal(t, "oo", args.(*TextInputChangedEventArgs).InputText)
 	})
 
 	ti.doBackspace()
@@ -55,8 +49,6 @@ func TestTextInput_DoBackspace(t *testing.T) {
 }
 
 func TestTextInput_DoBackspace_Disabled(t *testing.T) {
-	is := is.New(t)
-
 	ti := newTextInput(t)
 	ti.GetWidget().Disabled = true
 	ti.InputText = "foo"
@@ -64,7 +56,7 @@ func TestTextInput_DoBackspace_Disabled(t *testing.T) {
 	render(ti, t)
 
 	ti.ChangedEvent.AddHandler(func(args interface{}) {
-		is.Fail() // received event even though widget is disabled
+		t.Fail() // received event even though widget is disabled
 	})
 
 	ti.doBackspace()
@@ -72,14 +64,12 @@ func TestTextInput_DoBackspace_Disabled(t *testing.T) {
 }
 
 func TestTextInput_DoDelete(t *testing.T) {
-	is := is.New(t)
-
 	ti := newTextInput(t)
 	ti.InputText = "foo"
 	render(ti, t)
 
 	ti.ChangedEvent.AddHandler(func(args interface{}) {
-		is.Equal(args.(*TextInputChangedEventArgs).InputText, "oo")
+		assert.Equal(t, "oo", args.(*TextInputChangedEventArgs).InputText)
 	})
 
 	ti.doDelete()
@@ -87,15 +77,13 @@ func TestTextInput_DoDelete(t *testing.T) {
 }
 
 func TestTextInput_DoDelete_Disabled(t *testing.T) {
-	is := is.New(t)
-
 	ti := newTextInput(t)
 	ti.GetWidget().Disabled = true
 	ti.InputText = "foo"
 	render(ti, t)
 
 	ti.ChangedEvent.AddHandler(func(args interface{}) {
-		is.Fail() // received event even though widget is disabled
+		t.Fail() // received event even though widget is disabled
 	})
 
 	ti.doDelete()
@@ -103,8 +91,6 @@ func TestTextInput_DoDelete_Disabled(t *testing.T) {
 }
 
 func TestTextInput_DoInsert(t *testing.T) {
-	is := is.New(t)
-
 	ti := newTextInput(t)
 	ti.InputText = "foo"
 	ti.cursorPosition = 1
@@ -112,8 +98,8 @@ func TestTextInput_DoInsert(t *testing.T) {
 
 	ti.doInsert([]rune("ab€c"))
 
-	is.Equal(ti.InputText, "fab€coo")
-	is.Equal(ti.cursorPosition, 5)
+	assert.Equal(t, "fab€coo", ti.InputText)
+	assert.Equal(t, 5, ti.cursorPosition)
 }
 
 func newTextInput(t *testing.T, opts ...TextInputOpt) *TextInput {

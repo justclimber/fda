@@ -3,14 +3,12 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestButton_PressedEvent_User(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *ButtonPressedEventArgs
 
 	b := newButton(t,
@@ -19,13 +17,10 @@ func TestButton_PressedEvent_User(t *testing.T) {
 		}))
 
 	leftMouseButtonPress(b, t)
-
-	is.True(eventArgs != nil)
+	assert.NotNil(t, eventArgs)
 }
 
 func TestButton_ReleasedEvent_User(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *ButtonReleasedEventArgs
 
 	b := newButton(t,
@@ -34,13 +29,10 @@ func TestButton_ReleasedEvent_User(t *testing.T) {
 		}))
 
 	leftMouseButtonRelease(b, t)
-
-	is.True(eventArgs != nil)
+	assert.NotNil(t, eventArgs)
 }
 
 func TestButton_ClickedEvent_User(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *ButtonClickedEventArgs
 
 	b := newButton(t,
@@ -49,8 +41,7 @@ func TestButton_ClickedEvent_User(t *testing.T) {
 		}))
 
 	leftMouseButtonClick(b, t)
-
-	is.True(eventArgs != nil)
+	assert.NotNil(t, eventArgs)
 }
 
 func newButton(t *testing.T, opts ...ButtonOpt) *Button {

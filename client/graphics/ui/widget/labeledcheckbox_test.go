@@ -4,18 +4,16 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestLabeledCheckbox_SetState_User(t *testing.T) {
-	is := is.New(t)
-
 	l := newLabeledCheckbox(t)
 	leftMouseButtonClick(labeledCheckboxLabel(l), t)
 
-	is.Equal(l.Checkbox().State(), CheckboxChecked)
+	assert.Equal(t, CheckboxChecked, l.Checkbox().State())
 }
 
 func newLabeledCheckbox(t *testing.T, opts ...LabeledCheckboxOpt) *LabeledCheckbox {

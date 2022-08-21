@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/justclimber/fda/client/graphics/ui/input"
@@ -33,8 +33,6 @@ func TestContainer_Render(t *testing.T) {
 }
 
 func TestContainer_Render_AutoDisableChildren(t *testing.T) {
-	is := is.New(t)
-
 	w := NewWidget()
 	m := controlMock{}
 	m.On("GetWidget").Maybe().Return(w)
@@ -50,7 +48,7 @@ func TestContainer_Render_AutoDisableChildren(t *testing.T) {
 	c.widget.Disabled = true
 	render(c, t)
 
-	is.True(w.Disabled)
+	assert.True(t, w.Disabled)
 }
 
 func TestContainer_SetupInputLayer(t *testing.T) {

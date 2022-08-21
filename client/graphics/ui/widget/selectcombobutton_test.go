@@ -4,14 +4,12 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestSelectComboButton_SetSelectedEntry(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *SelectComboButtonEntrySelectedEventArgs
 	numEvents := 0
 
@@ -29,48 +27,44 @@ func TestSelectComboButton_SetSelectedEntry(t *testing.T) {
 	b.SetSelectedEntry(entry)
 	event.ExecuteDeferred()
 
-	is.Equal(b.SelectedEntry(), entry)
-	is.Equal(eventArgs.Entry, entry)
-	is.Equal(b.Label(), "label foo")
+	assert.Equal(t, entry, b.SelectedEntry())
+	assert.Equal(t, entry, eventArgs.Entry)
+	assert.Equal(t, "label foo", b.Label())
 
 	b.SetSelectedEntry(entry)
 	event.ExecuteDeferred()
 
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 
 	entry2 := "bar"
 	b.SetSelectedEntry(entry2)
 	event.ExecuteDeferred()
 
-	is.Equal(eventArgs.PreviousEntry, entry)
+	assert.Equal(t, entry, eventArgs.PreviousEntry)
 }
 
 func TestSelectComboButton_ContentVisible_Click(t *testing.T) {
-	is := is.New(t)
-
 	b := newSelectComboButton(t)
 
 	leftMouseButtonClick(b, t)
-	is.True(b.ContentVisible())
+	assert.True(t, b.ContentVisible())
 
 	leftMouseButtonClick(b, t)
-	is.True(!b.ContentVisible())
+	assert.False(t, b.ContentVisible())
 }
 
 func TestSelectComboButton_ContentVisible_Programmatic(t *testing.T) {
-	is := is.New(t)
-
 	b := newSelectComboButton(t)
 
 	b.SetContentVisible(true)
 	event.ExecuteDeferred()
 
-	is.True(b.ContentVisible())
+	assert.True(t, b.ContentVisible())
 
 	b.SetContentVisible(false)
 	event.ExecuteDeferred()
 
-	is.True(!b.ContentVisible())
+	assert.False(t, b.ContentVisible())
 }
 
 func newSelectComboButton(t *testing.T, opts ...SelectComboButtonOpt) *SelectComboButton {

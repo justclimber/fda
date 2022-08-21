@@ -3,12 +3,10 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMultiOnce_Do(t *testing.T) {
-	is := is.New(t)
-
 	m := MultiOnce{}
 
 	count := 0
@@ -20,8 +18,8 @@ func TestMultiOnce_Do(t *testing.T) {
 	m.Append(f)
 
 	m.Do()
-	is.Equal(count, 2)
+	assert.Equal(t, 2, count)
 
 	m.Do()
-	is.Equal(count, 2)
+	assert.Equal(t, 2, count)
 }

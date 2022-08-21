@@ -3,25 +3,21 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestCheckbox_State_Initial(t *testing.T) {
-	is := is.New(t)
-
 	c := newCheckbox(t,
 		CheckboxOpts.ChangedHandler(func(args *CheckboxChangedEventArgs) {
-			is.Fail() // event fired without previous action
+			t.Fail() // event fired without previous action
 		}))
 
-	is.Equal(c.State(), CheckboxUnchecked)
+	assert.Equal(t, CheckboxUnchecked, c.State())
 }
 
 func TestCheckbox_ChangedEvent_User(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *CheckboxChangedEventArgs
 
 	c := newCheckbox(t,
@@ -31,13 +27,11 @@ func TestCheckbox_ChangedEvent_User(t *testing.T) {
 
 	leftMouseButtonClick(c, t)
 
-	is.Equal(eventArgs.State, CheckboxChecked)
-	is.Equal(c.State(), CheckboxChecked)
+	assert.Equal(t, CheckboxChecked, eventArgs.State)
+	assert.Equal(t, CheckboxChecked, c.State())
 }
 
 func TestCheckbox_SetState(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *CheckboxChangedEventArgs
 	numEvents := 0
 
@@ -50,35 +44,31 @@ func TestCheckbox_SetState(t *testing.T) {
 	c.SetState(CheckboxChecked)
 	event.ExecuteDeferred()
 
-	is.Equal(eventArgs.State, CheckboxChecked)
-	is.Equal(c.State(), CheckboxChecked)
+	assert.Equal(t, CheckboxChecked, eventArgs.State)
+	assert.Equal(t, CheckboxChecked, c.State())
 
 	c.SetState(CheckboxChecked)
 	event.ExecuteDeferred()
 
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 }
 
 func TestCheckbox_State_Cycle(t *testing.T) {
-	is := is.New(t)
-
 	c := newCheckbox(t)
 	leftMouseButtonClick(c, t)
-	is.Equal(c.State(), CheckboxChecked)
+	assert.Equal(t, CheckboxChecked, c.State())
 	leftMouseButtonClick(c, t)
-	is.Equal(c.State(), CheckboxUnchecked)
+	assert.Equal(t, CheckboxUnchecked, c.State())
 }
 
 func TestCheckbox_State_Cycle_TriState(t *testing.T) {
-	is := is.New(t)
-
 	c := newCheckbox(t, CheckboxOpts.TriState())
 	leftMouseButtonClick(c, t)
-	is.Equal(c.State(), CheckboxChecked)
+	assert.Equal(t, CheckboxChecked, c.State())
 	leftMouseButtonClick(c, t)
-	is.Equal(c.State(), CheckboxGreyed)
+	assert.Equal(t, CheckboxGreyed, c.State())
 	leftMouseButtonClick(c, t)
-	is.Equal(c.State(), CheckboxUnchecked)
+	assert.Equal(t, CheckboxUnchecked, c.State())
 }
 
 func newCheckbox(t *testing.T, opts ...CheckboxOpt) *Checkbox {

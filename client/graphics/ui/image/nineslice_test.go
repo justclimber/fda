@@ -5,26 +5,24 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNineSlice_MinSize(t *testing.T) {
-	is := is.New(t)
-
 	n := NewNineSlice(newImageEmptySize(20, 20, t), [3]int{3, 10, 7}, [3]int{2, 16, 2})
 	w, h := n.MinSize()
-	is.Equal(w, 10)
-	is.Equal(h, 4)
+	assert.Equal(t, 10, w)
+	assert.Equal(t, 4, h)
 
 	n = NewNineSliceColor(color.White)
 	w, h = n.MinSize()
-	is.Equal(w, 0)
-	is.Equal(h, 0)
+	assert.Equal(t, 0, w)
+	assert.Equal(t, 0, h)
 
 	n = NewNineSliceColor(color.Transparent)
 	w, h = n.MinSize()
-	is.Equal(w, 0)
-	is.Equal(h, 0)
+	assert.Equal(t, 0, w)
+	assert.Equal(t, 0, h)
 }
 
 func newImageEmptySize(width int, height int, t *testing.T) *ebiten.Image {

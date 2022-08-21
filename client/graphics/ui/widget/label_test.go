@@ -4,31 +4,28 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestLabel_SetLabel(t *testing.T) {
-	is := is.New(t)
-
 	l := newLabel(t)
 
-	l.Label = "foo"
+	expectedText := "foo"
+	l.Label = expectedText
 	render(l, t)
 
-	is.Equal(labelText(l).Label, "foo")
+	assert.Equal(t, expectedText, labelText(l).Label)
 }
 
 func TestLabel_SetDisabled_Color(t *testing.T) {
-	is := is.New(t)
-
 	l := newLabel(t)
 
 	l.GetWidget().Disabled = true
 	render(l, t)
 
-	is.Equal(labelText(l).Color, color.Black)
+	assert.Equal(t, color.Black, labelText(l).Color)
 }
 
 func newLabel(t *testing.T, opts ...LabelOpt) *Label {

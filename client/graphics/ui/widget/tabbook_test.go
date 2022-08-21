@@ -4,29 +4,25 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestTabBook_Tab_Initial(t *testing.T) {
-	is := is.New(t)
-
 	tab1 := NewTabBookTab("Tab 1", newSimpleWidget(50, 50, nil))
 	tab2 := NewTabBookTab("Tab 2", newSimpleWidget(50, 50, nil))
 
 	tb := newTabBook(t,
 		TabBookOpts.Tabs(tab1, tab2),
 		TabBookOpts.TabSelectedHandler(func(args *TabBookTabSelectedEventArgs) {
-			is.Fail() // event fired without previous action
+			t.Fail() // event fired without previous action
 		}))
 
-	is.Equal(tb.Tab(), tab1)
+	assert.Equal(t, tab1, tb.Tab())
 }
 
 func TestTabBook_SetTab(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *TabBookTabSelectedEventArgs
 	numEvents := 0
 
@@ -43,18 +39,16 @@ func TestTabBook_SetTab(t *testing.T) {
 	tb.SetTab(tab2)
 	event.ExecuteDeferred()
 
-	is.Equal(tb.Tab(), tab2)
-	is.Equal(eventArgs.Tab, tab2)
-	is.Equal(eventArgs.PreviousTab, tab1)
+	assert.Equal(t, tab2, tb.Tab())
+	assert.Equal(t, tab2, eventArgs.Tab)
+	assert.Equal(t, tab1, eventArgs.PreviousTab)
 
 	tb.SetTab(tab2)
 	event.ExecuteDeferred()
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 }
 
 func TestTabBook_TabSelectedEvent_User(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *TabBookTabSelectedEventArgs
 	numEvents := 0
 
@@ -70,12 +64,12 @@ func TestTabBook_TabSelectedEvent_User(t *testing.T) {
 
 	leftMouseButtonClick(tabBookButtons(tb)[1], t)
 
-	is.Equal(tb.Tab(), tab2)
-	is.Equal(eventArgs.Tab, tab2)
-	is.Equal(eventArgs.PreviousTab, tab1)
+	assert.Equal(t, tab2, tb.Tab())
+	assert.Equal(t, tab2, eventArgs.Tab)
+	assert.Equal(t, tab1, eventArgs.PreviousTab)
 
 	leftMouseButtonClick(tabBookButtons(tb)[1], t)
-	is.Equal(numEvents, 1)
+	assert.Equal(t, 1, numEvents)
 }
 
 func newTabBook(t *testing.T, opts ...TabBookOpt) *TabBook {

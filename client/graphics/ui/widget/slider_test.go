@@ -3,14 +3,12 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestSlider_Current_Initial(t *testing.T) {
-	is := is.New(t)
-
 	var eventArgs *SliderChangedEventArgs
 	s := newSlider(t,
 		SliderOpts.MinMax(10, 20),
@@ -18,8 +16,8 @@ func TestSlider_Current_Initial(t *testing.T) {
 			eventArgs = args
 		}))
 
-	is.Equal(s.Current, 10)
-	is.Equal(eventArgs.Current, 10)
+	assert.Equal(t, 10, s.Current)
+	assert.Equal(t, 10, eventArgs.Current)
 }
 
 func newSlider(t *testing.T, opts ...SliderOpt) *Slider {

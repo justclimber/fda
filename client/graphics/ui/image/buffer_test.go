@@ -4,29 +4,25 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBufferedImage_Image(t *testing.T) {
-	is := is.New(t)
-
 	b := &BufferedImage{}
 	b.Width, b.Height = 100, 100
 	i := b.Image()
 	w, h := i.Size()
-	is.Equal(w, 100)
-	is.Equal(h, 100)
+	assert.Equal(t, 100, w)
+	assert.Equal(t, 100, h)
 
 	b.Width, b.Height = 150, 70
 	i = b.Image()
 	w, h = i.Size()
-	is.Equal(w, 150)
-	is.Equal(h, 70)
+	assert.Equal(t, 150, w)
+	assert.Equal(t, 70, h)
 }
 
 func TestMaskedRenderBuffer_Draw(t *testing.T) {
-	is := is.New(t)
-
 	b := NewMaskedRenderBuffer()
 	screen := newImageEmptySize(100, 100, t)
 
@@ -39,6 +35,6 @@ func TestMaskedRenderBuffer_Draw(t *testing.T) {
 		drawMask = true
 	})
 
-	is.True(draw)
-	is.True(drawMask)
+	assert.True(t, draw)
+	assert.True(t, drawMask)
 }

@@ -3,15 +3,13 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestFlipBook_SetPage_AlwaysRenderSingleWidget(t *testing.T) {
-	is := is.New(t)
-
 	f := newFlipBook(t)
 
 	var pages []*controlMock
@@ -40,7 +38,7 @@ func TestFlipBook_SetPage_AlwaysRenderSingleWidget(t *testing.T) {
 	pages[1].AssertNumberOfCalls(t, "Render", 1)
 	pages[2].AssertNumberOfCalls(t, "Render", 1)
 
-	is.Equal(order, expectedOrder)
+	require.Equal(t, expectedOrder, order)
 }
 
 func newFlipBook(t *testing.T, opts ...FlipBookOpt) *FlipBook {

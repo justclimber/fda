@@ -3,21 +3,20 @@ package widget
 import (
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/justclimber/fda/client/graphics/ui/event"
 )
 
 func TestComboButton_ContentVisible_Click(t *testing.T) {
-	is := is.New(t)
 
 	b := newComboButton(t)
 
 	leftMouseButtonClick(b, t)
-	is.True(b.ContentVisible)
+	assert.True(t, b.ContentVisible)
 
 	leftMouseButtonClick(b, t)
-	is.True(!b.ContentVisible)
+	assert.False(t, b.ContentVisible)
 }
 
 func newComboButton(t *testing.T, opts ...ComboButtonOpt) *ComboButton {

@@ -4,23 +4,20 @@ import (
 	"image"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewInsetsSimple(t *testing.T) {
-	is := is.New(t)
+	inset := 15
+	i := NewInsetsSimple(inset)
 
-	i := NewInsetsSimple(15)
-
-	is.Equal(i.Left, 15)
-	is.Equal(i.Right, 15)
-	is.Equal(i.Top, 15)
-	is.Equal(i.Bottom, 15)
+	assert.Equal(t, inset, i.Left)
+	assert.Equal(t, inset, i.Right)
+	assert.Equal(t, inset, i.Top)
+	assert.Equal(t, inset, i.Bottom)
 }
 
 func TestInsets_Apply(t *testing.T) {
-	is := is.New(t)
-
 	i := Insets{
 		Left:   10,
 		Right:  20,
@@ -29,27 +26,23 @@ func TestInsets_Apply(t *testing.T) {
 	}
 	r := image.Rect(25, 35, 145, 155)
 
-	is.Equal(i.Apply(r), image.Rect(35, 65, 125, 115))
+	assert.Equal(t, image.Rect(35, 65, 125, 115), i.Apply(r))
 }
 
 func TestInsets_Dx(t *testing.T) {
-	is := is.New(t)
-
 	i := Insets{
 		Left:  10,
 		Right: 20,
 	}
 
-	is.Equal(i.Dx(), 30)
+	assert.Equal(t, 30, i.Dx())
 }
 
 func TestInsets_Dy(t *testing.T) {
-	is := is.New(t)
-
 	i := Insets{
 		Top:    30,
 		Bottom: 40,
 	}
 
-	is.Equal(i.Dy(), 70)
+	assert.Equal(t, 70, i.Dy())
 }

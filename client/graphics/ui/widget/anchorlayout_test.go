@@ -5,12 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAnchorLayout_PreferredSize(t *testing.T) {
-	is := is.New(t)
-
 	padding := Insets{
 		Top:    10,
 		Left:   20,
@@ -24,8 +22,8 @@ func TestAnchorLayout_PreferredSize(t *testing.T) {
 
 	w, h := l.PreferredSize([]PreferredSizeLocateableWidget{wi})
 
-	is.Equal(w, wi.preferredWidth+padding.Dx())
-	is.Equal(h, wi.preferredHeight+padding.Dy())
+	assert.Equal(t, wi.preferredWidth+padding.Dx(), w)
+	assert.Equal(t, wi.preferredHeight+padding.Dy(), h)
 }
 
 func TestAnchorLayout_Layout(t *testing.T) {
@@ -91,14 +89,12 @@ func TestAnchorLayout_Layout(t *testing.T) {
 
 	for i, test := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			is := is.New(t)
-
 			l := newAnchorLayout(t, AnchorLayoutOpts.Padding(padding))
 
 			w := newSimpleWidget(ww, wh, test.ld)
 			l.Layout([]PreferredSizeLocateableWidget{w}, rect)
 
-			is.Equal(w.GetWidget().Rect, test.expected)
+			assert.Equal(t, test.expected, w.GetWidget().Rect)
 		})
 	}
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type IDE struct {
-	code *program.Program
+	program *program.Program
 	// tabs
 	// current tab
 	// version control

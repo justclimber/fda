@@ -37,8 +37,8 @@ type UI struct {
 // RemoveWindowFunc is a function to remove a Window from rendering.
 type RemoveWindowFunc func()
 
-// Update updates u. This method should be called in the Ebiten Update function.
-func (u *UI) Update() {
+// HandleInput handle user input. This method should be called in the Ebiten Update function.
+func (u *UI) HandleInput() {
 	internalinput.Update()
 }
 

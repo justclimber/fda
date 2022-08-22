@@ -62,7 +62,7 @@ func (is *IDEState) Setup(assets embed.FS) error {
 		)),
 	)
 
-	tOpts := []widget.TextInputOpt{
+	textInputOpts := []widget.TextInputOpt{
 		widget.TextInputOpts.WidgetOpts(widget.Opts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
@@ -82,13 +82,10 @@ func (is *IDEState) Setup(assets embed.FS) error {
 		widget.TextInputOpts.CaretOpts(
 			widget.CaretOpts.Size(f, 2),
 		),
+		widget.TextInputOpts.Placeholder("Enter text here"),
 	}
 
-	t := widget.NewTextInput(append(
-		tOpts,
-		widget.TextInputOpts.Placeholder("Enter text here"))...,
-	)
-	mainContainer.AddChild(t)
+	mainContainer.AddChild(widget.NewTextInput(textInputOpts...))
 
 	rootContainer.AddChild(mainContainer)
 

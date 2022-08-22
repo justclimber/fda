@@ -25,6 +25,7 @@ func (is *IDEState) Draw(screen *ebiten.Image) {
 }
 
 func (is *IDEState) Update() (graphics.ScreenState, error) {
+	is.ui.HandleInput()
 	return nil, nil
 }
 
@@ -53,10 +54,42 @@ func (is *IDEState) Setup(assets embed.FS) error {
 
 	mainContainer := widget.NewContainer(
 		"main",
+		widget.ContainerOpts.WidgetOpts(widget.Opts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 		)),
 	)
+
+	tOpts := []widget.TextInputOpt{
+		widget.TextInputOpts.WidgetOpts(widget.Opts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.TextInputOpts.Color(&widget.TextInputColor{
+			Idle:          colornames.White,
+			Disabled:      colornames.White,
+			Caret:         colornames.White,
+			DisabledCaret: colornames.White,
+		}),
+		widget.TextInputOpts.Padding(widget.Insets{
+			Left:   13,
+			Right:  13,
+			Top:    7,
+			Bottom: 7,
+		}),
+		widget.TextInputOpts.Face(f),
+		widget.TextInputOpts.CaretOpts(
+			widget.CaretOpts.Size(f, 2),
+		),
+	}
+
+	t := widget.NewTextInput(append(
+		tOpts,
+		widget.TextInputOpts.Placeholder("Enter text here"))...,
+	)
+	mainContainer.AddChild(t)
+
 	rootContainer.AddChild(mainContainer)
 
 	is.ui = &ui.UI{Container: rootContainer}

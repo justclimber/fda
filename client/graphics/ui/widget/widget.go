@@ -255,19 +255,18 @@ func (w *Widget) drawImageOptions(opts *ebiten.DrawImageOptions) {
 // If w does not have a parent widget, it returns input.DefaultLayer.
 func (w *Widget) EffectiveInputLayer() *input.Layer {
 	l := w.inputLayer
-	if l != nil && !l.Valid() {
-		l = nil
-	}
-
-	if l == nil {
-		if w.parent == nil {
-			return &input.DefaultLayer
+	if l != nil {
+		if !l.Valid() {
+			return nil
 		}
-
-		return w.parent.GetWidget().EffectiveInputLayer()
+		return l
 	}
 
-	return l
+	if w.parent == nil {
+		return &input.DefaultLayer
+	}
+
+	return w.parent.GetWidget().EffectiveInputLayer()
 }
 
 // Render renders w onto screen. Since Widget is only an abstraction, it does not actually draw

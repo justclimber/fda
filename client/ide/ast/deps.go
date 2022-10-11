@@ -4,10 +4,32 @@ import (
 	"github.com/justclimber/fda/common/lang/ast"
 )
 
-type Stmt interface {
+type DrawableNode interface {
 	ast.Node
+	Draw(r Renderer)
+}
+
+type Stmt interface {
+	DrawableNode
 }
 
 type Expr interface {
-	ast.Node
+	DrawableNode
+}
+
+type TextType int
+
+const (
+	TypeSystemSymbols = TextType(iota + 1)
+	TypeIdentifier
+	TypeNumbers
+)
+
+type Renderer interface {
+	DrawAssignment()
+	DrawArgDelimiter()
+	NewLine()
+	IndentIncrease()
+	IndentDecrease()
+	DrawText(name string, t TextType)
 }

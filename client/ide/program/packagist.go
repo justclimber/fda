@@ -1,7 +1,7 @@
 package program
 
 import (
-	"github.com/justclimber/fda/common/lang/validator/ast"
+	"github.com/justclimber/fda/client/ide/ast"
 )
 
 type Packagist struct {

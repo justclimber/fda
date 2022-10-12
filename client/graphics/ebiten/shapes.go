@@ -19,7 +19,7 @@ func init() {
 	emptyImage.Fill(color.White)
 }
 
-func DrawRect(r fgeom.Rect, image *ebiten.Image) {
+func DrawRect(r fgeom.Rect, image *ebiten.Image, clr color.Color) {
 	var path vector.Path
 	ps := r.Vertices()
 	first := true
@@ -34,13 +34,11 @@ func DrawRect(r fgeom.Rect, image *ebiten.Image) {
 	op := &ebiten.DrawTrianglesOptions{
 		FillRule: ebiten.EvenOdd,
 	}
+	op.ColorM.ScaleWithColor(clr)
 	vs, is := path.AppendVerticesAndIndicesForFilling(nil, nil)
 	for i := range vs {
 		vs[i].SrcX = 1
 		vs[i].SrcY = 1
-		vs[i].ColorR = 0x56 / float32(0xff)
-		vs[i].ColorG = 0x56 / float32(0xff)
-		vs[i].ColorB = 0x56 / float32(0xff)
 	}
 	image.DrawTriangles(vs, is, emptySubImage, op)
 }

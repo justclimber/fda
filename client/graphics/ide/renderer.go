@@ -8,7 +8,9 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
+	ebiten2 "github.com/justclimber/fda/client/graphics/ebiten"
 	"github.com/justclimber/fda/client/ide/ast"
+	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
@@ -16,13 +18,14 @@ const (
 	LineDistanceNormal = 1.5
 )
 
-type RenderOptions struct {
+type Options struct {
 	IndentWidth        int
 	Face               font.Face
 	LineDistanceFactor float64
 	TypeColorMap       map[ast.TextType]color.Color
 	DefaultColor       color.Color
 	Text               PredefinedText
+	TabOptions         TabOptions
 }
 
 type PredefinedText struct {
@@ -35,20 +38,34 @@ type PredefinedText struct {
 type textMeasurements struct {
 	lineHeight float64
 	width      float64
+	ascent     float64
 }
 
-func NewRenderer(opts RenderOptions, initialCursorX float64, initialCursorY float64) *Renderer {
+type TabOptions struct {
+	HeaderPadding         int
+	BodyPadding           int
+	Size                  fgeom.Point
+	HeaderBackgroundColor color.Color
+	TabColor              color.Color
+	BodyBackgroundColor   color.Color
+}
+
+func NewRenderer(opts Options, topLeft fgeom.Point) *Renderer {
+	m := measureFont(opts.Face, opts.LineDistanceFactor)
+	tabBodyX := topLeft.X
+	tabBodyY := topLeft.Y + 2*float64(opts.TabOptions.HeaderPadding) + m.lineHeight
 	return &Renderer{
 		opts:             opts,
-		textMeasurements: measureFont(opts.Face, opts.LineDistanceFactor),
+		textMeasurements: m,
 		imageOptions:     &ebiten.DrawImageOptions{},
-		initialCursorX:   initialCursorX,
-		initialCursorY:   initialCursorY,
+		tabBodyX:         tabBodyX,
+		tabBodyY:         tabBodyY,
+		topLeft:          topLeft,
 	}
 }
 
 type Renderer struct {
-	opts             RenderOptions
+	opts             Options
 	image            *ebiten.Image
 	imageOptions     *ebiten.DrawImageOptions
 	textMeasurements textMeasurements
@@ -57,22 +74,36 @@ type Renderer struct {
 	lineNumber       int
 	cursorX          float64
 	cursorY          float64
-	initialCursorX   float64
-	initialCursorY   float64
+	tabBodyX         float64
+	tabBodyY         float64
+	topLeft          fgeom.Point
 }
 
 func (r *Renderer) Draw(image *ebiten.Image) {
 	if r.image == nil {
 		r.image = image
 	}
-	r.cursorX = r.initialCursorX
-	r.cursorY = r.initialCursorY
+	r.cursorX = r.tabBodyX + float64(r.opts.TabOptions.BodyPadding)
+	r.cursorY = r.tabBodyY + float64(r.opts.TabOptions.BodyPadding) + r.textMeasurements.ascent
 }
 
 func (r *Renderer) DrawTab(name string) {
-	r.DrawText(name, ast.TypeIdentifier)
-	r.NewLine() // fixme: this is temp
-	r.NewLine()
+	tabHeight := float64(r.opts.TabOptions.HeaderPadding)*2 + r.textMeasurements.lineHeight
+	tabHeaderRect := fgeom.RectFromPointAndSize(r.topLeft, fgeom.Point{
+		X: r.opts.TabOptions.Size.X,
+		Y: tabHeight,
+	})
+	tabBodyRect := fgeom.RectFromPointAndSize(r.topLeft.Add(fgeom.Point{Y: tabHeight}), r.opts.TabOptions.Size)
+	ebiten2.DrawRect(tabHeaderRect, r.image, r.opts.TabOptions.HeaderBackgroundColor)
+	ebiten2.DrawRect(tabBodyRect, r.image, r.opts.TabOptions.BodyBackgroundColor)
+
+	x := r.topLeft.X + float64(r.opts.TabOptions.HeaderPadding)
+	y := r.topLeft.Y + r.textMeasurements.ascent*r.opts.LineDistanceFactor + float64(r.opts.TabOptions.HeaderPadding)
+	r.imageOptions.GeoM.Reset()
+	r.imageOptions.GeoM.Translate(x, y)
+	r.imageOptions.ColorM.Reset()
+	r.imageOptions.ColorM.ScaleWithColor(r.getColorForType(ast.TypeIdentifier))
+	text.DrawWithOptions(r.image, name, r.opts.Face, r.imageOptions)
 }
 
 func (r *Renderer) DrawAssignment() {
@@ -108,7 +139,7 @@ func (r *Renderer) DrawArgDelimiter() {
 }
 
 func (r *Renderer) NewLine() {
-	r.cursorX = r.initialCursorX + float64(r.currIndent*r.opts.IndentWidth)*r.textMeasurements.width
+	r.cursorX = r.tabBodyX + float64(r.currIndent*r.opts.IndentWidth)*r.textMeasurements.width + float64(r.opts.TabOptions.BodyPadding)
 	r.cursorY = r.cursorY + r.textMeasurements.lineHeight
 }
 
@@ -139,6 +170,7 @@ func measureFont(f font.Face, lineDistanceFactor float64) textMeasurements {
 	return textMeasurements{
 		lineHeight: fixedIntToFloat64(m.Height) * lineDistanceFactor,
 		width:      fixedIntToFloat64(a + f.Kern('A', 'A')),
+		ascent:     fixedIntToFloat64(m.Ascent),
 	}
 }
 

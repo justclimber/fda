@@ -15,6 +15,7 @@ import (
 	"github.com/justclimber/fda/client/ide"
 	"github.com/justclimber/fda/client/ide/ast"
 	"github.com/justclimber/fda/client/ide/program"
+	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
@@ -63,7 +64,7 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	tab := ide.NewTab("tab1", pkg)
 	is.ideObj = ide.NewIDE(prog, []*ide.Tab{tab}, 0)
 
-	is.ideRenderer = iderenderer.NewRenderer(iderenderer.RenderOptions{
+	is.ideRenderer = iderenderer.NewRenderer(iderenderer.Options{
 		IndentWidth:        3,
 		Face:               f,
 		LineDistanceFactor: iderenderer.LineDistanceNormal,
@@ -80,7 +81,14 @@ func (is *IDEState) Setup(assets embed.FS) error {
 			Package:      "package ",
 			Function:     "func",
 		},
-	}, 50, 50)
+		TabOptions: iderenderer.TabOptions{
+			HeaderPadding:         3,
+			BodyPadding:           3,
+			Size:                  fgeom.Point{X: 500, Y: 300},
+			HeaderBackgroundColor: color.RGBA{R: 20, G: 20, B: 20, A: 0xff},
+			BodyBackgroundColor:   color.RGBA{R: 35, G: 35, B: 35, A: 0xff},
+		},
+	}, fgeom.Point{X: 5, Y: 5})
 
 	rootContainer := widget.NewContainer(
 		"root",

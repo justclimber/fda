@@ -19,6 +19,7 @@ const (
 type RenderOptions struct {
 	ArgDelimiterStr    string
 	AssignmentStr      string
+	PackageStr         string
 	FunctionStr        string
 	IndentWidth        int
 	Face               font.Face
@@ -65,6 +66,13 @@ func (r *Renderer) Draw(image *ebiten.Image) {
 
 func (r *Renderer) DrawAssignment() {
 	r.DrawText(r.opts.AssignmentStr, ast.TypeSystemSymbols)
+}
+
+func (r *Renderer) DrawPackageHeader(name string) {
+	r.DrawText(r.opts.PackageStr, ast.TypeKeywords)
+	r.DrawText(name, ast.TypeIdentifier)
+	r.NewLine()
+	r.NewLine()
 }
 
 func (r *Renderer) DrawFuncHeader(definition *object.FunctionDefinition) {

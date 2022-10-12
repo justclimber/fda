@@ -66,6 +66,7 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	is.ideRenderer = iderenderer.NewRenderer(iderenderer.RenderOptions{
 		ArgDelimiterStr:    ", ",
 		AssignmentStr:      ": ",
+		PackageStr:         "package ",
 		FunctionStr:        "func",
 		IndentWidth:        3,
 		Face:               f,

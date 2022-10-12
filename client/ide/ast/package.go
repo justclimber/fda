@@ -34,6 +34,7 @@ func (p *Package) RegisterFunction(f *Function) error {
 }
 
 func (p *Package) Draw(r Renderer) {
+	r.DrawPackageHeader(p.Name)
 	for _, function := range p.functionsOrdered {
 		function.Draw(r)
 	}

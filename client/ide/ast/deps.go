@@ -36,4 +36,5 @@ type Renderer interface {
 	DrawText(name string, t TextType)
 	DrawFuncHeader(definition *object.FunctionDefinition)
 	DrawFuncBottom()
+	DrawPackageHeader(name string)
 }

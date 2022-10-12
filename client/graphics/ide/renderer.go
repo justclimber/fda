@@ -107,10 +107,10 @@ func (r *Renderer) DrawText(str string, t ast.TextType) {
 	r.imageOptions.ColorM.Reset()
 	r.imageOptions.ColorM.ScaleWithColor(r.opts.TypeColorMap[t])
 	text.DrawWithOptions(r.image, str, r.opts.Face, r.imageOptions)
-	r.Advance(len(str))
+	r.AdvanceCursor(len(str))
 }
 
-func (r *Renderer) Advance(num int) {
+func (r *Renderer) AdvanceCursor(num int) {
 	r.cursorX = r.cursorX + float64(num)*r.textMeasurements.width
 }
 

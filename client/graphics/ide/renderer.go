@@ -17,14 +17,18 @@ const (
 )
 
 type RenderOptions struct {
-	ArgDelimiterStr    string
-	AssignmentStr      string
-	PackageStr         string
-	FunctionStr        string
 	IndentWidth        int
 	Face               font.Face
 	LineDistanceFactor float64
 	TypeColorMap       map[ast.TextType]color.Color
+	Text               PredefinedText
+}
+
+type PredefinedText struct {
+	ArgDelimiter string
+	Assignment   string
+	Package      string
+	Function     string
 }
 
 type textMeasurements struct {
@@ -71,11 +75,11 @@ func (r *Renderer) DrawTab(name string) {
 }
 
 func (r *Renderer) DrawAssignment() {
-	r.DrawText(r.opts.AssignmentStr, ast.TypeSystemSymbols)
+	r.DrawText(r.opts.Text.Assignment, ast.TypeSystemSymbols)
 }
 
 func (r *Renderer) DrawPackageHeader(name string) {
-	r.DrawText(r.opts.PackageStr, ast.TypeKeywords)
+	r.DrawText(r.opts.Text.Package, ast.TypeKeywords)
 	r.DrawText(name, ast.TypeIdentifier)
 	r.NewLine()
 	r.NewLine()
@@ -84,7 +88,7 @@ func (r *Renderer) DrawPackageHeader(name string) {
 func (r *Renderer) DrawFuncHeader(definition *object.FunctionDefinition) {
 	r.DrawText(definition.Name, ast.TypeIdentifier)
 	r.DrawAssignment()
-	r.DrawText(r.opts.FunctionStr, ast.TypeKeywords)
+	r.DrawText(r.opts.Text.Function, ast.TypeKeywords)
 	r.DrawText("()", ast.TypeSystemSymbols)
 	r.DrawText(" {", ast.TypeSystemSymbols)
 	// todo: input args and returns
@@ -99,7 +103,7 @@ func (r *Renderer) DrawFuncBottom() {
 }
 
 func (r *Renderer) DrawArgDelimiter() {
-	r.DrawText(r.opts.ArgDelimiterStr, ast.TypeSystemSymbols)
+	r.DrawText(r.opts.Text.ArgDelimiter, ast.TypeSystemSymbols)
 }
 
 func (r *Renderer) NewLine() {

@@ -64,10 +64,6 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	is.ideObj = ide.NewIDE(prog, []*ide.Tab{tab}, 0)
 
 	is.ideRenderer = iderenderer.NewRenderer(iderenderer.RenderOptions{
-		ArgDelimiterStr:    ", ",
-		AssignmentStr:      ": ",
-		PackageStr:         "package ",
-		FunctionStr:        "func",
 		IndentWidth:        3,
 		Face:               f,
 		LineDistanceFactor: iderenderer.LineDistanceNormal,
@@ -76,6 +72,12 @@ func (is *IDEState) Setup(assets embed.FS) error {
 			ast.TypeKeywords:      colornames.Orange,
 			ast.TypeIdentifier:    colornames.Lightcoral,
 			ast.TypeNumbers:       colornames.Aqua,
+		},
+		Text: iderenderer.PredefinedText{
+			ArgDelimiter: ", ",
+			Assignment:   ": ",
+			Package:      "package ",
+			Function:     "func",
 		},
 	}, 50, 50)
 

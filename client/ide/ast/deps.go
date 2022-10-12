@@ -37,4 +37,5 @@ type Renderer interface {
 	DrawFuncHeader(definition *object.FunctionDefinition)
 	DrawFuncBottom()
 	DrawPackageHeader(name string)
+	DrawTab(name string)
 }

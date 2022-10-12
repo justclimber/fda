@@ -14,5 +14,6 @@ func NewTab(name string, packageAst *ast.Package) *Tab {
 }
 
 func (t *Tab) Draw(r ast.Renderer) {
+	r.DrawTab(t.name)
 	t.packageAst.Draw(r)
 }

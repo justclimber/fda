@@ -64,6 +64,12 @@ func (r *Renderer) Draw(image *ebiten.Image) {
 	r.cursorY = r.initialCursorY
 }
 
+func (r *Renderer) DrawTab(name string) {
+	r.DrawText(name, ast.TypeIdentifier)
+	r.NewLine() // fixme: this is temp
+	r.NewLine()
+}
+
 func (r *Renderer) DrawAssignment() {
 	r.DrawText(r.opts.AssignmentStr, ast.TypeSystemSymbols)
 }

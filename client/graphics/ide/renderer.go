@@ -9,6 +9,7 @@ import (
 	"golang.org/x/image/math/fixed"
 
 	"github.com/justclimber/fda/client/ide/ast"
+	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 type RenderOptions struct {
 	ArgDelimiterStr    string
 	AssignmentStr      string
+	FunctionStr        string
 	IndentWidth        int
 	Face               font.Face
 	LineDistanceFactor float64
@@ -65,18 +67,39 @@ func (r *Renderer) DrawAssignment() {
 	r.DrawText(r.opts.AssignmentStr, ast.TypeSystemSymbols)
 }
 
+func (r *Renderer) DrawFuncHeader(definition *object.FunctionDefinition) {
+	r.DrawText(definition.Name, ast.TypeIdentifier)
+	r.DrawAssignment()
+	r.DrawText(r.opts.FunctionStr, ast.TypeKeywords)
+	r.DrawText("()", ast.TypeSystemSymbols)
+	r.DrawText(" {", ast.TypeSystemSymbols)
+	// todo: input args and returns
+	r.IndentIncrease()
+	r.NewLine()
+}
+
+func (r *Renderer) DrawFuncBottom() {
+	r.IndentDecrease()
+	r.NewLine()
+	r.DrawText("}", ast.TypeSystemSymbols)
+}
+
 func (r *Renderer) DrawArgDelimiter() {
 	r.DrawText(r.opts.ArgDelimiterStr, ast.TypeSystemSymbols)
 }
 
 func (r *Renderer) NewLine() {
-	r.cursorX = r.initialCursorX
+	r.cursorX = r.initialCursorX + float64(r.currIndent*r.opts.IndentWidth)*r.textMeasurements.width
 	r.cursorY = r.cursorY + r.textMeasurements.lineHeight
 }
 
-func (r *Renderer) IndentIncrease() {}
+func (r *Renderer) IndentIncrease() {
+	r.currIndent += 1
+}
 
-func (r *Renderer) IndentDecrease() {}
+func (r *Renderer) IndentDecrease() {
+	r.currIndent -= 1
+}
 
 func (r *Renderer) DrawText(str string, t ast.TextType) {
 	r.imageOptions.GeoM.Reset()

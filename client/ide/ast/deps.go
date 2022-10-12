@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/justclimber/fda/common/lang/ast"
+	"github.com/justclimber/fda/common/lang/executor/object"
 )
 
 type DrawableNode interface {
@@ -21,6 +22,7 @@ type TextType int
 
 const (
 	TypeSystemSymbols = TextType(iota + 1)
+	TypeKeywords
 	TypeIdentifier
 	TypeNumbers
 )
@@ -32,4 +34,6 @@ type Renderer interface {
 	IndentIncrease()
 	IndentDecrease()
 	DrawText(name string, t TextType)
+	DrawFuncHeader(definition *object.FunctionDefinition)
+	DrawFuncBottom()
 }

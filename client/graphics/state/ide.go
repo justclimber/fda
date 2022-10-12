@@ -66,12 +66,14 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	is.ideRenderer = iderenderer.NewRenderer(iderenderer.RenderOptions{
 		ArgDelimiterStr:    ", ",
 		AssignmentStr:      ": ",
+		FunctionStr:        "func",
 		IndentWidth:        3,
 		Face:               f,
 		LineDistanceFactor: iderenderer.LineDistanceNormal,
 		TypeColorMap: map[ast.TextType]color.Color{
 			ast.TypeSystemSymbols: colornames.White,
-			ast.TypeIdentifier:    colornames.Orange,
+			ast.TypeKeywords:      colornames.Orange,
+			ast.TypeIdentifier:    colornames.Lightcoral,
 			ast.TypeNumbers:       colornames.Aqua,
 		},
 	}, 50, 50)

@@ -11,12 +11,17 @@ import (
 	"github.com/justclimber/fda/client/ide/ast"
 )
 
+const (
+	LineDistanceNormal = 1.5
+)
+
 type RenderOptions struct {
-	ArgDelimiterStr string
-	AssignmentStr   string
-	IndentWidth     int
-	Face            font.Face
-	TypeColorMap    map[ast.TextType]color.Color
+	ArgDelimiterStr    string
+	AssignmentStr      string
+	IndentWidth        int
+	Face               font.Face
+	LineDistanceFactor float64
+	TypeColorMap       map[ast.TextType]color.Color
 }
 
 type textMeasurements struct {
@@ -24,11 +29,13 @@ type textMeasurements struct {
 	width      float64
 }
 
-func NewRenderer(opts RenderOptions) *Renderer {
+func NewRenderer(opts RenderOptions, initialCursorX float64, initialCursorY float64) *Renderer {
 	return &Renderer{
 		opts:             opts,
-		textMeasurements: measureFont(opts.Face),
+		textMeasurements: measureFont(opts.Face, opts.LineDistanceFactor),
 		op:               &ebiten.DrawImageOptions{},
+		initialCursorX:   initialCursorX,
+		initialCursorY:   initialCursorY,
 	}
 }
 
@@ -42,14 +49,16 @@ type Renderer struct {
 	lineNumber       int
 	cursorX          float64
 	cursorY          float64
+	initialCursorX   float64
+	initialCursorY   float64
 }
 
-func (r *Renderer) SetImage(image *ebiten.Image) {
+func (r *Renderer) Draw(image *ebiten.Image) {
 	if r.image == nil {
 		r.image = image
 	}
-	r.cursorX = 50
-	r.cursorY = 50
+	r.cursorX = r.initialCursorX
+	r.cursorY = r.initialCursorY
 }
 
 func (r *Renderer) DrawAssignment() {
@@ -60,7 +69,10 @@ func (r *Renderer) DrawArgDelimiter() {
 	r.DrawText(r.opts.ArgDelimiterStr, ast.TypeSystemSymbols)
 }
 
-func (r *Renderer) NewLine() {}
+func (r *Renderer) NewLine() {
+	r.cursorX = r.initialCursorX
+	r.cursorY = r.cursorY + r.textMeasurements.lineHeight
+}
 
 func (r *Renderer) IndentIncrease() {}
 
@@ -80,11 +92,11 @@ func (r *Renderer) Advance(num int) {
 	r.cursorX = r.cursorX + float64(num)*r.textMeasurements.width
 }
 
-func measureFont(f font.Face) textMeasurements {
+func measureFont(f font.Face, lineDistanceFactor float64) textMeasurements {
 	m := f.Metrics()
 	a, _ := f.GlyphAdvance('A')
 	return textMeasurements{
-		lineHeight: fixedIntToFloat64(m.Height),
+		lineHeight: fixedIntToFloat64(m.Height) * lineDistanceFactor,
 		width:      fixedIntToFloat64(a + f.Kern('A', 'A')),
 	}
 }

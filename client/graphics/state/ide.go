@@ -30,7 +30,7 @@ func NewIDEState() *IDEState {
 
 func (is *IDEState) Draw(screen *ebiten.Image) {
 	//is.ui.Draw(screen)
-	is.ideRenderer.SetImage(screen)
+	is.ideRenderer.Draw(screen)
 	is.ideObj.Render(is.ideRenderer)
 }
 
@@ -48,10 +48,12 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	packageName := "main"
 	funcDefinition := object.NewFunctionDefinition("testFunc", packageName, nil, nil)
 	identifier1 := ast.NewIdentifier(0, "testVar1")
-	identifier2 := ast.NewIdentifier(0, "testVar2")
-	expr := ast.NewNumInt(0, 124)
-	assignment := ast.NewAssignment(0, []*ast.Identifier{identifier1, identifier2}, expr)
-	funcBody := ast.NewStatementsBlock(0, []ast.Stmt{assignment})
+	identifier2 := ast.NewIdentifier(0, "testVar21")
+	expr1 := ast.NewNumInt(0, 124)
+	expr2 := ast.NewNumInt(0, 100000)
+	assignment1 := ast.NewAssignment(0, []*ast.Identifier{identifier1, identifier2}, expr1)
+	assignment2 := ast.NewAssignment(0, []*ast.Identifier{identifier2}, expr2)
+	funcBody := ast.NewStatementsBlock(0, []ast.Stmt{assignment1, assignment2})
 	function := ast.NewFunction(0, funcDefinition, funcBody)
 	pkg := ast.NewPackage(0, packageName)
 	_ = pkg.RegisterFunction(function)
@@ -62,16 +64,17 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	is.ideObj = ide.NewIDE(prog, []*ide.Tab{tab}, 0)
 
 	is.ideRenderer = iderenderer.NewRenderer(iderenderer.RenderOptions{
-		ArgDelimiterStr: ", ",
-		AssignmentStr:   ": ",
-		IndentWidth:     3,
-		Face:            f,
+		ArgDelimiterStr:    ", ",
+		AssignmentStr:      ": ",
+		IndentWidth:        3,
+		Face:               f,
+		LineDistanceFactor: iderenderer.LineDistanceNormal,
 		TypeColorMap: map[ast.TextType]color.Color{
 			ast.TypeSystemSymbols: colornames.White,
 			ast.TypeIdentifier:    colornames.Orange,
 			ast.TypeNumbers:       colornames.Aqua,
 		},
-	})
+	}, 50, 50)
 
 	rootContainer := widget.NewContainer(
 		"root",

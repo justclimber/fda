@@ -33,7 +33,7 @@ func NewRenderer(opts RenderOptions, initialCursorX float64, initialCursorY floa
 	return &Renderer{
 		opts:             opts,
 		textMeasurements: measureFont(opts.Face, opts.LineDistanceFactor),
-		op:               &ebiten.DrawImageOptions{},
+		imageOptions:     &ebiten.DrawImageOptions{},
 		initialCursorX:   initialCursorX,
 		initialCursorY:   initialCursorY,
 	}
@@ -42,7 +42,7 @@ func NewRenderer(opts RenderOptions, initialCursorX float64, initialCursorY floa
 type Renderer struct {
 	opts             RenderOptions
 	image            *ebiten.Image
-	op               *ebiten.DrawImageOptions
+	imageOptions     *ebiten.DrawImageOptions
 	textMeasurements textMeasurements
 	currIndent       int
 	offset           int
@@ -79,12 +79,11 @@ func (r *Renderer) IndentIncrease() {}
 func (r *Renderer) IndentDecrease() {}
 
 func (r *Renderer) DrawText(str string, t ast.TextType) {
-	r.op.GeoM.Reset()
-	r.op.GeoM.Translate(r.cursorX, r.cursorY)
-	clr := r.opts.TypeColorMap[t]
-	r.op.ColorM.Reset()
-	r.op.ColorM.ScaleWithColor(clr)
-	text.DrawWithOptions(r.image, str, r.opts.Face, r.op)
+	r.imageOptions.GeoM.Reset()
+	r.imageOptions.GeoM.Translate(r.cursorX, r.cursorY)
+	r.imageOptions.ColorM.Reset()
+	r.imageOptions.ColorM.ScaleWithColor(r.opts.TypeColorMap[t])
+	text.DrawWithOptions(r.image, str, r.opts.Face, r.imageOptions)
 	r.Advance(len(str))
 }
 

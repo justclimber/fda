@@ -20,8 +20,12 @@ func (sb *StatementsBlock) ID() int64            { return sb.id }
 func (sb *StatementsBlock) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
 func (sb *StatementsBlock) Draw(r Renderer) {
-	for _, statement := range sb.statements {
+	for i, statement := range sb.statements {
 		statement.Draw(r)
-		r.NewLine()
+
+		// don't make a new line for last statement because of closing bracket and decreased indent
+		if i != len(sb.statements)-1 {
+			r.NewLine()
+		}
 	}
 }

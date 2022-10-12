@@ -61,8 +61,10 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	pkgist := program.NewPackagist()
 	_ = pkgist.RegisterPackage(pkg)
 	prog := program.NewProgram(pkgist)
-	tab := ide.NewTab("tab1", pkg)
-	is.ideObj = ide.NewIDE(prog, []*ide.Tab{tab}, 0)
+	tab1 := ide.NewTab("tab1", pkg)
+	tab2 := ide.NewTab("some_tab1", nil)
+	tab3 := ide.NewTab("some_tab2", nil)
+	is.ideObj = ide.NewIDE(prog, []*ide.Tab{tab1, tab2, tab3}, 0)
 
 	is.ideRenderer = iderenderer.NewRenderer(iderenderer.Options{
 		IndentWidth:        3,
@@ -82,11 +84,13 @@ func (is *IDEState) Setup(assets embed.FS) error {
 			Function:     "func",
 		},
 		TabOptions: iderenderer.TabOptions{
-			HeaderPadding:         3,
-			BodyPadding:           3,
+			HeaderSpacing:         4,
+			HeaderPadding:         5,
+			BodyPadding:           5,
 			Size:                  fgeom.Point{X: 500, Y: 300},
 			HeaderBackgroundColor: color.RGBA{R: 20, G: 20, B: 20, A: 0xff},
 			BodyBackgroundColor:   color.RGBA{R: 35, G: 35, B: 35, A: 0xff},
+			TabColor:              color.RGBA{R: 35, G: 35, B: 35, A: 0xff},
 		},
 	}, fgeom.Point{X: 5, Y: 5})
 

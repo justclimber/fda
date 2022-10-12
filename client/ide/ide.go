@@ -18,9 +18,17 @@ func NewIDE(program *program.Program, tabs []*Tab, currentTabIndex int) *IDE {
 
 func (id *IDE) Render(r ast.Renderer) {
 	// current tab . render
+	r.DrawHeaderTab()
+	offset := 0.
+	for i, tab := range id.tabs {
+		if i == id.currentTabIndex {
+			offset = r.DrawActiveTab(tab.name, offset)
+		} else {
+			offset = r.DrawInactiveTab(tab.name, offset)
+		}
+	}
 	id.tabs[id.currentTabIndex].Draw(r)
 
 	// render general interface
-	// render tab bar
 	// render help
 }

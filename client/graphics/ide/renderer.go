@@ -42,6 +42,7 @@ type textMeasurements struct {
 }
 
 type TabOptions struct {
+	HeaderSpacing         int
 	HeaderPadding         int
 	BodyPadding           int
 	Size                  fgeom.Point
@@ -87,23 +88,56 @@ func (r *Renderer) Draw(image *ebiten.Image) {
 	r.cursorY = r.tabBodyY + float64(r.opts.TabOptions.BodyPadding) + r.textMeasurements.ascent
 }
 
-func (r *Renderer) DrawTab(name string) {
+func (r *Renderer) DrawHeaderTab() {
 	tabHeight := float64(r.opts.TabOptions.HeaderPadding)*2 + r.textMeasurements.lineHeight
 	tabHeaderRect := fgeom.RectFromPointAndSize(r.topLeft, fgeom.Point{
 		X: r.opts.TabOptions.Size.X,
 		Y: tabHeight,
 	})
-	tabBodyRect := fgeom.RectFromPointAndSize(r.topLeft.Add(fgeom.Point{Y: tabHeight}), r.opts.TabOptions.Size)
 	ebiten2.DrawRect(tabHeaderRect, r.image, r.opts.TabOptions.HeaderBackgroundColor)
-	ebiten2.DrawRect(tabBodyRect, r.image, r.opts.TabOptions.BodyBackgroundColor)
+}
 
-	x := r.topLeft.X + float64(r.opts.TabOptions.HeaderPadding)
-	y := r.topLeft.Y + r.textMeasurements.ascent*r.opts.LineDistanceFactor + float64(r.opts.TabOptions.HeaderPadding)
+func (r *Renderer) DrawInactiveTab(name string, offset float64) float64 {
+	return r.drawTab(name, offset, false)
+}
+
+func (r *Renderer) DrawActiveTab(name string, offset float64) float64 {
+	return r.drawTab(name, offset, true)
+}
+
+func (r *Renderer) drawTab(name string, offset float64, isActive bool) float64 {
+	tabWidth := fixedIntToFloat64(font.MeasureString(r.opts.Face, name)) + float64(2*r.opts.TabOptions.HeaderPadding)
+	tabHeight := 0.
+	if isActive {
+		tabHeight = r.fullTabHeight()
+	} else {
+		tabHeight = r.textMeasurements.lineHeight + float64(r.opts.TabOptions.HeaderPadding)
+	}
+	tabSize := fgeom.Point{
+		X: tabWidth,
+		Y: tabHeight,
+	}
+	tabTopLeft := r.topLeft.Add(fgeom.Point{X: offset})
+	tabHeaderRect := fgeom.RectFromPointAndSize(tabTopLeft, tabSize)
+	ebiten2.DrawRect(tabHeaderRect, r.image, r.opts.TabOptions.TabColor)
+
+	x := tabTopLeft.X + float64(r.opts.TabOptions.HeaderPadding)
+	y := tabTopLeft.Y + r.textMeasurements.ascent*r.opts.LineDistanceFactor + float64(r.opts.TabOptions.HeaderPadding)
 	r.imageOptions.GeoM.Reset()
 	r.imageOptions.GeoM.Translate(x, y)
 	r.imageOptions.ColorM.Reset()
 	r.imageOptions.ColorM.ScaleWithColor(r.getColorForType(ast.TypeIdentifier))
 	text.DrawWithOptions(r.image, name, r.opts.Face, r.imageOptions)
+	return offset + tabWidth + float64(r.opts.TabOptions.HeaderSpacing)
+}
+
+func (r *Renderer) fullTabHeight() float64 {
+	return float64(r.opts.TabOptions.HeaderPadding)*2 + r.textMeasurements.lineHeight
+}
+
+func (r *Renderer) DrawTabBody() {
+	tabBodyRect := fgeom.RectFromPointAndSize(r.topLeft.Add(fgeom.Point{Y: r.fullTabHeight()}), r.opts.TabOptions.Size)
+	ebiten2.DrawRect(tabBodyRect, r.image, r.opts.TabOptions.BodyBackgroundColor)
 }
 
 func (r *Renderer) DrawAssignment() {

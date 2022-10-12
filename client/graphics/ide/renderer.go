@@ -21,6 +21,7 @@ type RenderOptions struct {
 	Face               font.Face
 	LineDistanceFactor float64
 	TypeColorMap       map[ast.TextType]color.Color
+	DefaultColor       color.Color
 	Text               PredefinedText
 }
 
@@ -123,7 +124,7 @@ func (r *Renderer) DrawText(str string, t ast.TextType) {
 	r.imageOptions.GeoM.Reset()
 	r.imageOptions.GeoM.Translate(r.cursorX, r.cursorY)
 	r.imageOptions.ColorM.Reset()
-	r.imageOptions.ColorM.ScaleWithColor(r.opts.TypeColorMap[t])
+	r.imageOptions.ColorM.ScaleWithColor(r.getColorForType(t))
 	text.DrawWithOptions(r.image, str, r.opts.Face, r.imageOptions)
 	r.AdvanceCursor(len(str))
 }
@@ -143,4 +144,12 @@ func measureFont(f font.Face, lineDistanceFactor float64) textMeasurements {
 
 func fixedIntToFloat64(i fixed.Int26_6) float64 {
 	return float64(i) / (1 << 6)
+}
+
+func (r *Renderer) getColorForType(t ast.TextType) color.Color {
+	c, ok := r.opts.TypeColorMap[t]
+	if ok {
+		return c
+	}
+	return r.opts.DefaultColor
 }

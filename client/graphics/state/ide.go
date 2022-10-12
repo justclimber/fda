@@ -67,6 +67,7 @@ func (is *IDEState) Setup(assets embed.FS) error {
 		IndentWidth:        3,
 		Face:               f,
 		LineDistanceFactor: iderenderer.LineDistanceNormal,
+		DefaultColor:       colornames.White,
 		TypeColorMap: map[ast.TextType]color.Color{
 			ast.TypeSystemSymbols: colornames.White,
 			ast.TypeKeywords:      colornames.Orange,

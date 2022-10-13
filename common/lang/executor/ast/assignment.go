@@ -21,7 +21,7 @@ type Assignment struct {
 }
 
 func (a *Assignment) ID() int64            { return a.id }
-func (a *Assignment) NodeKey() ast.NodeKey { return ast.KeyExpressionList }
+func (a *Assignment) NodeKey() ast.NodeKey { return ast.KeyAssignment }
 
 func (a *Assignment) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	execMngr.AddNextExec(a.value, func() error {

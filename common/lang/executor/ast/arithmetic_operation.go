@@ -22,7 +22,7 @@ type ArithmeticOperation struct {
 }
 
 func (ao *ArithmeticOperation) ID() int64            { return ao.id }
-func (ao *ArithmeticOperation) NodeKey() ast.NodeKey { return ast.KeyExpressionList }
+func (ao *ArithmeticOperation) NodeKey() ast.NodeKey { return ast.KeyArithmeticOperation }
 
 func (ao *ArithmeticOperation) Exec(env *environment.Environment, result *object.Result, execMngr execManager) error {
 	res := object.NewResult()

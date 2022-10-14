@@ -108,7 +108,7 @@ func (r *Renderer) DrawActiveTab(name string, offset float64) float64 {
 }
 
 func (r *Renderer) drawTab(name string, offset float64, isActive bool) float64 {
-	tabWidth := fixedIntToFloat64(font.MeasureString(r.opts.Face, name)) + float64(2*r.opts.TabOptions.HeaderPadding)
+	tabWidth := float64(len(name))*r.textMeasurements.width + float64(2*r.opts.TabOptions.HeaderPadding)
 	tabHeight := 0.
 	if isActive {
 		tabHeight = r.fullTabHeight()

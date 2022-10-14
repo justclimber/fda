@@ -30,6 +30,8 @@ type Options struct {
 
 type PredefinedText struct {
 	ArgDelimiter string
+	IfStart      string
+	IfElse       string
 	Assignment   string
 	Package      string
 	Function     string
@@ -170,6 +172,32 @@ func (r *Renderer) DrawFuncBottom() {
 
 func (r *Renderer) DrawArgDelimiter() {
 	r.DrawText(r.opts.Text.ArgDelimiter, ast.TypeSystemSymbols)
+}
+
+func (r *Renderer) DrawIfStart() {
+	r.DrawText(r.opts.Text.IfStart, ast.TypeKeywords)
+}
+
+func (r *Renderer) DrawIfElse() {
+	r.IndentDecrease()
+	r.NewLine()
+	r.DrawText("} ", ast.TypeSystemSymbols)
+	r.DrawText(r.opts.Text.IfElse, ast.TypeKeywords)
+	r.DrawText(" {", ast.TypeSystemSymbols)
+	r.IndentIncrease()
+	r.NewLine()
+}
+
+func (r *Renderer) DrawIfMid() {
+	r.DrawText(" {", ast.TypeSystemSymbols)
+	r.IndentIncrease()
+	r.NewLine()
+}
+
+func (r *Renderer) DrawIfEnd() {
+	r.IndentDecrease()
+	r.NewLine()
+	r.DrawText("}", ast.TypeSystemSymbols)
 }
 
 func (r *Renderer) NewLine() {

@@ -54,7 +54,13 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	expr2 := ast.NewNumInt(0, 100000)
 	assignment1 := ast.NewAssignment(0, []*ast.Identifier{identifier1, identifier2}, expr1)
 	assignment2 := ast.NewAssignment(0, []*ast.Identifier{identifier2}, expr2)
-	funcBody := ast.NewStatementsBlock(0, []ast.Stmt{assignment1, assignment2})
+	ifStatement := ast.NewIfStatement(
+		0,
+		ast.NewNumInt(0, 333),
+		ast.NewStatementsBlock(0, []ast.Stmt{assignment1}),
+		ast.NewStatementsBlock(0, []ast.Stmt{assignment2}),
+	)
+	funcBody := ast.NewStatementsBlock(0, []ast.Stmt{ifStatement})
 	function := ast.NewFunction(0, funcDefinition, funcBody)
 	pkg := ast.NewPackage(0, packageName)
 	_ = pkg.RegisterFunction(function)
@@ -82,6 +88,8 @@ func (is *IDEState) Setup(assets embed.FS) error {
 			Assignment:   ": ",
 			Package:      "package ",
 			Function:     "func",
+			IfStart:      "if ",
+			IfElse:       "else",
 		},
 		TabOptions: iderenderer.TabOptions{
 			HeaderSpacing:         4,

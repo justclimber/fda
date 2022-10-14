@@ -41,4 +41,8 @@ type Renderer interface {
 	DrawInactiveTab(name string, offset float64) float64
 	DrawHeaderTab()
 	DrawTabBody()
+	DrawIfStart()
+	DrawIfMid()
+	DrawIfElse()
+	DrawIfEnd()
 }

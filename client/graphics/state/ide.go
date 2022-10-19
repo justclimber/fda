@@ -9,9 +9,7 @@ import (
 
 	"github.com/justclimber/fda/client/graphics"
 	iderenderer "github.com/justclimber/fda/client/graphics/ide"
-	ui "github.com/justclimber/fda/client/graphics/ui"
 	"github.com/justclimber/fda/client/graphics/ui/font"
-	"github.com/justclimber/fda/client/graphics/ui/widget"
 	"github.com/justclimber/fda/client/ide"
 	"github.com/justclimber/fda/client/ide/ast"
 	"github.com/justclimber/fda/client/ide/program"
@@ -20,7 +18,6 @@ import (
 )
 
 type IDEState struct {
-	ui          *ui.UI
 	ideObj      *ide.IDE
 	ideRenderer *iderenderer.Renderer
 }
@@ -30,13 +27,11 @@ func NewIDEState() *IDEState {
 }
 
 func (is *IDEState) Draw(screen *ebiten.Image) {
-	//is.ui.Draw(screen)
 	is.ideRenderer.Draw(screen)
 	is.ideObj.Render(is.ideRenderer)
 }
 
 func (is *IDEState) Update() (graphics.ScreenState, error) {
-	is.ui.HandleInput()
 	return nil, nil
 }
 
@@ -101,63 +96,6 @@ func (is *IDEState) Setup(assets embed.FS) error {
 			TabColor:              color.RGBA{R: 35, G: 35, B: 35, A: 0xff},
 		},
 	}, fgeom.Point{X: 5, Y: 5})
-
-	rootContainer := widget.NewContainer(
-		"root",
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
-			widget.GridLayoutOpts.Padding(widget.NewInsetsSimple(20)),
-			widget.GridLayoutOpts.Spacing(0, 20))),
-	)
-	is.ui = &ui.UI{Container: rootContainer}
-
-	rootContainer.AddChild(widget.NewText(
-		widget.TextOpts.Text(
-			"Header",
-			f,
-			colornames.White,
-		),
-	))
-
-	mainContainer := widget.NewContainer(
-		"main",
-		widget.ContainerOpts.WidgetOpts(widget.Opts.LayoutData(widget.RowLayoutData{
-			Stretch: true,
-		})),
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-		)),
-	)
-
-	textInputOpts := []widget.TextInputOpt{
-		widget.TextInputOpts.WidgetOpts(widget.Opts.LayoutData(widget.RowLayoutData{
-			Stretch: true,
-		})),
-		widget.TextInputOpts.Color(&widget.TextInputColor{
-			Idle:          colornames.White,
-			Disabled:      colornames.White,
-			Caret:         colornames.White,
-			DisabledCaret: colornames.White,
-		}),
-		widget.TextInputOpts.Padding(widget.Insets{
-			Left:   13,
-			Right:  13,
-			Top:    7,
-			Bottom: 7,
-		}),
-		widget.TextInputOpts.Face(f),
-		widget.TextInputOpts.CaretOpts(
-			widget.CaretOpts.Size(f, 2),
-		),
-		widget.TextInputOpts.Placeholder("Enter text here"),
-	}
-
-	mainContainer.AddChild(widget.NewTextInput(textInputOpts...))
-
-	rootContainer.AddChild(mainContainer)
-
-	is.ui = &ui.UI{Container: rootContainer}
 
 	return nil
 }

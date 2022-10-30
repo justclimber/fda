@@ -15,19 +15,20 @@
 package fgeom
 
 import (
+	"fmt"
 	"testing"
 )
 
 // Some standard intervals for use throughout the tests.
 var (
-	unit          = Interval{0, 1}
-	negunit       = Interval{-1, 0}
-	half          = Interval{0.5, 0.5}
-	emptyInterval = EmptyInterval()
+	unit          = Interval[float64]{0, 1}
+	negunit       = Interval[float64]{-1, 0}
+	half          = Interval[float64]{0.5, 0.5}
+	emptyInterval = EmptyInterval[float64]()
 )
 
 func TestIsEmpty(t *testing.T) {
-	var zero Interval
+	var zero Interval[float64]
 	if unit.IsEmpty() {
 		t.Errorf("%v should not be empty", unit)
 	}
@@ -44,7 +45,7 @@ func TestIsEmpty(t *testing.T) {
 
 func TestIntervalCenter(t *testing.T) {
 	tests := []struct {
-		interval Interval
+		interval Interval[float64]
 		want     float64
 	}{
 		{unit, 0.5},
@@ -61,7 +62,7 @@ func TestIntervalCenter(t *testing.T) {
 
 func TestLength(t *testing.T) {
 	tests := []struct {
-		interval Interval
+		interval Interval[float64]
 		want     float64
 	}{
 		{unit, 1},
@@ -80,7 +81,7 @@ func TestLength(t *testing.T) {
 
 func TestIntervalContains(t *testing.T) {
 	tests := []struct {
-		interval         Interval
+		interval         Interval[float64]
 		p                float64
 		contains         bool
 		interiorContains bool
@@ -117,8 +118,8 @@ func TestIntervalContains(t *testing.T) {
 
 func TestIntervalOperations(t *testing.T) {
 	tests := []struct {
-		have               Interval
-		other              Interval
+		have               Interval[float64]
+		other              Interval[float64]
 		contains           bool
 		interiorContains   bool
 		intersects         bool
@@ -174,7 +175,7 @@ func TestIntervalOperations(t *testing.T) {
 		},
 		{
 			have:               unit,
-			other:              Interval{0, 0.5},
+			other:              Interval[float64]{0, 0.5},
 			contains:           true,
 			interiorContains:   false,
 			intersects:         true,
@@ -182,7 +183,7 @@ func TestIntervalOperations(t *testing.T) {
 		},
 		{
 			have:               half,
-			other:              Interval{0, 0.5},
+			other:              Interval[float64]{0, 0.5},
 			contains:           false,
 			interiorContains:   false,
 			intersects:         true,
@@ -208,11 +209,11 @@ func TestIntervalOperations(t *testing.T) {
 
 func TestIntersection(t *testing.T) {
 	tests := []struct {
-		x, y Interval
-		want Interval
+		x, y Interval[float64]
+		want Interval[float64]
 	}{
 		{unit, half, half},
-		{unit, negunit, Interval{0, 0}},
+		{unit, negunit, Interval[float64]{0, 0}},
 		{negunit, half, emptyInterval},
 		{unit, emptyInterval, emptyInterval},
 		{emptyInterval, unit, emptyInterval},
@@ -226,16 +227,16 @@ func TestIntersection(t *testing.T) {
 
 func TestUnion(t *testing.T) {
 	tests := []struct {
-		x, y Interval
-		want Interval
+		x, y Interval[float64]
+		want Interval[float64]
 	}{
-		{Interval{99, 100}, emptyInterval, Interval{99, 100}},
-		{emptyInterval, Interval{99, 100}, Interval{99, 100}},
-		{Interval{5, 3}, Interval{0, -2}, emptyInterval},
-		{Interval{0, -2}, Interval{5, 3}, emptyInterval},
+		{Interval[float64]{99, 100}, emptyInterval, Interval[float64]{99, 100}},
+		{emptyInterval, Interval[float64]{99, 100}, Interval[float64]{99, 100}},
+		{Interval[float64]{5, 3}, Interval[float64]{0, -2}, emptyInterval},
+		{Interval[float64]{0, -2}, Interval[float64]{5, 3}, emptyInterval},
 		{unit, unit, unit},
-		{unit, negunit, Interval{-1, 1}},
-		{negunit, unit, Interval{-1, 1}},
+		{unit, negunit, Interval[float64]{-1, 1}},
+		{negunit, unit, Interval[float64]{-1, 1}},
 		{half, unit, unit},
 	}
 	for _, test := range tests {
@@ -247,14 +248,14 @@ func TestUnion(t *testing.T) {
 
 func TestIntervalAddPoint(t *testing.T) {
 	tests := []struct {
-		interval Interval
+		interval Interval[float64]
 		point    float64
-		want     Interval
+		want     Interval[float64]
 	}{
-		{emptyInterval, 5, Interval{5, 5}},
-		{Interval{5, 5}, -1, Interval{-1, 5}},
-		{Interval{-1, 5}, 0, Interval{-1, 5}},
-		{Interval{-1, 5}, 6, Interval{-1, 6}},
+		{emptyInterval, 5, Interval[float64]{5, 5}},
+		{Interval[float64]{5, 5}, -1, Interval[float64]{-1, 5}},
+		{Interval[float64]{-1, 5}, 0, Interval[float64]{-1, 5}},
+		{Interval[float64]{-1, 5}, 6, Interval[float64]{-1, 6}},
 	}
 	for _, test := range tests {
 		if got := test.interval.AddPoint(test.point); !got.Equal(test.want) {
@@ -265,13 +266,13 @@ func TestIntervalAddPoint(t *testing.T) {
 
 func TestIntervalClampPoint(t *testing.T) {
 	tests := []struct {
-		interval Interval
+		interval Interval[float64]
 		clamp    float64
 		want     float64
 	}{
-		{Interval{0.1, 0.4}, 0.3, 0.3},
-		{Interval{0.1, 0.4}, -7.0, 0.1},
-		{Interval{0.1, 0.4}, 0.6, 0.4},
+		{Interval[float64]{0.1, 0.4}, 0.3, 0.3},
+		{Interval[float64]{0.1, 0.4}, -7.0, 0.1},
+		{Interval[float64]{0.1, 0.4}, 0.6, 0.4},
 	}
 	for _, test := range tests {
 		if got := test.interval.ClampPoint(test.clamp); got != test.want {
@@ -282,13 +283,13 @@ func TestIntervalClampPoint(t *testing.T) {
 
 func TestExpanded(t *testing.T) {
 	tests := []struct {
-		interval Interval
+		interval Interval[float64]
 		margin   float64
-		want     Interval
+		want     Interval[float64]
 	}{
 		{emptyInterval, 0.45, emptyInterval},
-		{unit, 0.5, Interval{-0.5, 1.5}},
-		{unit, -0.5, Interval{0.5, 0.5}},
+		{unit, 0.5, Interval[float64]{-0.5, 1.5}},
+		{unit, -0.5, Interval[float64]{0.5, 0.5}},
 		{unit, -0.51, emptyInterval},
 	}
 	for _, test := range tests {
@@ -299,8 +300,8 @@ func TestExpanded(t *testing.T) {
 }
 
 func TestIntervalString(t *testing.T) {
-	i := Interval{2, 4.5}
-	if s, exp := i.String(), "[2.0000000, 4.5000000]"; s != exp {
+	i := Interval[float64]{2, 4.5}
+	if s, exp := i.String(), "[2, 4.5]"; s != exp {
 		t.Errorf("i.String() = %q, want %q", s, exp)
 	}
 }
@@ -312,43 +313,46 @@ func TestApproxEqual(t *testing.T) {
 	const hi = 6 * dblEpsilon // > max_error default
 
 	tests := []struct {
-		interval Interval
-		other    Interval
+		interval Interval[float64]
+		other    Interval[float64]
 		want     bool
 	}{
 		// Empty intervals.
-		{EmptyInterval(), EmptyInterval(), true},
-		{Interval{0, 0}, EmptyInterval(), true},
-		{EmptyInterval(), Interval{0, 0}, true},
-		{Interval{1, 1}, EmptyInterval(), true},
-		{EmptyInterval(), Interval{1, 1}, true},
-		{EmptyInterval(), Interval{0, 1}, false},
-		{EmptyInterval(), Interval{1, 1 + 2*lo}, true},
-		{EmptyInterval(), Interval{1, 1 + 2*hi}, false},
+		{EmptyInterval[float64](), EmptyInterval[float64](), true},
+		{Interval[float64]{0, 0}, EmptyInterval[float64](), true},
+		{EmptyInterval[float64](), Interval[float64]{0, 0}, true},
+		{Interval[float64]{1, 1}, EmptyInterval[float64](), true},
+		{EmptyInterval[float64](), Interval[float64]{1, 1}, true},
+		{EmptyInterval[float64](), Interval[float64]{0, 1}, false},
+		{EmptyInterval[float64](), Interval[float64]{1, 1 + 2*lo}, true},
+		{EmptyInterval[float64](), Interval[float64]{1, 1 + 2*hi}, false},
 
 		// Singleton intervals.
-		{Interval{1, 1}, Interval{1, 1}, true},
-		{Interval{1, 1}, Interval{1 - lo, 1 - lo}, true},
-		{Interval{1, 1}, Interval{1 + lo, 1 + lo}, true},
-		{Interval{1, 1}, Interval{1 - hi, 1}, false},
-		{Interval{1, 1}, Interval{1, 1 + hi}, false},
-		{Interval{1, 1}, Interval{1 - lo, 1 + lo}, true},
-		{Interval{0, 0}, Interval{1, 1}, false},
+		{Interval[float64]{1, 1}, Interval[float64]{1, 1}, true},
+		{Interval[float64]{1, 1}, Interval[float64]{1 - lo, 1 - lo}, true},
+		{Interval[float64]{1, 1}, Interval[float64]{1 + lo, 1 + lo}, true},
+		{Interval[float64]{1, 1}, Interval[float64]{1 - hi, 1}, false},
+		{Interval[float64]{1, 1}, Interval[float64]{1, 1 + hi}, false},
+		{Interval[float64]{1, 1}, Interval[float64]{1 - lo, 1 + lo}, true},
+		{Interval[float64]{0, 0}, Interval[float64]{1, 1}, false},
 
 		// Other intervals.
-		{Interval{1 - lo, 2 + lo}, Interval{1, 2}, true},
-		{Interval{1 + lo, 2 - lo}, Interval{1, 2}, true},
+		{Interval[float64]{1 - lo, 2 + lo}, Interval[float64]{1, 2}, true},
+		{Interval[float64]{1 + lo, 2 - lo}, Interval[float64]{1, 2}, true},
 
-		{Interval{1 - hi, 2 + lo}, Interval{1, 2}, false},
-		{Interval{1 + hi, 2 - lo}, Interval{1, 2}, false},
-		{Interval{1 - lo, 2 + hi}, Interval{1, 2}, false},
-		{Interval{1 + lo, 2 - hi}, Interval{1, 2}, false},
+		{Interval[float64]{1 - hi, 2 + lo}, Interval[float64]{1, 2}, false},
+		{Interval[float64]{1 + hi, 2 - lo}, Interval[float64]{1, 2}, false},
+		{Interval[float64]{1 - lo, 2 + hi}, Interval[float64]{1, 2}, false},
+		{Interval[float64]{1 + lo, 2 - hi}, Interval[float64]{1, 2}, false},
 	}
 
 	for d, test := range tests {
-		if got := test.interval.ApproxEqual(test.other); got != test.want {
-			t.Errorf("%d. %v.ApproxEqual(%v) = %t, want %t", d,
-				test.interval, test.other, got, test.want)
-		}
+		t.Run(fmt.Sprintf("case %d", d), func(t *testing.T) {
+			test := test
+			if got := test.interval.ApproxEqual(test.other); got != test.want {
+				t.Errorf("%d. %v.ApproxEqual(%v) = %t, want %t", d,
+					test.interval, test.other, got, test.want)
+			}
+		})
 	}
 }

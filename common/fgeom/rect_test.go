@@ -261,7 +261,7 @@ func TestAddPoint(t *testing.T) {
 }
 
 func TestClampPoint(t *testing.T) {
-	r := Rect{Interval{Lo: 0, Hi: 0.5}, Interval{Lo: 0.25, Hi: 0.75}}
+	r := Rect{Interval[float64]{Lo: 0, Hi: 0.5}, Interval[float64]{Lo: 0.25, Hi: 0.75}}
 	tests := []struct {
 		p    Point
 		want Point

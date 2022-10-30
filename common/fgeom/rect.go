@@ -21,7 +21,7 @@ import (
 
 // Rect represents a closed axis-aligned rectangle in the (x,y) plane.
 type Rect struct {
-	X, Y Interval
+	X, Y Interval[float64]
 }
 
 // RectFromPoints constructs a rect that contains the given points.
@@ -36,8 +36,8 @@ func RectFromPoints(pts ...Point) Rect {
 	}
 
 	r := Rect{
-		X: Interval{Lo: pts[0].X, Hi: pts[0].X},
-		Y: Interval{Lo: pts[0].Y, Hi: pts[0].Y},
+		X: Interval[float64]{Lo: pts[0].X, Hi: pts[0].X},
+		Y: Interval[float64]{Lo: pts[0].Y, Hi: pts[0].Y},
 	}
 
 	for _, p := range pts[1:] {
@@ -50,8 +50,8 @@ func RectFromPoints(pts ...Point) Rect {
 // Both dimensions of size must be non-negative.
 func RectFromCenterSize(center, size Point) Rect {
 	return Rect{
-		Interval{Lo: center.X - size.X/2, Hi: center.X + size.X/2},
-		Interval{Lo: center.Y - size.Y/2, Hi: center.Y + size.Y/2},
+		Interval[float64]{Lo: center.X - size.X/2, Hi: center.X + size.X/2},
+		Interval[float64]{Lo: center.Y - size.Y/2, Hi: center.Y + size.Y/2},
 	}
 }
 
@@ -59,11 +59,11 @@ func RectFromCenterSize(center, size Point) Rect {
 // Both dimensions of size must be non-negative.
 func RectFromPointAndSize(p Point, size Point) Rect {
 	return Rect{
-		X: Interval{
+		X: Interval[float64]{
 			Lo: p.X,
 			Hi: p.X + size.X,
 		},
-		Y: Interval{
+		Y: Interval[float64]{
 			Lo: p.Y,
 			Hi: p.Y + size.Y,
 		},
@@ -74,7 +74,7 @@ func RectFromPointAndSize(p Point, size Point) Rect {
 // for empty rectangles, since they have more than one representation. A Rect{}
 // is not the same as the EmptyRect.
 func EmptyRect() Rect {
-	return Rect{EmptyInterval(), EmptyInterval()}
+	return Rect{EmptyInterval[float64](), EmptyInterval[float64]()}
 }
 
 func (r Rect) ToImageRect() image.Rectangle {
@@ -86,11 +86,11 @@ func (r Rect) ToImageRect() image.Rectangle {
 
 func (r Rect) Move(p Point) Rect {
 	return Rect{
-		X: Interval{
+		X: Interval[float64]{
 			Lo: r.X.Lo + p.X,
 			Hi: r.X.Hi + p.X,
 		},
-		Y: Interval{
+		Y: Interval[float64]{
 			Lo: r.Y.Lo + p.Y,
 			Hi: r.Y.Hi + p.Y,
 		},

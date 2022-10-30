@@ -28,8 +28,8 @@ func main() {
 	}
 
 	cam := camera.NewCamera(fgeom.Rect{
-		X: fgeom.Interval{Lo: cameraMargin, Hi: screenWidth - cameraMargin},
-		Y: fgeom.Interval{Lo: cameraMargin, Hi: screenHeight - cameraMargin},
+		X: fgeom.Interval[float64]{Lo: cameraMargin, Hi: screenWidth - cameraMargin},
+		Y: fgeom.Interval[float64]{Lo: cameraMargin, Hi: screenHeight - cameraMargin},
 	})
 	in := input.NewEbitenInput()
 	tmxExampleState := state.NewTmxExample(mapImage, in, cam, fgeom.Point{

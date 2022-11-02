@@ -270,6 +270,7 @@ func (r *Renderer) HighlightActiveNode() {
 		Lo: float64(r.indexActive.yInterval.Lo)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
 		Hi: float64(r.indexActive.yInterval.Hi+1)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
 	}}
+	// todo color from opts
 	ebiten2.DrawRect(rect, r.image, color.RGBA{R: 0x66, G: 0x99, B: 0xcc, A: 0x25})
 }
 

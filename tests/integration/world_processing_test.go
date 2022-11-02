@@ -80,7 +80,7 @@ func TestWorldProcessorRun_WithObjectiveAndTickLimiter(t *testing.T) {
 
 			ppWpLink := internalapi.NewPpWpLink()
 
-			_, pl := player.NewPlayerWithComponent(delay)
+			_, pl := player.NewPlayerWithComponent(delay, nil)
 			e := wprepo.EntityMask7{
 				Id:       entityId,
 				Position: wpcomponent.NewPosition(startPosition),

@@ -38,9 +38,9 @@ type PredefinedText struct {
 }
 
 type textMeasurements struct {
-	lineHeight float64
-	width      float64
-	ascent     float64
+	lineHeight float64 // letter max height * LineDistanceFactor
+	width      float64 // width of one letter space
+	ascent     float64 // height of Uppercase letter for determining Y offset of letter drawing
 }
 
 type TabOptions struct {
@@ -64,6 +64,10 @@ func NewRenderer(opts Options, topLeft fgeom.Point) *Renderer {
 		tabBodyX:         tabBodyX,
 		tabBodyY:         tabBodyY,
 		topLeft:          topLeft,
+		indexCurrent: &IndexNode{
+			yInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
+			xInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
+		},
 	}
 }
 
@@ -80,12 +84,19 @@ type Renderer struct {
 	tabBodyX         float64
 	tabBodyY         float64
 	topLeft          fgeom.Point
+
+	indexRoot        *IndexNode
+	indexCurrent     *IndexNode
+	indexActive      *IndexNode
+	indexHasSiblings bool
 }
 
 func (r *Renderer) Draw(image *ebiten.Image) {
 	if r.image == nil {
 		r.image = image
 	}
+	r.lineNumber = 0
+	r.offset = 0
 	r.cursorX = r.tabBodyX + r.opts.TabOptions.BodyPadding
 	r.cursorY = r.tabBodyY + r.opts.TabOptions.BodyPadding + r.textMeasurements.ascent
 }
@@ -203,6 +214,8 @@ func (r *Renderer) DrawIfEnd() {
 func (r *Renderer) NewLine() {
 	r.cursorX = r.tabBodyX + float64(r.currIndent*r.opts.IndentWidth)*r.textMeasurements.width + r.opts.TabOptions.BodyPadding
 	r.cursorY = r.cursorY + r.textMeasurements.lineHeight
+	r.lineNumber++
+	r.offset = r.currIndent * r.opts.IndentWidth
 }
 
 func (r *Renderer) IndentIncrease() {
@@ -224,6 +237,7 @@ func (r *Renderer) DrawText(str string, t ast.TextType) {
 
 func (r *Renderer) AdvanceCursor(num int) {
 	r.cursorX = r.cursorX + float64(num)*r.textMeasurements.width
+	r.offset = r.offset + num
 }
 
 func measureFont(f font.Face, lineDistanceFactor float64) textMeasurements {
@@ -246,4 +260,69 @@ func (r *Renderer) getColorForType(t ast.TextType) color.Color {
 		return c
 	}
 	return r.opts.DefaultColor
+}
+
+func (r *Renderer) HighlightActiveNode() {
+	rect := fgeom.Rect{X: fgeom.Interval[float64]{
+		Lo: float64(r.indexActive.xInterval.Lo)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding,
+		Hi: float64(r.indexActive.xInterval.Hi)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding,
+	}, Y: fgeom.Interval[float64]{
+		Lo: float64(r.indexActive.yInterval.Lo)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
+		Hi: float64(r.indexActive.yInterval.Hi+1)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
+	}}
+	ebiten2.DrawRect(rect, r.image, color.RGBA{R: 0x66, G: 0x99, B: 0xcc, A: 0x25})
+}
+
+type IndexNode struct {
+	node       ast.DrawableNode
+	yInterval  fgeom.Interval[int]
+	xInterval  fgeom.Interval[int]
+	firstChild *IndexNode
+	next       *IndexNode
+	parent     *IndexNode
+}
+
+func (r *Renderer) StartContainerNode() {
+	r.indexHasSiblings = false
+}
+
+func (r *Renderer) EndContainerNode() {
+	r.indexHasSiblings = true
+	r.indexCurrent = r.indexCurrent.parent
+}
+
+func (r *Renderer) StartSiblingNode(n ast.DrawableNode) func() {
+	indexNode := &IndexNode{
+		node:      n,
+		yInterval: fgeom.Interval[int]{Lo: r.lineNumber},
+		xInterval: fgeom.Interval[int]{Lo: r.offset},
+	}
+
+	if n.ID() == 123 {
+		r.indexActive = indexNode
+	}
+
+	if r.indexHasSiblings {
+		r.indexCurrent.next = indexNode
+		indexNode.parent = r.indexCurrent.parent
+	} else {
+		r.indexCurrent.firstChild = indexNode
+		indexNode.parent = r.indexCurrent
+		r.indexHasSiblings = true
+	}
+
+	r.indexCurrent = indexNode
+	return func() {
+		indexNode.yInterval.Hi = r.lineNumber
+		updateXHiIfGraterRecursive(r.offset, indexNode)
+	}
+}
+
+func updateXHiIfGraterRecursive(x int, n *IndexNode) {
+	if x > n.xInterval.Hi {
+		n.xInterval.Hi = x
+	}
+	if n.parent != nil {
+		updateXHiIfGraterRecursive(x, n.parent)
+	}
 }

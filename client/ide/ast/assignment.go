@@ -22,6 +22,8 @@ func (a *Assignment) ID() int64            { return a.id }
 func (a *Assignment) NodeKey() ast.NodeKey { return ast.KeyAssignment }
 
 func (a *Assignment) Draw(r Renderer) {
+	endFunc := r.StartSiblingNode(a)
+	r.StartContainerNode()
 	count := len(a.left)
 	for i, identifier := range a.left {
 		identifier.Draw(r)
@@ -31,4 +33,5 @@ func (a *Assignment) Draw(r Renderer) {
 	}
 	r.DrawAssignment()
 	a.value.Draw(r)
+	endFunc()
 }

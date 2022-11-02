@@ -20,6 +20,7 @@ func (sb *StatementsBlock) ID() int64            { return sb.id }
 func (sb *StatementsBlock) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
 func (sb *StatementsBlock) Draw(r Renderer) {
+	r.StartContainerNode()
 	for i, statement := range sb.statements {
 		statement.Draw(r)
 
@@ -28,4 +29,5 @@ func (sb *StatementsBlock) Draw(r Renderer) {
 			r.NewLine()
 		}
 	}
+	r.EndContainerNode()
 }

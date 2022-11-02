@@ -22,5 +22,7 @@ func (n *NumInt) ID() int64            { return n.id }
 func (n *NumInt) NodeKey() ast.NodeKey { return ast.KeyNumInt }
 
 func (n *NumInt) Draw(r Renderer) {
+	endFunc := r.StartSiblingNode(n)
 	r.DrawText(strconv.FormatInt(n.value, 10), TypeNumbers)
+	endFunc()
 }

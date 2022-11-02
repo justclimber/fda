@@ -45,4 +45,7 @@ type Renderer interface {
 	DrawIfMid()
 	DrawIfElse()
 	DrawIfEnd()
+	StartSiblingNode(n DrawableNode) func()
+	StartContainerNode()
+	EndContainerNode()
 }

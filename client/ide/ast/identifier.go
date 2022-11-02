@@ -20,5 +20,7 @@ func (i *Identifier) ID() int64            { return i.id }
 func (i *Identifier) NodeKey() ast.NodeKey { return ast.KeyIdentifier }
 
 func (i *Identifier) Draw(r Renderer) {
+	endFunc := r.StartSiblingNode(i)
 	r.DrawText(i.name, TypeIdentifier)
+	endFunc()
 }

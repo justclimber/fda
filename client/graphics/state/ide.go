@@ -29,6 +29,7 @@ func NewIDEState() *IDEState {
 func (is *IDEState) Draw(screen *ebiten.Image) {
 	is.ideRenderer.Draw(screen)
 	is.ideObj.Render(is.ideRenderer)
+	is.ideRenderer.HighlightActiveNode()
 }
 
 func (is *IDEState) Update() (graphics.ScreenState, error) {
@@ -50,7 +51,7 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	assignment1 := ast.NewAssignment(0, []*ast.Identifier{identifier1, identifier2}, expr1)
 	assignment2 := ast.NewAssignment(0, []*ast.Identifier{identifier2}, expr2)
 	ifStatement := ast.NewIfStatement(
-		0,
+		123,
 		ast.NewNumInt(0, 333),
 		ast.NewStatementsBlock(0, []ast.Stmt{assignment1}),
 		ast.NewStatementsBlock(0, []ast.Stmt{assignment2}),

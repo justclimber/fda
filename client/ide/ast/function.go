@@ -23,7 +23,9 @@ func (f *Function) ID() int64            { return f.id }
 func (f *Function) NodeKey() ast.NodeKey { return ast.KeyFunction }
 
 func (f *Function) Draw(r Renderer) {
+	endFunc := r.StartSiblingNode(f)
 	r.DrawFuncHeader(f.definition)
 	f.body.Draw(r)
 	r.DrawFuncBottom()
+	endFunc()
 }

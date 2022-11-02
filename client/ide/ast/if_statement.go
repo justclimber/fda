@@ -24,8 +24,11 @@ func (is *IfStatement) ID() int64            { return is.id }
 func (is *IfStatement) NodeKey() ast.NodeKey { return ast.KeyIfStatement }
 
 func (is *IfStatement) Draw(r Renderer) {
+	endNodeFunc := r.StartSiblingNode(is)
 	r.DrawIfStart()
+	r.StartContainerNode()
 	is.condition.Draw(r)
+	r.EndContainerNode()
 	r.DrawIfMid()
 	is.trueBranch.Draw(r)
 	if is.falseBranch != nil {
@@ -33,4 +36,5 @@ func (is *IfStatement) Draw(r Renderer) {
 		is.falseBranch.Draw(r)
 	}
 	r.DrawIfEnd()
+	endNodeFunc()
 }

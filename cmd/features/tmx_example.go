@@ -8,7 +8,7 @@ import (
 	"github.com/justclimber/fda/client/assets"
 	"github.com/justclimber/fda/client/graphics"
 	"github.com/justclimber/fda/client/graphics/camera"
-	"github.com/justclimber/fda/client/graphics/input"
+	"github.com/justclimber/fda/client/graphics/ebiteninput"
 	"github.com/justclimber/fda/client/graphics/state"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/ftmx"
@@ -31,7 +31,7 @@ func main() {
 		X: fgeom.Interval[float64]{Lo: cameraMargin, Hi: screenWidth - cameraMargin},
 		Y: fgeom.Interval[float64]{Lo: cameraMargin, Hi: screenHeight - cameraMargin},
 	})
-	in := input.NewEbitenInput()
+	in := ebiteninput.NewEbitenInput()
 	tmxExampleState := state.NewTmxExample(mapImage, in, cam, fgeom.Point{
 		X: cameraMargin,
 		Y: cameraMargin,

@@ -16,7 +16,7 @@ func NewIDE(program *program.Program, tabs []*Tab, currentTabIndex int) *IDE {
 	return &IDE{program: program, tabs: tabs, currentTabIndex: currentTabIndex}
 }
 
-func (id *IDE) Render(r ast.Renderer) {
+func (id *IDE) Draw(r ast.Renderer) {
 	// current tab . render
 	r.DrawHeaderTab()
 	offset := 0.

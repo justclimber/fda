@@ -8,6 +8,7 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/justclimber/fda/client/graphics"
+	"github.com/justclimber/fda/client/graphics/ebiteninput"
 	iderenderer "github.com/justclimber/fda/client/graphics/ide"
 	"github.com/justclimber/fda/client/graphics/ui/font"
 	"github.com/justclimber/fda/client/ide"
@@ -28,11 +29,12 @@ func NewIDEState() *IDEState {
 
 func (is *IDEState) Draw(screen *ebiten.Image) {
 	is.ideRenderer.Draw(screen)
-	is.ideObj.Render(is.ideRenderer)
-	is.ideRenderer.HighlightActiveNode()
+	is.ideRenderer.HighlightActiveNode(screen)
+	is.ideRenderer.DebugPrintIndex(screen)
 }
 
 func (is *IDEState) Update() (graphics.ScreenState, error) {
+	is.ideRenderer.HandleUserInput()
 	return nil, nil
 }
 
@@ -96,7 +98,9 @@ func (is *IDEState) Setup(assets embed.FS) error {
 			BodyBackgroundColor:   color.RGBA{R: 35, G: 35, B: 35, A: 0xff},
 			TabColor:              color.RGBA{R: 35, G: 35, B: 35, A: 0xff},
 		},
-	}, fgeom.Point{X: 5, Y: 5})
+	}, fgeom.Point{X: 5, Y: 5}, ebiteninput.NewEbitenInput())
+
+	is.ideObj.Draw(is.ideRenderer)
 
 	return nil
 }

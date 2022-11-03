@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/justclimber/fda/common/lang/ast"
 )
 
@@ -19,10 +21,11 @@ type StatementsBlock struct {
 func (sb *StatementsBlock) ID() int64            { return sb.id }
 func (sb *StatementsBlock) NodeKey() ast.NodeKey { return ast.KeyStatementsBlock }
 
-func (sb *StatementsBlock) Draw(r Renderer) {
+func (sb *StatementsBlock) Draw(r Renderer, slug string) {
+	endNodeFunc := r.StartSiblingNode(sb, slug)
 	r.StartContainerNode()
 	for i, statement := range sb.statements {
-		statement.Draw(r)
+		statement.Draw(r, fmt.Sprintf("%s stmt_%d", slug, i))
 
 		// don't make a new line for last statement because of closing bracket and decreased indent
 		if i != len(sb.statements)-1 {
@@ -30,4 +33,5 @@ func (sb *StatementsBlock) Draw(r Renderer) {
 		}
 	}
 	r.EndContainerNode()
+	endNodeFunc()
 }

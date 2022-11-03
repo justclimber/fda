@@ -7,7 +7,7 @@ import (
 
 type DrawableNode interface {
 	ast.Node
-	Draw(r Renderer)
+	Draw(r Renderer, slug string)
 }
 
 type Stmt interface {
@@ -45,7 +45,7 @@ type Renderer interface {
 	DrawIfMid()
 	DrawIfElse()
 	DrawIfEnd()
-	StartSiblingNode(n DrawableNode) func()
+	StartSiblingNode(n DrawableNode, slug string) func()
 	StartContainerNode()
 	EndContainerNode()
 }

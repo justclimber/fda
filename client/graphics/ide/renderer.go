@@ -1,14 +1,19 @@
 package ide
 
 import (
+	"fmt"
 	"image/color"
+	"reflect"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
 	ebiten2 "github.com/justclimber/fda/client/graphics/ebiten"
+	"github.com/justclimber/fda/client/graphics/input"
 	"github.com/justclimber/fda/client/ide/ast"
 	"github.com/justclimber/fda/common/fgeom"
 	"github.com/justclimber/fda/common/lang/executor/object"
@@ -53,28 +58,38 @@ type TabOptions struct {
 	BodyBackgroundColor   color.Color
 }
 
-func NewRenderer(opts Options, topLeft fgeom.Point) *Renderer {
+func NewRenderer(opts Options, topLeft fgeom.Point, input input.Input) *Renderer {
 	m := measureFont(opts.Face, opts.LineDistanceFactor)
 	tabBodyX := topLeft.X
 	tabBodyY := topLeft.Y + 2*float64(opts.TabOptions.HeaderPadding) + m.lineHeight
-	return &Renderer{
+	current := &IndexNode{
+		slug:      "package",
+		yInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
+		xInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
+	}
+	r := &Renderer{
 		opts:             opts,
 		textMeasurements: m,
+		image:            ebiten.NewImage(600, 600), // todo get from options
 		imageOptions:     &ebiten.DrawImageOptions{},
 		tabBodyX:         tabBodyX,
 		tabBodyY:         tabBodyY,
 		topLeft:          topLeft,
-		indexCurrent: &IndexNode{
-			yInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
-			xInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
-		},
+		indexCurrent:     current,
+		indexRoot:        current,
+		indexActive:      current,
+		userInput:        input,
 	}
+	r.cursorX = r.tabBodyX + r.opts.TabOptions.BodyPadding
+	r.cursorY = r.tabBodyY + r.opts.TabOptions.BodyPadding + r.textMeasurements.ascent
+	return r
 }
 
 type Renderer struct {
 	opts             Options
 	image            *ebiten.Image
 	imageOptions     *ebiten.DrawImageOptions
+	userInput        input.Input
 	textMeasurements textMeasurements
 	currIndent       int
 	offset           int
@@ -92,13 +107,7 @@ type Renderer struct {
 }
 
 func (r *Renderer) Draw(image *ebiten.Image) {
-	if r.image == nil {
-		r.image = image
-	}
-	r.lineNumber = 0
-	r.offset = 0
-	r.cursorX = r.tabBodyX + r.opts.TabOptions.BodyPadding
-	r.cursorY = r.tabBodyY + r.opts.TabOptions.BodyPadding + r.textMeasurements.ascent
+	image.DrawImage(r.image, &ebiten.DrawImageOptions{})
 }
 
 func (r *Renderer) DrawHeaderTab() {
@@ -262,7 +271,7 @@ func (r *Renderer) getColorForType(t ast.TextType) color.Color {
 	return r.opts.DefaultColor
 }
 
-func (r *Renderer) HighlightActiveNode() {
+func (r *Renderer) HighlightActiveNode(screen *ebiten.Image) {
 	rect := fgeom.Rect{X: fgeom.Interval[float64]{
 		Lo: float64(r.indexActive.xInterval.Lo)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding,
 		Hi: float64(r.indexActive.xInterval.Hi)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding,
@@ -271,11 +280,12 @@ func (r *Renderer) HighlightActiveNode() {
 		Hi: float64(r.indexActive.yInterval.Hi+1)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
 	}}
 	// todo color from opts
-	ebiten2.DrawRect(rect, r.image, color.RGBA{R: 0x66, G: 0x99, B: 0xcc, A: 0x25})
+	ebiten2.DrawRect(rect, screen, color.RGBA{R: 0x66, G: 0x99, B: 0xcc, A: 0x25})
 }
 
 type IndexNode struct {
 	node       ast.DrawableNode
+	slug       string
 	yInterval  fgeom.Interval[int]
 	xInterval  fgeom.Interval[int]
 	firstChild *IndexNode
@@ -290,17 +300,22 @@ func (r *Renderer) StartContainerNode() {
 func (r *Renderer) EndContainerNode() {
 	r.indexHasSiblings = true
 	r.indexCurrent = r.indexCurrent.parent
+	r.goNextToEndForCurrent()
 }
 
-func (r *Renderer) StartSiblingNode(n ast.DrawableNode) func() {
+func (r *Renderer) goNextToEndForCurrent() {
+	if r.indexCurrent.next != nil {
+		r.indexCurrent = r.indexCurrent.next
+		r.goNextToEndForCurrent()
+	}
+}
+
+func (r *Renderer) StartSiblingNode(n ast.DrawableNode, slug string) func() {
 	indexNode := &IndexNode{
 		node:      n,
+		slug:      slug,
 		yInterval: fgeom.Interval[int]{Lo: r.lineNumber},
 		xInterval: fgeom.Interval[int]{Lo: r.offset},
-	}
-
-	if n.ID() == 123 {
-		r.indexActive = indexNode
 	}
 
 	if r.indexHasSiblings {
@@ -326,4 +341,54 @@ func updateXHiIfGraterRecursive(x int, n *IndexNode) {
 	if n.parent != nil {
 		updateXHiIfGraterRecursive(x, n.parent)
 	}
+}
+
+func (r *Renderer) HandleUserInput() {
+	switch r.userInput.WhichControlArrowsPressed() {
+	case input.ControlArrowDown:
+		if r.indexActive != nil && r.indexActive.firstChild != nil {
+			r.indexActive = r.indexActive.firstChild
+		}
+	case input.ControlArrowRight:
+		if r.indexActive != nil && r.indexActive.next != nil {
+			r.indexActive = r.indexActive.next
+		}
+	case input.ControlArrowUp:
+		if r.indexActive != nil && r.indexActive.parent != nil {
+			r.indexActive = r.indexActive.parent
+		}
+	}
+}
+
+func (r *Renderer) DebugPrintIndex(screen *ebiten.Image) {
+	str := r.sprintfNode(r.indexRoot, 3)
+	ebitenutil.DebugPrintAt(screen, str, 500, 10)
+}
+
+func (r *Renderer) sprintfNode(n *IndexNode, indent int) string {
+	var children, siblings, indentStr string
+	if n.firstChild != nil {
+		children = r.sprintfNode(n.firstChild, indent+1)
+	}
+	if n.next != nil {
+		siblings = r.sprintfNode(n.next, indent)
+	}
+	result := n.slug
+	if r.indexActive == n {
+		result = "[x] " + result
+		indentStr = strings.Repeat(" ", (indent-1)*3)
+	} else {
+		indentStr = strings.Repeat(" ", indent*3)
+	}
+	if n.node != nil {
+		result = result + ": " + reflect.TypeOf(n.node).String()
+	}
+	result = indentStr + result
+	if len(children) != 0 {
+		result = fmt.Sprintf("%s\n%s", result, children)
+	}
+	if len(siblings) != 0 {
+		result = fmt.Sprintf("%s\n%s", result, siblings)
+	}
+	return result
 }

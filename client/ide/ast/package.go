@@ -33,9 +33,9 @@ func (p *Package) RegisterFunction(f *Function) error {
 	return nil
 }
 
-func (p *Package) Draw(r Renderer) {
+func (p *Package) Draw(r Renderer, slug string) {
 	r.DrawPackageHeader(p.Name)
 	for _, function := range p.functionsOrdered {
-		function.Draw(r)
+		function.Draw(r, function.definition.Name)
 	}
 }

@@ -21,8 +21,8 @@ type NumInt struct {
 func (n *NumInt) ID() int64            { return n.id }
 func (n *NumInt) NodeKey() ast.NodeKey { return ast.KeyNumInt }
 
-func (n *NumInt) Draw(r Renderer) {
-	endFunc := r.StartSiblingNode(n)
+func (n *NumInt) Draw(r Renderer, slug string) {
+	endFunc := r.StartSiblingNode(n, slug)
 	r.DrawText(strconv.FormatInt(n.value, 10), TypeNumbers)
 	endFunc()
 }

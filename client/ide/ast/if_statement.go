@@ -23,17 +23,17 @@ type IfStatement struct {
 func (is *IfStatement) ID() int64            { return is.id }
 func (is *IfStatement) NodeKey() ast.NodeKey { return ast.KeyIfStatement }
 
-func (is *IfStatement) Draw(r Renderer) {
-	endNodeFunc := r.StartSiblingNode(is)
+func (is *IfStatement) Draw(r Renderer, _ string) {
+	endNodeFunc := r.StartSiblingNode(is, "if")
 	r.DrawIfStart()
 	r.StartContainerNode()
-	is.condition.Draw(r)
+	is.condition.Draw(r, "condition")
 	r.EndContainerNode()
 	r.DrawIfMid()
-	is.trueBranch.Draw(r)
+	is.trueBranch.Draw(r, "true branch")
 	if is.falseBranch != nil {
 		r.DrawIfElse()
-		is.falseBranch.Draw(r)
+		is.falseBranch.Draw(r, "else branch")
 	}
 	r.DrawIfEnd()
 	endNodeFunc()

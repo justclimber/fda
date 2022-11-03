@@ -22,10 +22,10 @@ type Function struct {
 func (f *Function) ID() int64            { return f.id }
 func (f *Function) NodeKey() ast.NodeKey { return ast.KeyFunction }
 
-func (f *Function) Draw(r Renderer) {
-	endFunc := r.StartSiblingNode(f)
+func (f *Function) Draw(r Renderer, slug string) {
+	endFunc := r.StartSiblingNode(f, slug)
 	r.DrawFuncHeader(f.definition)
-	f.body.Draw(r)
+	f.body.Draw(r, "function body")
 	r.DrawFuncBottom()
 	endFunc()
 }

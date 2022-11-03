@@ -25,10 +25,9 @@ func (is *IfStatement) NodeKey() ast.NodeKey { return ast.KeyIfStatement }
 
 func (is *IfStatement) Draw(r Renderer, _ string) {
 	endNodeFunc := r.StartSiblingNode(is, "if")
-	r.DrawIfStart()
 	r.StartContainerNode()
+	r.DrawIfStart()
 	is.condition.Draw(r, "condition")
-	r.EndContainerNode()
 	r.DrawIfMid()
 	is.trueBranch.Draw(r, "true branch")
 	if is.falseBranch != nil {
@@ -37,4 +36,5 @@ func (is *IfStatement) Draw(r Renderer, _ string) {
 	}
 	r.DrawIfEnd()
 	endNodeFunc()
+	r.EndContainerNode()
 }

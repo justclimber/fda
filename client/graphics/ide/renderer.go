@@ -290,6 +290,7 @@ type IndexNode struct {
 	xInterval  fgeom.Interval[int]
 	firstChild *IndexNode
 	next       *IndexNode
+	prev       *IndexNode
 	parent     *IndexNode
 }
 
@@ -311,7 +312,7 @@ func (r *Renderer) goNextToEndForCurrent() {
 }
 
 func (r *Renderer) StartSiblingNode(n ast.DrawableNode, slug string) func() {
-	indexNode := &IndexNode{
+	newNode := &IndexNode{
 		node:      n,
 		slug:      slug,
 		yInterval: fgeom.Interval[int]{Lo: r.lineNumber},
@@ -319,18 +320,19 @@ func (r *Renderer) StartSiblingNode(n ast.DrawableNode, slug string) func() {
 	}
 
 	if r.indexHasSiblings {
-		r.indexCurrent.next = indexNode
-		indexNode.parent = r.indexCurrent.parent
+		r.indexCurrent.next = newNode
+		newNode.parent = r.indexCurrent.parent
+		newNode.prev = r.indexCurrent
 	} else {
-		r.indexCurrent.firstChild = indexNode
-		indexNode.parent = r.indexCurrent
+		r.indexCurrent.firstChild = newNode
+		newNode.parent = r.indexCurrent
 		r.indexHasSiblings = true
 	}
 
-	r.indexCurrent = indexNode
+	r.indexCurrent = newNode
 	return func() {
-		indexNode.yInterval.Hi = r.lineNumber
-		updateXHiIfGraterRecursive(r.offset, indexNode)
+		newNode.yInterval.Hi = r.lineNumber
+		updateXHiIfGraterRecursive(r.offset, newNode)
 	}
 }
 
@@ -344,17 +346,32 @@ func updateXHiIfGraterRecursive(x int, n *IndexNode) {
 }
 
 func (r *Renderer) HandleUserInput() {
-	switch r.userInput.WhichControlArrowsPressed() {
+	if r.indexActive == nil {
+		r.indexActive = r.indexRoot
+	}
+	r.nodeNavigationByControls(r.userInput.WhichControlArrowsPressed())
+}
+
+func (r *Renderer) nodeNavigationByControls(ctrl input.ControlArrow) {
+	switch ctrl {
 	case input.ControlArrowDown:
-		if r.indexActive != nil && r.indexActive.firstChild != nil {
+		if r.indexActive.firstChild != nil {
 			r.indexActive = r.indexActive.firstChild
 		}
 	case input.ControlArrowRight:
-		if r.indexActive != nil && r.indexActive.next != nil {
+		if r.indexActive.next != nil {
 			r.indexActive = r.indexActive.next
+		} else if r.indexActive.firstChild != nil {
+			r.nodeNavigationByControls(input.ControlArrowDown)
+		}
+	case input.ControlArrowLeft:
+		if r.indexActive.prev != nil {
+			r.indexActive = r.indexActive.prev
+		} else if r.indexActive.parent != nil {
+			r.nodeNavigationByControls(input.ControlArrowUp)
 		}
 	case input.ControlArrowUp:
-		if r.indexActive != nil && r.indexActive.parent != nil {
+		if r.indexActive.parent != nil {
 			r.indexActive = r.indexActive.parent
 		}
 	}

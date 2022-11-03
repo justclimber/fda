@@ -393,7 +393,7 @@ func (r *Renderer) sprintfNode(n *IndexNode, indent int) string {
 	result := n.slug
 	if r.indexActive == n {
 		result = "[x] " + result
-		indentStr = strings.Repeat(" ", (indent-1)*3)
+		indentStr = strings.Repeat(" ", indent*3-4)
 	} else {
 		indentStr = strings.Repeat(" ", indent*3)
 	}

@@ -273,11 +273,11 @@ func (r *Renderer) getColorForType(t ast.TextType) color.Color {
 
 func (r *Renderer) HighlightActiveNode(screen *ebiten.Image) {
 	rect := fgeom.Rect{X: fgeom.Interval[float64]{
-		Lo: float64(r.indexActive.xInterval.Lo)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding,
-		Hi: float64(r.indexActive.xInterval.Hi)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding,
+		Lo: float64(r.indexActive.xInterval.Lo)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding - 3,
+		Hi: float64(r.indexActive.xInterval.Hi)*r.textMeasurements.width + r.tabBodyX + r.opts.TabOptions.BodyPadding + 4,
 	}, Y: fgeom.Interval[float64]{
-		Lo: float64(r.indexActive.yInterval.Lo)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
-		Hi: float64(r.indexActive.yInterval.Hi+1)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding,
+		Lo: float64(r.indexActive.yInterval.Lo)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding - 5,
+		Hi: float64(r.indexActive.yInterval.Hi+1)*r.textMeasurements.lineHeight + r.tabBodyY + r.opts.TabOptions.BodyPadding - 2,
 	}}
 	// todo color from opts
 	ebiten2.DrawRect(rect, screen, color.RGBA{R: 0x66, G: 0x99, B: 0xcc, A: 0x25})

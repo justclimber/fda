@@ -48,8 +48,10 @@ func (is *IDEState) Setup(assets embed.FS) error {
 	funcDefinition := object.NewFunctionDefinition("testFunc", packageName, nil, nil)
 	identifier1 := ast.NewIdentifier(0, "testVar1")
 	identifier2 := ast.NewIdentifier(0, "testVar21")
+	identifier3 := ast.NewIdentifier(0, "testVar3")
 	expr1 := ast.NewNumInt(0, 124)
 	expr2 := ast.NewNumInt(0, 100000)
+	expr3 := ast.NewNumInt(0, 100)
 	assignment1 := ast.NewAssignment(0, []*ast.Identifier{identifier1, identifier2}, expr1)
 	assignment2 := ast.NewAssignment(0, []*ast.Identifier{identifier2}, expr2)
 	ifStatement := ast.NewIfStatement(
@@ -58,7 +60,8 @@ func (is *IDEState) Setup(assets embed.FS) error {
 		ast.NewStatementsBlock(0, []ast.Stmt{assignment1}),
 		ast.NewStatementsBlock(0, []ast.Stmt{assignment2}),
 	)
-	funcBody := ast.NewStatementsBlock(0, []ast.Stmt{ifStatement})
+	assignment3 := ast.NewAssignment(0, []*ast.Identifier{identifier3}, expr3)
+	funcBody := ast.NewStatementsBlock(0, []ast.Stmt{ifStatement, assignment3})
 	function := ast.NewFunction(0, funcDefinition, funcBody)
 	pkg := ast.NewPackage(0, packageName)
 	_ = pkg.RegisterFunction(function)

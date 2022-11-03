@@ -297,14 +297,6 @@ func (r *Renderer) StartContainerNode() {
 func (r *Renderer) EndContainerNode() {
 	r.indexHasSiblings = true
 	r.indexCurrent = r.indexCurrent.parent
-	r.goNextToEndForCurrent()
-}
-
-func (r *Renderer) goNextToEndForCurrent() {
-	if r.indexCurrent.next != nil {
-		r.indexCurrent = r.indexCurrent.next
-		r.goNextToEndForCurrent()
-	}
 }
 
 func (r *Renderer) StartSiblingNode(n ast.DrawableNode, slug string) func() {

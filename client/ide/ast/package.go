@@ -34,8 +34,12 @@ func (p *Package) RegisterFunction(f *Function) error {
 }
 
 func (p *Package) Draw(r Renderer, slug string) {
+	endNodeFunc := r.StartSiblingNode(p, "package")
+	r.StartContainerNode()
 	r.DrawPackageHeader(p.Name)
 	for _, function := range p.functionsOrdered {
 		function.Draw(r, function.definition.Name)
 	}
+	endNodeFunc()
+	r.EndContainerNode()
 }

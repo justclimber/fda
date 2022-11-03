@@ -62,11 +62,7 @@ func NewRenderer(opts Options, topLeft fgeom.Point, input input.Input) *Renderer
 	m := measureFont(opts.Face, opts.LineDistanceFactor)
 	tabBodyX := topLeft.X
 	tabBodyY := topLeft.Y + 2*float64(opts.TabOptions.HeaderPadding) + m.lineHeight
-	current := &IndexNode{
-		slug:      "package",
-		yInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
-		xInterval: fgeom.Interval[int]{Lo: 0, Hi: 0},
-	}
+	current := &IndexNode{slug: "root"}
 	r := &Renderer{
 		opts:             opts,
 		textMeasurements: m,
